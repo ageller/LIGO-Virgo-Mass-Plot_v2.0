@@ -1,0 +1,28 @@
+:root {
+	--plot-text-color: #808080;
+	--plot-background-color: #000000;
+	--body-background-color: #000000;
+}
+
+
+html,body {
+	font: 12px sans-serif;
+	font-family: sans-serif;
+	padding:0;
+	margin:0;
+	background-color :  var(--body-background-color);
+	overflow: hidden;
+	color: #FFFFFF;
+	height:100%;
+}
+
+.axisLabel{
+	fill:var(--plot-text-color);
+	font-size:50px;
+}
+
+.axis{
+	stroke:var(--plot-text-color);
+	color:var(--plot-text-color);
+	font-size:28px;
+}
