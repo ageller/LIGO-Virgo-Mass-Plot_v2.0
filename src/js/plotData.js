@@ -31,7 +31,7 @@ function createPlot(){
 		.scale(params.yAxisScale)
 		.tickSize(-(params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right))
 		.tickFormat(d3.format("d"))
-		.tickValues([1,2,5,10,20,40,80,160]);
+		.tickValues([1,2,5,10,20,50,100,160]);
 
 	params.svg.append("g")
 		.attr("class", "axis yaxis")
@@ -60,7 +60,7 @@ function populatePlot(){
 //add the data to the plot
 	console.log('populating plot ...');
 	var xNorm = (params.data.length+1)
-	
+
 	//add all the dots for final masses
 	params.svg.selectAll(".dot.mf")
 		.data(params.data).enter()
