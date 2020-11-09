@@ -57,12 +57,14 @@ function compileData(){
 	};
 
 	//now only take those for the final data product
+	//if I use random numbers, I probably want to set my own seed value (which would probably mean writing my own function)
 	var num = 0;
 	for (var i=0; i<useEvents.id.length; i+=1){
 		e = useEvents.name[i];
 		if (toRemove.indexOf(i) == -1){
 			var dat = params.inputGWdata.events[e]
 			dat.index = num+1;
+			dat.random = (1. - Math.random()*0.5)*(Math.round(Math.random())*2 - 1); //random number between 0.5 and 1, with either signe
 			params.data.push(dat);
 			if (params.inputGWdata.events[e].final_mass_source == null){
 				console.log("check",params.inputGWdata.events[e])

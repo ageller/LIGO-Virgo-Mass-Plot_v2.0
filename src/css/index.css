@@ -26,3 +26,7 @@ html,body {
 	color:var(--plot-text-color);
 	font-size:28px;
 }
+
+.inFront{
+	z-index:100;
+}
