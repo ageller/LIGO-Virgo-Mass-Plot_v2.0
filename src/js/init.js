@@ -1,6 +1,8 @@
 //attach resize event
 window.addEventListener("resize", resizePlot);
 
+//attach event to move tooltip
+window.addEventListener('mousemove', moveTooltip);
 
 //first, read in the data file
 d3.json("src/data/GWOSCdata.json").then(function(data){ 

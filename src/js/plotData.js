@@ -98,17 +98,22 @@ function drawArrow(pts){
 	return context + "";
 };
 
+
+
 function mouseOver(){
 	var name = d3.select(this).attr('class').split(" ")[0];
 	d3.selectAll('.arrow.'+name).transition().duration(200).style("opacity",1)
 	d3.selectAll('.dot.'+name).transition().duration(200).style("fill-opacity",1)
 	d3.selectAll('.'+name).classed("inFront",true);
+	formatTooltip(name);
+	d3.select('#tooltip').transition().duration(200).style("opacity",1);
 }
 function mouseOut(){
 	var name = d3.select(this).attr('class').split(" ")[0];
 	d3.selectAll('.arrow.'+name).transition().duration(200).style("opacity",params.opArrow)
 	d3.selectAll('.dot.'+name).transition().duration(200).style("fill-opacity",params.opMass)
 	d3.selectAll('.'+name).classed("inFront",false);
+	d3.select('#tooltip').transition().duration(200).style("opacity",0);
 }
 
 function populatePlot(){
@@ -152,7 +157,7 @@ function populatePlot(){
 			.attr('fill', 'white')	
 			//.attr('fill', 'none')	
 			.style("opacity",0.5)
-			.style("cursor", "pointer")
+			.style("cursor", "arrow")
 			.attr("d", path.toString())
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut)
@@ -160,7 +165,7 @@ function populatePlot(){
 	}	
 
 
-	//add all the dots for all the masses
+	//add all the circles for all the masses
 	var co = '#00BFFF'
 	params.SVG.selectAll(".dot.mf")
 		.data(params.data).enter().filter(function(d) { return d.final_mass_source != null })
@@ -174,7 +179,7 @@ function populatePlot(){
 			.style("stroke", co)
 			.style("stroke-opacity", 1)
 			.style("stroke-width", 2)
-			.style("cursor", "pointer")
+			.style("cursor", "arrow")
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut);
 
@@ -190,7 +195,7 @@ function populatePlot(){
 			.style("stroke", co)
 			.style("stroke-opacity", 1)
 			.style("stroke-width", 2)
-			.style("cursor", "pointer")
+			.style("cursor", "arrow")
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut);
 
@@ -206,7 +211,7 @@ function populatePlot(){
 			.style("stroke", co)
 			.style("stroke-opacity", 1)
 			.style("stroke-width", 2)
-			.style("cursor", "pointer")
+			.style("cursor", "arrow")
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut);
 
@@ -223,7 +228,7 @@ function populatePlot(){
 			.style("stroke", co)
 			.style("stroke-opacity", 1)
 			.style("stroke-width", 2)
-			.style("cursor", "pointer")
+			.style("cursor", "arrow")
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut)
 
@@ -237,7 +242,7 @@ function populatePlot(){
 			.style('font-family',"sans-serif")
 			.style('font-size',1.5*params.radiusScale(+d.total_mass_source)+"px")
 			.style("text-anchor", "middle")
-			.style("cursor", "pointer")
+			.style("cursor", "arrow")
 			.text("?")
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut)
