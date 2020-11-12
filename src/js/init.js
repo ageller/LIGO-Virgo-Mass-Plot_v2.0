@@ -65,18 +65,33 @@ function compileData(){
 		if (toRemove.indexOf(i) == -1){
 			var dat = params.inputGWdata.events[e]
 			dat.index = num+1;
-			params.data.push(dat);
+			dat.messenger = 'GW';
+			params.GWdata.push(dat);
 			if (params.inputGWdata.events[e].final_mass_source == null){
-				console.log("check",params.inputGWdata.events[e])
-			}
+				console.log("check",params.inputGWdata.events[e]);
+			} 
 			num += 1;
 		} else {
 			console.log('removing : ',e)
 		}
 	}
 	console.log(num, useEvents.id.length)
-	console.log(params.data)
+	console.log(params.GWdata)
 
+
+	//add an index to the EMdata
+	var nBH = 0;
+	var nNS = 0;
+	for (var i=0; i<params.EMdata.length; i+=1){
+		if (params.EMdata[i].type == 'BH') {
+			params.EMdata[i].index = nBH+1;
+			nBH += 1;
+		}
+		if (params.EMdata[i].type == 'NS') {
+			params.EMdata[i].index = nNS+1;
+			nNS += 1;
+		}
+	}
 	//create the plot
 	createPlot(); //this also calls populate plot
 

@@ -26,3 +26,7 @@ function indexOfMax(arr){
 
 	return {'value': max,'index':maxIndex};
 }
+
+function cleanString (s){
+	return s.replace(/sub\>/g,'').replace(/\s/g,'').replace(/[^a-zA-Z ]/g, "").toLowerCase();
+}
