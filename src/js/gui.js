@@ -1,6 +1,7 @@
 function toggleControls(){
 	//change the hamburger symbol
 	d3.select('#hamburger').node().classList.toggle('change');
+	d3.select('#controls').style('display','inline-block');
 
 	//move the controls into view
 	var bbox = d3.select('#controls').node().getBoundingClientRect();

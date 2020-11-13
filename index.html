@@ -6,6 +6,7 @@
 
 		<!-- my style sheet -->
 		<link rel="stylesheet" type="text/css" href="src/css/index.css" />
+		<link rel="stylesheet" type="text/css" href="src/css/gui.css" />
 		
 	</head>
 
@@ -19,9 +20,48 @@
 			<div class='bar2'></div>
 			<div class='bar3'></div>
 		</div>
-        <div id='controls'>
-        	<div class="controlsTitle">Controls</div>
-        </div>
+		<div id='controls'>
+			<div class="controlsTitle">Sort GW</div>
+			<div class="radioButtons">
+				<label class="radioLabel sort GW rising">Rising
+					<input type="radio"  name="GWradio">
+					<span class="checkmark"></span>
+				</label>
+				<label class="radioLabel sort GW falling">Falling
+					<input type="radio" name="GWradio">
+					<span class="checkmark"></span>
+				</label>
+				<label class="radioLabel sort GW peaked">Peaked
+					<input type="radio" name="GWradio">
+					<span class="checkmark"></span>
+				</label>
+				<label class="radioLabel sort GW valley">Valley
+					<input type="radio" checked="checked" name="GWradio">
+					<span class="checkmark"></span>
+				</label>
+			</div>
+
+			<div class="controlsTitle">Sort EM</div>
+			<div class="radioButtons">
+				<label class="radioLabel sort EM rising">Rising
+					<input type="radio"  name="EMradio">
+					<span class="checkmark"></span>
+				</label>
+				<label class="radioLabel sort EM falling">Falling
+					<input type="radio" name="EMradio">
+					<span class="checkmark"></span>
+				</label>
+				<label class="radioLabel sort EM peaked">Peaked
+					<input type="radio" name="EMradio">
+					<span class="checkmark"></span>
+				</label>
+				<label class="radioLabel sort EM valley">Valley
+					<input type="radio" checked="checked" name="EMradio">
+					<span class="checkmark"></span>
+				</label>
+			</div>
+			
+		</div>
 
 
 		<!-- Libraries -->

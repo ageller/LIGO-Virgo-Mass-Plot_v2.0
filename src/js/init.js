@@ -1,3 +1,6 @@
+/////////////////////////////
+//attach events
+
 //attach resize event
 window.addEventListener("resize", resizePlot);
 
@@ -5,13 +8,20 @@ window.addEventListener("resize", resizePlot);
 //window.addEventListener('mousemove', moveTooltip);
 
 //attach the controls
-d3.select('#hamburger').on('mousedown',toggleControls)
+d3.select('#hamburger').on('mousedown',toggleControls);
+
+d3.selectAll('.radioLabel.sort').on('mousedown', sortPlot);
+
+
+//////////////////////////////
+//read in the data and reformat
 
 //first, read in the data file
 d3.json("src/data/GWOSCdata.json").then(function(data){ 
 	params.inputGWdata = data;
 	compileData(); //this will compile the data and then create the plot
 });
+
 
 function compileData(){
 	//identify the GW events to use; only want those with masses and then only the most recent version
@@ -102,8 +112,8 @@ function compileData(){
 	}
 
 	//now sort the full data set for plotting
-	//sortIndex will sort by mass
-	//reverseSortIndex will reverse sort by mass
+	//risingIndex will sort by mass
+	//fallingIndex will reverse sort by mass
 	//peakIndex will sort with most massive in the middle
 	//valleyIndex will sort with most massive in the middle
 	//
@@ -147,8 +157,8 @@ function compileData(){
 		if (params.data[i].messenger == 'EM'){
 			j = (sortedEMMasses.sortIndices.indexOf(params.data[i].EMindex) + 1)*params.data.length/EMmasses.length;
 		}
-		params.data[i].sortIndex = j;		
-		params.data[i].reverseSortIndex = params.data.length - j;
+		params.data[i].risingIndex = j;		
+		params.data[i].fallingIndex = params.data.length - j;
 	}
 
 	//create the plot

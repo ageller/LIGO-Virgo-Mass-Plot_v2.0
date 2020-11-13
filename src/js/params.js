@@ -12,7 +12,7 @@ var params = new function() {
 	this.yAxisScale;
 	this.xAxis;
 	this.yAxis;
-
+	this.xNorm = 1;
 
 	//radius scaling
 	this.radiusScale;
@@ -32,6 +32,7 @@ var params = new function() {
 	this.BHMinMass = 3; //minimum mass for coloring as a black hole in GW sources
 
 	this.tooltipTransitionDuration = 200;
+	this.sortTransitionDuration = 400;
 
 	//arrow settings
 	this.arrowThickBottom = 2;

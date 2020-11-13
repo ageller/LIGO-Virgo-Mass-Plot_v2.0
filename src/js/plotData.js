@@ -58,44 +58,65 @@ function createPlot(){
 
 //https://stackoverflow.com/questions/64423115/d3-js-multiple-relationship-visual-linkhorizontal-tangled-tree
 //http://using-d3js.com/05_01_paths.html
-function drawArrow(pts){
+function createArrow(d, sortKey){
+
+	//var x = d[sortKey]/params.xNorm*params.xAxisScale.domain()[1];
+
+	var x=0;
+
+	//find all the points for the arrow
+	var y0 = +d.mass_2_source;
+	var r0 = +d.mass_2_source;
+
+	var y1 = +d.final_mass_source;
+	var r1 = +d.final_mass_source;
+
+	if (y0 == null || y0 == 0) {
+		y0 = +d.mass_1_source;
+		r0 = +d.mass_1_source;
+	}
+
+	if (y1 == null || y1 == 0) {
+		y1 = +d.total_mass_source;
+		r1 = +d.total_mass_source;
+	}
+	if (y1 == null || y1 == 0) {
+		y1 = +d.mass_1_source;
+		r0 = +d.mass_1_source;
+	}
+
+	//scale the points
+	x = params.xAxisScale(x);
+	y0 = params.yAxisScale(y0);
+	y1 = params.yAxisScale(y1);
+	r0 = params.radiusScale(r0);
+	r1 = params.radiusScale(r1);
+
+	var dist = Math.abs(y1 - y0);
+
+	//draw the path for the arrow
 	const context = d3.path();
 
-	var dist = Math.abs(pts[1].y - pts[0].y);
-
 	//tail
-	context.moveTo(pts[0].x - params.arrowThickBottom - params.arrowCurveTail,    pts[1].y + params.arrowHeadStart + pts[1].r);
-	context.quadraticCurveTo(pts[0].x - params.arrowThickBottom, pts[1].y + dist/2. + pts[1].r, pts[0].x - params.arrowThickBottom, pts[0].y - pts[0].r);
-	context.lineTo(pts[0].x + params.arrowThickBottom, pts[0].y - pts[0].r);
-	context.quadraticCurveTo(pts[0].x + params.arrowThickBottom, pts[1].y + dist/2. + pts[1].r, pts[0].x + params.arrowThickBottom + params.arrowCurveTail, pts[1].y + params.arrowHeadStart + pts[1].r);
+	context.moveTo(x - params.arrowThickBottom - params.arrowCurveTail,    y1 + params.arrowHeadStart + r1);
+	context.quadraticCurveTo(x - params.arrowThickBottom, y1 + dist/2. + r1, x - params.arrowThickBottom, y0 - r0);
+	context.lineTo(x + params.arrowThickBottom, y0 - r0);
+	context.quadraticCurveTo(x + params.arrowThickBottom, y1 + dist/2. + r1, x + params.arrowThickBottom + params.arrowCurveTail, y1 + params.arrowHeadStart + r1);
 
 	//head
 	var theta0 = 0.25*Math.PI;
-	var x1 = params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop;
-	var rad = x1/Math.cos(theta0);
-	var y1 = rad*Math.sin(theta0);
-	var y2 = rad - y1;
-	context.moveTo(pts[0].x + params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop,    pts[1].y + params.arrowHeadStart + y2 + pts[1].r);
-	context.lineTo(pts[0].x, pts[1].y + pts[1].r);
-	context.lineTo(pts[0].x - params.arrowThickBottom - params.arrowCurveTail - params.arrowThickTop,    pts[1].y + params.arrowHeadStart + y2 + pts[1].r);
+	var arrowx = params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop;
+	var rad = arrowx/Math.cos(theta0);
+	var arrowy1 = rad*Math.sin(theta0);
+	var arrowy = rad - arrowy1;
+	context.moveTo(x + params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop,    y1 + params.arrowHeadStart + arrowy + r1);
+	context.lineTo(x, y1 + r1);
+	context.lineTo(x - params.arrowThickBottom - params.arrowCurveTail - params.arrowThickTop,    y1 + params.arrowHeadStart + arrowy + r1);
 
-	context.arc(pts[0].x, pts[1].y + params.arrowHeadStart + rad + pts[1].r, rad, Math.PI + theta0, 2.*Math.PI - theta0);
-
-	//context.lineTo(pts[0].x + params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop,    pts[1].y + params.arrowHeadStart);
-	//context.quadraticCurveTo(pts[0].x + params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop/2.,  pts[1].y + 0.8*params.arrowHeadStart, pts[0].x + params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop,    pts[1].y + params.arrowHeadStart);
-	// context.moveTo(pts[0].x + params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop,    pts[1].y + params.arrowHeadStart);
-	// context.lineTo(pts[0].x, pts[1].y);
-	// context.lineTo(pts[0].x - params.arrowThickBottom - params.arrowCurveTail - params.arrowThickTop,    pts[1].y + params.arrowHeadStart);
-	// context.arc(pts[0].x, pts[1].y + params.arrowHeadStart + 2.*params.arrowThickTop, 2.*params.arrowThickTop, 1.2*Math.PI, 1.8*Math.PI);
-
-	// context.lineTo(pts[0].x, pts[1].y);
-	// context.lineTo(pts[0].x - params.arrowThickBottom - params.arrowCurveTail - params.arrowThickTop,    pts[1].y + params.arrowHeadStart);
-	// context.arc(pts[0].x, pts[1].y + params.arrowHeadStart + 2.*params.arrowThickTop, 2.*params.arrowThickTop, 1.2*Math.PI, 1.5*Math.PI);
-	// context.lineTo(pts[0].x - params.arrowThickBottom - params.arrowCurveTail, pts[1].y + params.arrowHeadStart);
+	context.arc(x, y1 + params.arrowHeadStart + rad + r1, rad, Math.PI + theta0, 2.*Math.PI - theta0);
 
 
-
-	return context + "";
+	return context.toString();
 };
 
 
@@ -123,58 +144,33 @@ function circleColor(tp,mass){
 
 }
 
-function plotData(){
+function plotData(sortKey = 'valleyIndex'){
 	console.log('populating plot ...');
-	var xNorm = (params.data.length + 2);
+	params.xNorm = (params.data.length + 2);
 
-	//sortKey = 'sortIndex';
-	//sortKey = 'reverseSortIndex';
+	//sortKey = 'risingIndex';
+	//sortKey = 'fallingIndex';
 	//sortKey = 'peakIndex';
-	sortKey = 'valleyIndex';
+	//sortKey = 'valleyIndex';
 
 	//construct the arrows for GW sources
-	for (var i=0; i<params.data.length; i+=1){
-		if (params.data[i].messenger == 'GW'){
-			var d = params.data[i];
-
-			var x = +d[sortKey]/xNorm*params.xAxisScale.domain()[1];
-
-			var y0 = +d.mass_2_source;
-			var r0 = +d.mass_2_source;
-			if (y0 == null || y0 == 0) {
-				y0 = +d.mass_1_source;
-				r0 = +d.mass_1_source;
-			}
-
-			var y1 = +d.final_mass_source;
-			var r1 = +d.final_mass_source;
-			if (y1 == null || y1 == 0) {
-				var y1 = +d.total_mass_source;
-				var r1 = +d.total_mass_source;
-			}
-			if (y1 == null || y1 == 0) {
-				y1 = +d.mass_1_source;
-				r0 = +d.mass_1_source;
-			}
-
-			var lne = [{'x':params.xAxisScale(x),'y':params.yAxisScale(y0),'r':params.radiusScale(r0)},
-					   {'x':params.xAxisScale(x),'y':params.yAxisScale(y1),'r':params.radiusScale(r1)}];
-			var path = drawArrow(lne);
-			params.SVG.append("path")
-				.attr("class",'name-'+cleanString(d.commonName) + " arrow GW")
-				.attr("data-name", d.commonName)
-				//.attr('stroke', 'red')
-				.attr('stroke', 'none')
-				.attr('fill', 'white')	
-				//.attr('fill', 'none')	
-				.style("opacity",0.5)
-				.style("cursor", "arrow")
-				.attr("d", path.toString())
-				.on('mouseover',mouseOver)
-				.on('mouseout',mouseOut)
-		}
-
-	}	
+	params.SVG.selectAll('.arrow.GW')
+		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW'})
+		.append("path")
+			.attr("class",function(d){return 'name-'+cleanString(d.commonName) + " arrow GW"})
+			.attr("data-name", function(d){return d.commonName})
+			.attr('stroke', 'none')
+			.attr('fill', 'white')	
+			.style("opacity",0.5)
+			.style("cursor", "arrow")
+			.attr('transform',function(d){
+				var x = params.xAxisScale(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);
+				var y = 0;
+				return 'translate(' + x +',' + y + ')';
+			})
+			.attr("d", function(d){return createArrow(d, sortKey)})
+			.on('mouseover',mouseOver)
+			.on('mouseout',mouseOut);
 
 
 	//add all the circles for all the masses
@@ -184,7 +180,7 @@ function plotData(){
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.final_mass_source);})
-			.attr("cx", function(d) {return params.xAxisScale(+(d[sortKey]/xNorm*params.xAxisScale.domain()[1]));})
+			.attr("cx", function(d) {return params.xAxisScale(+(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
 			.attr("cy", function(d) {return params.yAxisScale(+d.final_mass_source);})
 			.style("fill", function(d){return circleColor(d.messenger, d.final_mass_source);})
 			.style("fill-opacity",params.opMass)
@@ -201,7 +197,7 @@ function plotData(){
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot m1 GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass_1_source);})
-			.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/xNorm*params.xAxisScale.domain()[1]);})
+			.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
 			.attr("cy", function(d) {return params.yAxisScale(+d.mass_1_source);})
 			.style("fill", function(d){return circleColor(d.messenger, d.mass_1_source);})
 			.style("fill-opacity",params.opMass)
@@ -218,7 +214,7 @@ function plotData(){
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot m2 GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass_2_source);})
-			.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/xNorm*params.xAxisScale.domain()[1]);})
+			.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
 			.attr("cy", function(d) {return params.yAxisScale(+d.mass_2_source);})
 			.style("fill", function(d){return circleColor(d.messenger, d.mass_2_source);})
 			.style("fill-opacity",params.opMass)
@@ -236,7 +232,7 @@ function plotData(){
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf no_final_mass GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.total_mass_source);})
-			.attr("cx", function(d) {return params.xAxisScale(+(d[sortKey]/xNorm*params.xAxisScale.domain()[1]));})
+			.attr("cx", function(d) {return params.xAxisScale(+(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
 			.attr("cy", function(d) {return params.yAxisScale(+d.total_mass_source);})
 			.style("fill", function(d){return circleColor(d.messenger, d.total_mass_source);})
 			.style("fill-opacity",params.opMass)
@@ -253,7 +249,7 @@ function plotData(){
 		.append("text")		
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " text mf no_final_mass GW";})
 			.attr("data-name", function(d){return d.commonName;})
-			.attr("x", function(d) {return params.xAxisScale(+(d[sortKey]/xNorm*params.xAxisScale.domain()[1]));})
+			.attr("x", function(d) {return params.xAxisScale(+(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
 			.attr("y", function(d) {return params.yAxisScale(+d.total_mass_source) + 0.75*params.radiusScale(+d.total_mass_source);})
 			.style('fill','white')
 			.style('font-family',"sans-serif")
@@ -271,7 +267,7 @@ function plotData(){
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf EM";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass);})
-			.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/xNorm*params.xAxisScale.domain()[1]);})
+			.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
 			.attr("cy", function(d) {return params.yAxisScale(+d.mass);})
 			.style("fill", function(d){return circleColor(d.messenger, d.mass);})
 			.style("fill-opacity",params.opMass)
@@ -283,7 +279,57 @@ function plotData(){
 			.on('mouseout',mouseOut);
 }
 
+function moveData(messenger,sortKey){
+	//sortKey = 'risingIndex';
+	//sortKey = 'fallingIndex';
+	//sortKey = 'peakIndex';
+	//sortKey = 'valleyIndex';
 
+	console.log('moving data', messenger, sortKey)
+
+	d3.selectAll('.dot.'+messenger).transition().duration(params.sortTransitionDuration)
+		.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
+
+	d3.selectAll('.text.'+messenger).transition().duration(params.sortTransitionDuration)
+		.attr("x", function(d) {return params.xAxisScale(+(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
+		
+	if (messenger == 'GW'){
+		d3.selectAll('.arrow.GW').transition().duration(params.sortTransitionDuration)
+			.attr('transform',function(d){
+				var x = params.xAxisScale(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);
+				var y = 0;
+				return 'translate(' + x +',' + y + ')';
+			})
+	}
+}
+function sortPlot(){
+	var classes = d3.select(this).attr('class').split(' ');
+
+	var messenger = null;
+	if (classes.indexOf('GW') != -1){
+		messenger = 'GW'
+	}
+	if (classes.indexOf('EM') != -1){
+		messenger = 'EM'
+	}	
+
+	if (messenger){
+		if (classes.indexOf('rising') != -1){
+			moveData(messenger,'risingIndex')
+		}
+		if (classes.indexOf('falling') != -1){
+			moveData(messenger,'fallingIndex')
+		}
+		if (classes.indexOf('peaked') != -1){
+			moveData(messenger,'peakIndex')
+		}
+		if (classes.indexOf('valley') != -1){
+			moveData(messenger,'valleyIndex')
+		}
+	}
+
+
+}
 function resizePlot(){
 	//resize the plot when the user resizes the window
 	//for now I'll just redraw
