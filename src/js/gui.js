@@ -15,7 +15,6 @@ function toggleControls(){
 		.style('transform', 'translateX('+x+'px)')
 
 	var scl = 1. - Math.abs(x/window.innerWidth);
-	console.log(scl, x)
 	d3.select('#svg').transition().duration(params.controlsTransitionDuration)
 		.style('transform', 'translate(' + (params.SVGmargin.left +x/2) + 'px,' + params.SVGmargin.top + 'px)scaleX(' + scl + ')')
 
