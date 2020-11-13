@@ -11,7 +11,7 @@ function createPlot(){
 		.style('height',params.SVGheight)
 		.style('width',params.SVGwidth)
 		.style('background-color',params.SVGbackground)
-		.attr("transform", "translate(" + params.SVGmargin.left + "," + params.SVGmargin.top + ")")
+		.style("transform", "translate(" + params.SVGmargin.left + "px," + params.SVGmargin.top + "px)")
 		.append("g")
 			.attr('id','mainPlot')
 			.attr("transform", "translate(" + params.SVGpadding.left + "," + params.SVGpadding.top + ")");
@@ -292,7 +292,7 @@ function moveData(messenger,sortKey){
 
 	d3.selectAll('.text.'+messenger).transition().duration(params.sortTransitionDuration)
 		.attr("x", function(d) {return params.xAxisScale(+(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
-		
+
 	if (messenger == 'GW'){
 		d3.selectAll('.arrow.GW').transition().duration(params.sortTransitionDuration)
 			.attr('transform',function(d){

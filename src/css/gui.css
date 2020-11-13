@@ -31,7 +31,7 @@
 	display:none;
 	padding:10px;
 	padding-left:10px;
-	width:300px;
+	width:150px;
 	height:100%;
 	position:absolute;
 	top:0;
@@ -39,8 +39,6 @@
 	background-color: rgba(200, 200, 200, 0.95);
 	color:var(--plot-background-color);;
 	z-index:19;
-	-webkit-transition: transform .4s;
-	transition: transform .4s;
 
 }
 .controlsTitle{

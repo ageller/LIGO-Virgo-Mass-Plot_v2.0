@@ -33,6 +33,7 @@ var params = new function() {
 
 	this.tooltipTransitionDuration = 200;
 	this.sortTransitionDuration = 400;
+	this.controlsTransitionDuration = 200;
 
 	//arrow settings
 	this.arrowThickBottom = 2;
