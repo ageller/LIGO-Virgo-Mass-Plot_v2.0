@@ -17,14 +17,14 @@ function createPlot(){
 			.attr("transform", "translate(" + params.SVGpadding.left + "," + params.SVGpadding.top + ")");
 
 	//define the radius scaling
-	params.radiusScale = d3.scaleLinear().range([5,25]).domain(d3.extent(params.GWdata, function(d){ return +d.final_mass_source; }));
+	params.radiusScale = d3.scaleLinear().range([5,20]).domain(d3.extent(params.data, function(d){ return +d.final_mass_source; }));
 
 	//define the axes
 	params.xAxisScale = d3.scaleLinear().range([0, params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right]);
 	params.yAxisScale = d3.scaleLog().range([params.SVGheight - params.SVGpadding.top - params.SVGpadding.bottom, 1]);
 
 	params.xAxisScale.domain([0, params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right]); //pixels on screen
-	//params.yAxisScale.domain(d3.extent(params.GWdata, function(d){if (d.final_mass_source != null) return +d.final_mass_source; })); //masses
+	//params.yAxisScale.domain(d3.extent(params.data, function(d){if (d.final_mass_source != null) return +d.final_mass_source; })); //masses
 	params.yAxisScale.domain(d3.extent([1, 200])); //masses
 
 	params.yAxis = d3.axisLeft(params.yAxisScale)
@@ -100,26 +100,11 @@ function drawArrow(pts){
 
 
 
-function mouseOver(){
-	var name = d3.select(this).attr('class').split(" ")[0];
-	d3.selectAll('.arrow.'+name).transition().duration(200).style("opacity",1)
-	d3.selectAll('.dot.'+name).transition().duration(200).style("fill-opacity",1)
-	d3.selectAll('.'+name).classed("inFront",true);
-	formatTooltip(name);
-	d3.select('#tooltip').transition().duration(200).style("opacity",1);
-}
-function mouseOut(){
-	var name = d3.select(this).attr('class').split(" ")[0];
-	d3.selectAll('.arrow.'+name).transition().duration(200).style("opacity",params.opArrow)
-	d3.selectAll('.dot.'+name).transition().duration(200).style("fill-opacity",params.opMass)
-	d3.selectAll('.'+name).classed("inFront",false);
-	d3.select('#tooltip').transition().duration(200).style("opacity",0);
-}
+
 
 function populatePlot(){
 //add the data to the plot
-	plotGWdata();
-	plotEMdata();
+	plotData();
 }
 
 function circleColor(tp,mass){
@@ -138,60 +123,68 @@ function circleColor(tp,mass){
 
 }
 
-function plotGWdata(){
+function plotData(){
 	console.log('populating plot ...');
-	var xNorm = (params.GWdata.length+1);
+	var xNorm = (params.data.length + 2);
 
+	//sortKey = 'sortIndex';
+	//sortKey = 'reverseSortIndex';
+	//sortKey = 'peakIndex';
+	sortKey = 'valleyIndex';
 
-	//construct the line data
-	for (var i=0; i<params.GWdata.length; i+=1){
-		var d = params.GWdata[i];
+	//construct the arrows for GW sources
+	for (var i=0; i<params.data.length; i+=1){
+		if (params.data[i].messenger == 'GW'){
+			var d = params.data[i];
 
-		var x = +d.index/xNorm*params.xAxisScale.domain()[1];
+			var x = +d[sortKey]/xNorm*params.xAxisScale.domain()[1];
 
-		var y0 = +d.mass_2_source;
-		var r0 = +d.mass_2_source;
-		if (y0 == null || y0 == 0) {
-			y0 = +d.mass_1_source;
-			r0 = +d.mass_1_source;
+			var y0 = +d.mass_2_source;
+			var r0 = +d.mass_2_source;
+			if (y0 == null || y0 == 0) {
+				y0 = +d.mass_1_source;
+				r0 = +d.mass_1_source;
+			}
+
+			var y1 = +d.final_mass_source;
+			var r1 = +d.final_mass_source;
+			if (y1 == null || y1 == 0) {
+				var y1 = +d.total_mass_source;
+				var r1 = +d.total_mass_source;
+			}
+			if (y1 == null || y1 == 0) {
+				y1 = +d.mass_1_source;
+				r0 = +d.mass_1_source;
+			}
+
+			var lne = [{'x':params.xAxisScale(x),'y':params.yAxisScale(y0),'r':params.radiusScale(r0)},
+					   {'x':params.xAxisScale(x),'y':params.yAxisScale(y1),'r':params.radiusScale(r1)}];
+			var path = drawArrow(lne);
+			params.SVG.append("path")
+				.attr("class",'name-'+cleanString(d.commonName) + " arrow GW")
+				.attr("data-name", d.commonName)
+				//.attr('stroke', 'red')
+				.attr('stroke', 'none')
+				.attr('fill', 'white')	
+				//.attr('fill', 'none')	
+				.style("opacity",0.5)
+				.style("cursor", "arrow")
+				.attr("d", path.toString())
+				.on('mouseover',mouseOver)
+				.on('mouseout',mouseOut)
 		}
-
-		var y1 = +d.final_mass_source;
-		var r1 = +d.final_mass_source;
-		if (y1 == null || y1 == 0) {
-			var y1 = +d.total_mass_source;
-			var r1 = +d.total_mass_source;
-		}
-		if (y1 == null || y1 == 0) {
-			y1 = +d.mass_1_source;
-			r0 = +d.mass_1_source;
-		}
-
-		var lne = [{'x':params.xAxisScale(x),'y':params.yAxisScale(y0),'r':params.radiusScale(r0)},
-				   {'x':params.xAxisScale(x),'y':params.yAxisScale(y1),'r':params.radiusScale(r1)}];
-		var path = drawArrow(lne);
-		params.SVG.append("path")
-			.attr("class",cleanString(d.commonName) + " arrow GW")
-			//.attr('stroke', 'red')
-			.attr('stroke', 'none')
-			.attr('fill', 'white')	
-			//.attr('fill', 'none')	
-			.style("opacity",0.5)
-			.style("cursor", "arrow")
-			.attr("d", path.toString())
-			.on('mouseover',mouseOver)
-			.on('mouseout',mouseOut)
 
 	}	
 
 
 	//add all the circles for all the masses
 	params.SVG.selectAll(".dot.mf.GW")
-		.data(params.GWdata).enter().filter(function(d) { return d.final_mass_source != null })
+		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source != null })
 		.append("circle")
-			.attr("class", function(d){return cleanString(d.commonName) + " dot mf GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf GW";})
+			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.final_mass_source);})
-			.attr("cx", function(d) {return params.xAxisScale(+(d.index/xNorm*params.xAxisScale.domain()[1]));})
+			.attr("cx", function(d) {return params.xAxisScale(+(d[sortKey]/xNorm*params.xAxisScale.domain()[1]));})
 			.attr("cy", function(d) {return params.yAxisScale(+d.final_mass_source);})
 			.style("fill", function(d){return circleColor(d.messenger, d.final_mass_source);})
 			.style("fill-opacity",params.opMass)
@@ -203,11 +196,12 @@ function plotGWdata(){
 			.on('mouseout',mouseOut);
 
 	params.SVG.selectAll(".dot.m1.GW")
-		.data(params.GWdata).enter().filter(function(d) { return d.mass_1_source != null })
+		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.mass_1_source != null })
 		.append("circle")
-			.attr("class", function(d){return cleanString(d.commonName) + " dot m1 GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot m1 GW";})
+			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass_1_source);})
-			.attr("cx", function(d) {return params.xAxisScale(+d.index/xNorm*params.xAxisScale.domain()[1]);})
+			.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/xNorm*params.xAxisScale.domain()[1]);})
 			.attr("cy", function(d) {return params.yAxisScale(+d.mass_1_source);})
 			.style("fill", function(d){return circleColor(d.messenger, d.mass_1_source);})
 			.style("fill-opacity",params.opMass)
@@ -219,11 +213,12 @@ function plotGWdata(){
 			.on('mouseout',mouseOut);
 
 	params.SVG.selectAll(".dot.m2.GW")
-		.data(params.GWdata).enter().filter(function(d) { return d.mass_2_source != null })
+		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.mass_2_source != null })
 		.append("circle")
-			.attr("class", function(d){return cleanString(d.commonName) + " dot m2 GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot m2 GW";})
+			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass_2_source);})
-			.attr("cx", function(d) {return params.xAxisScale(+d.index/xNorm*params.xAxisScale.domain()[1]);})
+			.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/xNorm*params.xAxisScale.domain()[1]);})
 			.attr("cy", function(d) {return params.yAxisScale(+d.mass_2_source);})
 			.style("fill", function(d){return circleColor(d.messenger, d.mass_2_source);})
 			.style("fill-opacity",params.opMass)
@@ -236,11 +231,12 @@ function plotGWdata(){
 
 	//add any without final masses?
 	params.SVG.selectAll(".dot.mf.no_final_mass.GW")
-		.data(params.GWdata).enter().filter(function(d) { return d.final_mass_source == null && d.total_mass_source != null})
+		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source == null && d.total_mass_source != null})
 		.append("circle")
-			.attr("class", function(d){return cleanString(d.commonName) + " dot mf no_final_mass GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf no_final_mass GW";})
+			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.total_mass_source);})
-			.attr("cx", function(d) {return params.xAxisScale(+(d.index/xNorm*params.xAxisScale.domain()[1]));})
+			.attr("cx", function(d) {return params.xAxisScale(+(d[sortKey]/xNorm*params.xAxisScale.domain()[1]));})
 			.attr("cy", function(d) {return params.yAxisScale(+d.total_mass_source);})
 			.style("fill", function(d){return circleColor(d.messenger, d.total_mass_source);})
 			.style("fill-opacity",params.opMass)
@@ -251,33 +247,31 @@ function plotGWdata(){
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut)
 
+	//add question marks to these w/o final masses
 	params.SVG.selectAll(".text.mf.no_final_mass.GW")
-		.data(params.GWdata).enter().filter(function(d) {return d.final_mass_source == null && d.total_mass_source != null})	
+		.data(params.data).enter().filter(function(d) {return d.messenger == 'GW' && d.final_mass_source == null && d.total_mass_source != null})	
 		.append("text")		
-			.attr("class", function(d){return cleanString(d.commonName) + " text mf no_final_mass GW";})
-			.attr("x", function(d) {return params.xAxisScale(+(d.index/xNorm*params.xAxisScale.domain()[1]));})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " text mf no_final_mass GW";})
+			.attr("data-name", function(d){return d.commonName;})
+			.attr("x", function(d) {return params.xAxisScale(+(d[sortKey]/xNorm*params.xAxisScale.domain()[1]));})
 			.attr("y", function(d) {return params.yAxisScale(+d.total_mass_source) + 0.75*params.radiusScale(+d.total_mass_source);})
 			.style('fill','white')
 			.style('font-family',"sans-serif")
-			.style('font-size',1.5*params.radiusScale(+d.total_mass_source)+"px")
+			.style('font-size',function(d) {return 1.5*params.radiusScale(+d.total_mass_source)+"px";})
 			.style("text-anchor", "middle")
 			.style("cursor", "arrow")
 			.text("?")
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut)
-}
 
-function plotEMdata(){
-
-	console.log('EMdata', params.EMdata)
-	var xNorm = (params.EMdata.length+1);
-
-	params.SVG.selectAll(".dot.m.EM")
-		.data(params.EMdata).enter().filter(function(d) { return d.mass != null })
+	//add the EM data
+	params.SVG.selectAll(".dot.mf.EM")
+		.data(params.EMdata).enter().filter(function(d) { return d.messenger == 'EM' && d.mass != null })
 		.append("circle")
-			.attr("class", function(d){return cleanString(d.commonName) + " dot m EM";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf EM";})
+			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass);})
-			.attr("cx", function(d) {return params.xAxisScale(+d.index/xNorm*params.xAxisScale.domain()[1]);})
+			.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/xNorm*params.xAxisScale.domain()[1]);})
 			.attr("cy", function(d) {return params.yAxisScale(+d.mass);})
 			.style("fill", function(d){return circleColor(d.messenger, d.mass);})
 			.style("fill-opacity",params.opMass)
@@ -288,6 +282,7 @@ function plotEMdata(){
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut);
 }
+
 
 function resizePlot(){
 	//resize the plot when the user resizes the window

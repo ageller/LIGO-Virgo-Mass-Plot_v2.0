@@ -4,8 +4,8 @@ var params = new function() {
 
 	//holds the data from GWOSC
 	this.inputGWdata;
-	this.GWdata = [];
-	this.EMdata;
+	this.data = [];
+	this.commonNames = [];
 
 	//axes scaling
 	this.xAxisScale;
@@ -26,10 +26,12 @@ var params = new function() {
 	this.SVGheight = window.innerHeight - this.SVGmargin.top - this.SVGmargin.bottom; 
 
 	//default opacities for objects
-	this.opMass = 0.85;
+	this.opMass = 0.5;
 	this.opArrow = 0.5;
 
 	this.BHMinMass = 3; //minimum mass for coloring as a black hole in GW sources
+
+	this.tooltipTransitionDuration = 200;
 
 	//arrow settings
 	this.arrowThickBottom = 2;

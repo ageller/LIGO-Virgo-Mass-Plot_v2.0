@@ -2,7 +2,10 @@
 window.addEventListener("resize", resizePlot);
 
 //attach event to move tooltip
-window.addEventListener('mousemove', moveTooltip);
+//window.addEventListener('mousemove', moveTooltip);
+
+//attach the controls
+d3.select('#hamburger').on('mousedown',toggleControls)
 
 //first, read in the data file
 d3.json("src/data/GWOSCdata.json").then(function(data){ 
@@ -18,7 +21,7 @@ function compileData(){
 	var useEvents = {'name':[],'id':[],'version':[]}
 	//take only those with masses
 	for (var i =0; i<events.length; i+=1){
-		e=events[i];
+		e = events[i];
 		if (params.inputGWdata.events[e].mass_1_source != null){
 			var id = e;
 			var version = 0;
@@ -59,39 +62,95 @@ function compileData(){
 	};
 
 	//now only take those for the final data product
+	GWmasses = [];
 	var num = 0;
 	for (var i=0; i<useEvents.id.length; i+=1){
 		e = useEvents.name[i];
 		if (toRemove.indexOf(i) == -1){
 			var dat = params.inputGWdata.events[e]
-			dat.index = num+1;
 			dat.messenger = 'GW';
-			params.GWdata.push(dat);
+			dat.mass = params.inputGWdata.events[e].final_mass_source;
+			dat.GWindex = num;
+			num += 1;
 			if (params.inputGWdata.events[e].final_mass_source == null){
 				console.log("check",params.inputGWdata.events[e]);
+				dat.mass = params.inputGWdata.events[e].total_mass_source;
 			} 
-			num += 1;
+			params.data.push(dat);
+			params.commonNames.push(dat.commonName)
+			GWmasses.push(dat.mass);
 		} else {
 			console.log('removing : ',e)
 		}
 	}
-	console.log(num, useEvents.id.length)
-	console.log(params.GWdata)
+	console.log(useEvents.id.length)
+	console.log(params.data)
 
 
-	//add an index to the EMdata
-	var nBH = 0;
-	var nNS = 0;
+	//add in the EMdata
+	EMmasses = [];
 	for (var i=0; i<params.EMdata.length; i+=1){
-		if (params.EMdata[i].type == 'BH') {
-			params.EMdata[i].index = nBH+1;
-			nBH += 1;
-		}
-		if (params.EMdata[i].type == 'NS') {
-			params.EMdata[i].index = nNS+1;
-			nNS += 1;
-		}
+		var dat = params.EMdata[i];
+		dat.final_mass_source = null;
+		dat.mass_1_source = null;
+		dat.mass_2_source = null;
+		dat.total_mass_source = null;
+		dat.EMindex = i;
+		params.data.push(dat);
+		params.commonNames.push(dat.commonName)
+		EMmasses.push(dat.mass);
 	}
+
+	//now sort the full data set for plotting
+	//sortIndex will sort by mass
+	//reverseSortIndex will reverse sort by mass
+	//peakIndex will sort with most massive in the middle
+	//valleyIndex will sort with most massive in the middle
+	//
+	var sortedGWMasses = sortWithIndices(GWmasses);
+	var sortedEMMasses = sortWithIndices(EMmasses);
+	var GWside = 1;
+	var EMside = 1;
+	var j;
+	for (var i =0; i<sortedGWMasses.length; i+=1){
+		var j = (i+1)*params.data.length/GWmasses.length;
+		var k = sortedGWMasses.sortIndices[i]
+		if (GWside > 0){
+			params.data[k].peakIndex = j/2.;
+			params.data[k].valleyIndex = params.data.length/2. - j/2.;
+		} else {
+			params.data[k].peakIndex = params.data.length - j/2.;
+			params.data[k].valleyIndex =params.data.length/2. + j/2.;
+		}
+		GWside = -GWside;
+
+	}
+	for (var i =0; i<sortedEMMasses.length; i+=1){
+		var j = (i+1)*params.data.length/EMmasses.length ;
+		var k = sortedEMMasses.sortIndices[i] + GWmasses.length;
+		if (EMside > 0){
+			params.data[k].peakIndex = j/2.;
+			params.data[k].valleyIndex = params.data.length/2. - j/2.;
+		} else {
+			params.data[k].peakIndex = params.data.length - j/2.;
+			params.data[k].valleyIndex = params.data.length/2. + j/2.;
+		}
+		EMside = -EMside;
+
+	}
+
+	for (var i=0; i<params.data.length; i+=1){
+		var j = 1;
+		if (params.data[i].messenger == 'GW'){
+			j = (sortedGWMasses.sortIndices.indexOf(params.data[i].GWindex) + 1)*params.data.length/GWmasses.length;
+		}
+		if (params.data[i].messenger == 'EM'){
+			j = (sortedEMMasses.sortIndices.indexOf(params.data[i].EMindex) + 1)*params.data.length/EMmasses.length;
+		}
+		params.data[i].sortIndex = j;		
+		params.data[i].reverseSortIndex = params.data.length - j;
+	}
+
 	//create the plot
 	createPlot(); //this also calls populate plot
 
