@@ -326,6 +326,9 @@ function sortPlot(){
 		if (classes.indexOf('valley') != -1){
 			moveData(messenger,'valleyIndex')
 		}
+			if (classes.indexOf('diamond') != -1){ //currently only available for GW
+			moveData(messenger,'diamondIndex')
+		}
 	}
 
 

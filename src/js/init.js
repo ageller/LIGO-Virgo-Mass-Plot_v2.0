@@ -120,21 +120,39 @@ function compileData(){
 	var sortedGWMasses = sortWithIndices(GWmasses);
 	var sortedEMMasses = sortWithIndices(EMmasses);
 	var GWside = 1;
+	var GWside2 = 1;
 	var EMside = 1;
+	var flipped = false;
 	var j;
+	//can this be simplified??
 	for (var i =0; i<sortedGWMasses.length; i+=1){
 		var j = (i+1)*params.data.length/GWmasses.length;
 		var k = sortedGWMasses.sortIndices[i]
+		params.data[k].valleyIndex = params.data.length/2. + GWside*j/2.;
 		if (GWside > 0){
 			params.data[k].peakIndex = j/2.;
-			params.data[k].valleyIndex = params.data.length/2. - j/2.;
 		} else {
 			params.data[k].peakIndex = params.data.length - j/2.;
-			params.data[k].valleyIndex =params.data.length/2. + j/2.;
 		}
 		GWside = -GWside;
 
+
+		params.data[k].diamondIndex = params.data.length/2. - GWside2*j;
+		if (flipped) {
+			if (GWside > 0){
+				params.data[k].diamondIndex = j - params.data.length/2.;
+			} else {
+				params.data[k].diamondIndex = 3*params.data.length/2. - j;
+			}
+		}
+		GWside2 = -GWside2;
+		if (i > sortedGWMasses.length/2 && !flipped) {
+			flipped = true;
+		}
+
 	}
+
+
 	for (var i =0; i<sortedEMMasses.length; i+=1){
 		var j = (i+1)*params.data.length/EMmasses.length ;
 		var k = sortedEMMasses.sortIndices[i] + GWmasses.length;
@@ -146,7 +164,6 @@ function compileData(){
 			params.data[k].valleyIndex = params.data.length/2. + j/2.;
 		}
 		EMside = -EMside;
-
 	}
 
 	for (var i=0; i<params.data.length; i+=1){
