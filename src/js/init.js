@@ -12,6 +12,10 @@ d3.select('#hamburger').on('mousedown',toggleControls);
 
 d3.selectAll('.radioLabel.sort').on('mousedown', sortPlot);
 
+d3.select('#maxPointSize').on('input',changePointSizes);
+d3.select('#minPointSize').on('input',changePointSizes);
+
+d3.select('#arrowWidth').on('input',changeArrowSizes);
 
 //////////////////////////////
 //read in the data and reformat
@@ -137,7 +141,7 @@ function compileData(){
 		GWside = -GWside;
 
 
-		params.data[k].diamondIndex = params.data.length/2. - GWside2*j;
+		params.data[k].diamondIndex = params.data.length/2. - GWside2*j*0.9; //can I improve this to center it better?
 		if (flipped) {
 			if (GWside > 0){
 				params.data[k].diamondIndex = j - params.data.length/2.;
@@ -154,7 +158,7 @@ function compileData(){
 
 
 	for (var i =0; i<sortedEMMasses.length; i+=1){
-		var j = (i+1)*params.data.length/EMmasses.length ;
+		var j = (i+1)*params.data.length/EMmasses.length;
 		var k = sortedEMMasses.sortIndices[i] + GWmasses.length;
 		if (EMside > 0){
 			params.data[k].peakIndex = j/2.;

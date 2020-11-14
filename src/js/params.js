@@ -16,7 +16,13 @@ var params = new function() {
 
 	//radius scaling
 	this.radiusScale;
-	
+	this.maxRadius = 20;
+	this.minRadius = 5;
+
+	//sorting
+	this.GWsortKey = 'valleyIndex';
+	this.EMsortKey = 'valleyIndex';
+
 	//SVG setup
 	this.SVG;
 	this.SVGbackground = getComputedStyle(document.documentElement).getPropertyValue('--plot-background-color');
@@ -40,6 +46,7 @@ var params = new function() {
 	this.arrowCurveTail = 3;
 	this.arrowThickTop = 10;
 	this.arrowHeadStart = 20;
+	this.arrowScale = 1;
 };
 
 

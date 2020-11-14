@@ -17,7 +17,7 @@ function createPlot(){
 			.attr("transform", "translate(" + params.SVGpadding.left + "," + params.SVGpadding.top + ")");
 
 	//define the radius scaling
-	params.radiusScale = d3.scaleLinear().range([5,20]).domain(d3.extent(params.data, function(d){ return +d.final_mass_source; }));
+	params.radiusScale = d3.scaleLinear().range([params.minRadius,params.maxRadius]).domain(d3.extent(params.data, function(d){ return +d.final_mass_source; }));
 
 	//define the axes
 	params.xAxisScale = d3.scaleLinear().range([0, params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right]);
@@ -58,10 +58,9 @@ function createPlot(){
 
 //https://stackoverflow.com/questions/64423115/d3-js-multiple-relationship-visual-linkhorizontal-tangled-tree
 //http://using-d3js.com/05_01_paths.html
-function createArrow(d, sortKey){
+function createArrow(d){
 
-	//var x = d[sortKey]/params.xNorm*params.xAxisScale.domain()[1];
-
+	//var x = d[params.sortKey]/params.xNorm*params.xAxisScale.domain()[1];
 	var x=0;
 
 	//find all the points for the arrow
@@ -98,20 +97,20 @@ function createArrow(d, sortKey){
 	const context = d3.path();
 
 	//tail
-	context.moveTo(x - params.arrowThickBottom - params.arrowCurveTail,    y1 + params.arrowHeadStart + r1);
-	context.quadraticCurveTo(x - params.arrowThickBottom, y1 + dist/2. + r1, x - params.arrowThickBottom, y0 - r0);
-	context.lineTo(x + params.arrowThickBottom, y0 - r0);
-	context.quadraticCurveTo(x + params.arrowThickBottom, y1 + dist/2. + r1, x + params.arrowThickBottom + params.arrowCurveTail, y1 + params.arrowHeadStart + r1);
+	context.moveTo(x - (params.arrowThickBottom + params.arrowCurveTail)*params.arrowScale,    y1 + params.arrowHeadStart + r1);
+	context.quadraticCurveTo(x - params.arrowThickBottom*params.arrowScale, y1 + dist/2. + r1, x - params.arrowThickBottom*params.arrowScale, y0 - r0);
+	context.lineTo(x + params.arrowThickBottom*params.arrowScale, y0 - r0);
+	context.quadraticCurveTo(x + params.arrowThickBottom*params.arrowScale, y1 + dist/2. + r1, x + (params.arrowThickBottom + params.arrowCurveTail)*params.arrowScale, y1 + params.arrowHeadStart + r1);
 
 	//head
 	var theta0 = 0.25*Math.PI;
-	var arrowx = params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop;
+	var arrowx = (params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop)*params.arrowScale;
 	var rad = arrowx/Math.cos(theta0);
 	var arrowy1 = rad*Math.sin(theta0);
 	var arrowy = rad - arrowy1;
-	context.moveTo(x + params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop,    y1 + params.arrowHeadStart + arrowy + r1);
+	context.moveTo(x + (params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop)*params.arrowScale,    y1 + (params.arrowHeadStart + arrowy) + r1);
 	context.lineTo(x, y1 + r1);
-	context.lineTo(x - params.arrowThickBottom - params.arrowCurveTail - params.arrowThickTop,    y1 + params.arrowHeadStart + arrowy + r1);
+	context.lineTo(x - (params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop)*params.arrowScale,    y1 + (params.arrowHeadStart + arrowy) + r1);
 
 	context.arc(x, y1 + params.arrowHeadStart + rad + r1, rad, Math.PI + theta0, 2.*Math.PI - theta0);
 
@@ -144,14 +143,9 @@ function circleColor(tp,mass){
 
 }
 
-function plotData(sortKey = 'valleyIndex'){
+function plotData(){
 	console.log('populating plot ...');
 	params.xNorm = (params.data.length + 2);
-
-	//sortKey = 'risingIndex';
-	//sortKey = 'fallingIndex';
-	//sortKey = 'peakIndex';
-	//sortKey = 'valleyIndex';
 
 	//construct the arrows for GW sources
 	params.SVG.selectAll('.arrow.GW')
@@ -164,11 +158,11 @@ function plotData(sortKey = 'valleyIndex'){
 			.style("opacity",0.5)
 			.style("cursor", "arrow")
 			.attr('transform',function(d){
-				var x = params.xAxisScale(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);
+				var x = params.xAxisScale(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]);
 				var y = 0;
 				return 'translate(' + x +',' + y + ')';
 			})
-			.attr("d", function(d){return createArrow(d, sortKey)})
+			.attr("d", function(d){return createArrow(d)})
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut);
 
@@ -180,7 +174,7 @@ function plotData(sortKey = 'valleyIndex'){
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.final_mass_source);})
-			.attr("cx", function(d) {return params.xAxisScale(+(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
+			.attr("cx", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
 			.attr("cy", function(d) {return params.yAxisScale(+d.final_mass_source);})
 			.style("fill", function(d){return circleColor(d.messenger, d.final_mass_source);})
 			.style("fill-opacity",params.opMass)
@@ -197,7 +191,7 @@ function plotData(sortKey = 'valleyIndex'){
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot m1 GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass_1_source);})
-			.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
+			.attr("cx", function(d) {return params.xAxisScale(+d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
 			.attr("cy", function(d) {return params.yAxisScale(+d.mass_1_source);})
 			.style("fill", function(d){return circleColor(d.messenger, d.mass_1_source);})
 			.style("fill-opacity",params.opMass)
@@ -214,7 +208,7 @@ function plotData(sortKey = 'valleyIndex'){
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot m2 GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass_2_source);})
-			.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
+			.attr("cx", function(d) {return params.xAxisScale(+d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
 			.attr("cy", function(d) {return params.yAxisScale(+d.mass_2_source);})
 			.style("fill", function(d){return circleColor(d.messenger, d.mass_2_source);})
 			.style("fill-opacity",params.opMass)
@@ -232,7 +226,7 @@ function plotData(sortKey = 'valleyIndex'){
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf no_final_mass GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.total_mass_source);})
-			.attr("cx", function(d) {return params.xAxisScale(+(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
+			.attr("cx", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
 			.attr("cy", function(d) {return params.yAxisScale(+d.total_mass_source);})
 			.style("fill", function(d){return circleColor(d.messenger, d.total_mass_source);})
 			.style("fill-opacity",params.opMass)
@@ -249,7 +243,7 @@ function plotData(sortKey = 'valleyIndex'){
 		.append("text")		
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " text mf no_final_mass GW";})
 			.attr("data-name", function(d){return d.commonName;})
-			.attr("x", function(d) {return params.xAxisScale(+(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
+			.attr("x", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
 			.attr("y", function(d) {return params.yAxisScale(+d.total_mass_source) + 0.75*params.radiusScale(+d.total_mass_source);})
 			.style('fill','white')
 			.style('font-family',"sans-serif")
@@ -267,7 +261,7 @@ function plotData(sortKey = 'valleyIndex'){
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf EM";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass);})
-			.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
+			.attr("cx", function(d) {return params.xAxisScale(+d[params.EMsortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
 			.attr("cy", function(d) {return params.yAxisScale(+d.mass);})
 			.style("fill", function(d){return circleColor(d.messenger, d.mass);})
 			.style("fill-opacity",params.opMass)
@@ -302,6 +296,7 @@ function moveData(messenger,sortKey){
 			})
 	}
 }
+
 function sortPlot(){
 	var classes = d3.select(this).attr('class').split(' ');
 
@@ -330,9 +325,30 @@ function sortPlot(){
 			moveData(messenger,'diamondIndex')
 		}
 	}
+}
 
+function changePointSizes(){
+	//console.log(this.value);
+	params.maxRadius = +d3.select('#maxPointSize').node().value;
+	params.minRadius = +d3.select('#minPointSize').node().value;
+	params.radiusScale.range([params.minRadius,params.maxRadius]);
+
+	params.SVG.selectAll(".dot.mf.GW").attr("r", function(d){return params.radiusScale(+d.final_mass_source);});
+	params.SVG.selectAll(".dot.m1.GW").attr("r", function(d){return params.radiusScale(+d.mass_1_source);});
+	params.SVG.selectAll(".dot.m2.GW").attr("r", function(d){return params.radiusScale(+d.mass_2_source);});
+	params.SVG.selectAll(".dot.mf.no_final_mass.GW").attr("r", function(d){return params.radiusScale(+d.total_mass_source);});
+	params.SVG.selectAll(".dot.mf.EM").attr("r", function(d){return params.radiusScale(+d.mass);});
+
+	changeArrowSizes();
+}
+
+function changeArrowSizes(){
+	params.arrowScale = +d3.select('#arrowWidth').node().value*0.1; //scale goes between 1 and 20, but I want 0.1 - 2
+
+	params.SVG.selectAll('.arrow.GW').attr("d", function(d){return createArrow(d)})
 
 }
+
 function resizePlot(){
 	//resize the plot when the user resizes the window
 	//for now I'll just redraw
