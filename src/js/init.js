@@ -122,12 +122,11 @@ function compileData(){
 	//valleyIndex will sort with most massive in the middle
 	//
 	var sortedGWMasses = sortWithIndices(GWmasses);
-	var sortedEMMasses = sortWithIndices(EMmasses);
 	var GWside = 1;
 	var GWside2 = 1;
-	var EMside = 1;
 	var flipped = false;
 	var j;
+	var GWindices = [];
 	//can this be simplified??
 	for (var i =0; i<sortedGWMasses.length; i+=1){
 		var j = (i+1)*params.data.length/GWmasses.length;
@@ -153,10 +152,14 @@ function compileData(){
 		if (i > sortedGWMasses.length/2 && !flipped) {
 			flipped = true;
 		}
-
+		GWindices.push(j);
 	}
 
-
+	var sortedEMMasses = sortWithIndices(EMmasses);
+	var EMside = 1;
+	var EMside2 = 1;
+	var flipped = false;
+	var EMindices = [];
 	for (var i =0; i<sortedEMMasses.length; i+=1){
 		var j = (i+1)*params.data.length/EMmasses.length;
 		var k = sortedEMMasses.sortIndices[i] + GWmasses.length;
@@ -168,15 +171,33 @@ function compileData(){
 			params.data[k].valleyIndex = params.data.length/2. + j/2.;
 		}
 		EMside = -EMside;
+
+		params.data[k].diamondIndex = params.data.length/2. - EMside2*j*0.9; //can I improve this to center it better?
+		if (flipped) {
+			if (EMside > 0){
+				params.data[k].diamondIndex = j - params.data.length/2.;
+			} else {
+				params.data[k].diamondIndex = 3*params.data.length/2. - j;
+			}
+		}
+		EMside2 = -EMside2;
+		if (i > sortedEMMasses.length/2 && !flipped) {
+			flipped = true;
+		}
+		EMindices.push(j);
 	}
 
+	GWindices = shuffle(GWindices);
+	EMindices = shuffle(EMindices);
 	for (var i=0; i<params.data.length; i+=1){
 		var j = 1;
 		if (params.data[i].messenger == 'GW'){
 			j = (sortedGWMasses.sortIndices.indexOf(params.data[i].GWindex) + 1)*params.data.length/GWmasses.length;
+			params.data[i].randomIndex = GWindices[i];
 		}
 		if (params.data[i].messenger == 'EM'){
 			j = (sortedEMMasses.sortIndices.indexOf(params.data[i].EMindex) + 1)*params.data.length/EMmasses.length;
+			params.data[i].randomIndex = EMindices[i - GWindices.length];
 		}
 		params.data[i].risingIndex = j;		
 		params.data[i].fallingIndex = params.data.length - j;

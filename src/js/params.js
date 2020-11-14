@@ -20,7 +20,7 @@ var params = new function() {
 	this.minRadius = 5;
 
 	//sorting
-	this.GWsortKey = 'valleyIndex';
+	this.GWsortKey = 'diamondIndex';
 	this.EMsortKey = 'valleyIndex';
 
 	//SVG setup
