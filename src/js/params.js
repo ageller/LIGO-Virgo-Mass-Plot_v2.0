@@ -36,7 +36,7 @@ var params = new function() {
 	this.SVGheight = window.innerHeight - this.SVGmargin.top - this.SVGmargin.bottom; 
 	
 	this.plotReady = false;
-	
+
 	//this will be modified if the controls gui is open
 	this.SVGscale = 1.;
 	this.controlsX = 0.;
@@ -64,6 +64,8 @@ var params = new function() {
 	this.arrowThickTop = 10;
 	this.arrowHeadStart = 20;
 	this.arrowScale = 1;
+
+	this.dropdownHeights = {};
 };
 
 

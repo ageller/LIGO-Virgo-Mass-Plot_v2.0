@@ -2,7 +2,7 @@
 #hamburger{
 	position:absolute;
 	top:0;
-	left:97vw;
+	left:98vw;
 	padding:10px;
 	z-index:20;
 	cursor:pointer;
@@ -28,10 +28,10 @@
 }
 
 #controls{
-	display:none;
+	display:inline-block;
 	padding:10px;
 	padding-left:10px;
-	width:150px;
+	width:160px;
 	height:100%;
 	position:absolute;
 	top:0;
@@ -45,13 +45,46 @@
 	font-size:24px;
 	line-height:24px;
 	margin:0;
-	margin-top:20px;
+	/*margin-top:20px;*/
+	padding-top:20px;
+	/*padding-left:5px;*/
+	cursor:pointer;
 }
-
+.controlsSubtitle{
+	font-size:16px;
+	line-height:24px;
+	margin:0;
+	margin-top:5px;
+}
 .radioButtons{
 	padding-top:6px;
 	padding-left:12px;
 }
+
+/* drop downs */
+.navi {
+	display:inline-block;
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+	border-top: 16px solid black;
+	position: relative;
+	transition: all 0.5s ease;
+	margin-right:5px;
+}
+.rotate180 {
+	transform: rotate(180deg);
+}
+
+.dropdown-content {
+	/*display: none;*/
+	-webkit-transition:  .5s ease;
+	transition:  .5s ease;
+	/*height:0px;*/
+	/*visibility:hidden;*/
+	opacity:0;
+
+}
+
 /* Custom radio buttons */
 /* https://www.w3schools.com/howto/howto_css_custom_checkbox.asp */
 /* Customize the label (the container) */
@@ -122,41 +155,41 @@
 /* sliders */
 /*https://www.w3schools.com/howto/howto_js_rangeslider.asp */
 .slidecontainer {
-  width: 100%;
+	width: 100%;
 }
 
 .slider {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 10px;
-  border-radius: 5px;
-  background: white;
-  outline: none;
-  opacity: 0.7;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
+	-webkit-appearance: none;
+	width: 100%;
+	height: 10px;
+	border-radius: 5px;
+	background: white;
+	outline: none;
+	opacity: 0.7;
+	-webkit-transition: .2s;
+	transition: opacity .2s;
 }
 
 .slider:hover {
-  opacity: 1;
+	opacity: 1;
 }
 
 .slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #000000;
-  cursor: pointer;
+	-webkit-appearance: none;
+	appearance: none;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: #000000;
+	cursor: pointer;
 }
 
 .slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #000000;
-  cursor: pointer;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: #000000;
+	cursor: pointer;
 }
 
 /* */
@@ -185,5 +218,5 @@ input[type=submit] {
 }
 
 input[type=submit]:hover {
-  background-color: #000000;
+	background-color: #000000;
 }

@@ -1,9 +1,9 @@
+//open the controls panel and resize the plot
 function toggleControls(){
 	//change the hamburger symbol
 	d3.select('#hamburger').node().classList.toggle('change');
 	d3.select('#controls').style('display','inline-block');
 
-	d3.select('#controls').style('display','inline-block');
 
 	//move the controls into view
 	var bbox = d3.select('#controls').node().getBoundingClientRect();
@@ -23,8 +23,38 @@ function toggleControls(){
 	d3.select('#svg').transition().duration(params.controlsTransitionDuration)
 		.style('transform', 'translate(' + (margin.left + params.controlsX/2) + 'px,' + margin.top + 'px)scaleX(' + params.SVGscale + ')')
 
+
 }
 
+//handle the dropdown menus
+function dropdown(){
+	console.log(params.dropdownHeights)
+	//rotate the triangle
+	var navi = d3.select(this).select('.navi');
+	navi.classed("rotate180", !navi.classed("rotate180")); 
+
+	//expand the dropdown (is there a way to do this purely in css with unknown height?)
+	var dropdown = d3.select('#'+this.id+'Dropdown').select('.dropdown-content')
+	var shown = dropdown.classed('show-dropdown');
+	if (shown){
+		dropdown
+			.style('visibility','hidden')
+			.style('opacity',0)
+			.style('height',0)
+			.classed("show-dropdown", false)
+	} else {
+		dropdown
+			.style('visibility','visible')
+			.style('opacity',1)
+			.style('height',params.dropdownHeights[this.parentNode.id] + 'px')
+			.classed("show-dropdown", true)
+	}
+
+
+
+}
+
+//resizing the plot elements based on input from the controls panel
 function moveData(messenger,sortKey){
 	//sortKey = 'risingIndex';
 	//sortKey = 'fallingIndex';

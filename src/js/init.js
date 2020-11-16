@@ -9,6 +9,7 @@ window.addEventListener("resize", resizePlot);
 
 //attach the controls
 d3.select('#hamburger').on('mousedown',toggleControls);
+d3.selectAll('.controlsTitle').on('mousedown',dropdown);
 
 d3.selectAll('.radioLabel.sort').on('mousedown', sortPlot);
 
@@ -19,6 +20,14 @@ d3.select('#arrowWidth').on('input',changeArrowSizes);
 
 d3.selectAll('.textInput').on('keyup',function(){ params[this.id] = this.value; });
 d3.select('#renderButton').on('click',renderToImage);
+//get the heights for all the dropdown menus first, then hide them
+d3.selectAll('.dropdown-content').each(function(d) {
+	params.dropdownHeights[this.parentNode.id] = this.getBoundingClientRect().height;
+	d3.select(this)
+		.style('height',0)
+		.style('visibility','hidden');
+});
+
 
 params.sizeScaler = window.innerWidth/params.targetWidth;
 

@@ -23,92 +23,103 @@
 			<div class='bar3'></div>
 		</div>
 		<div id='controls'>
-			<div class="controlsTitle">Sort GW</div>
-			<div class="radioButtons">
-				<label class="radioLabel sort GW rising">Rising
-					<input type="radio"  name="GWradio">
-					<span class="checkmark"></span>
-				</label>
-				<label class="radioLabel sort GW falling">Falling
-					<input type="radio" name="GWradio">
-					<span class="checkmark"></span>
-				</label>
-				<label class="radioLabel sort GW peaked">Peaked
-					<input type="radio" name="GWradio">
-					<span class="checkmark"></span>
-				</label>
-				<label class="radioLabel sort GW valley">Valley
-					<input type="radio" name="GWradio">
-					<span class="checkmark"></span>
-				</label>
-				<label class="radioLabel sort GW diamond">Diamond
-					<input type="radio" checked="checked" name="GWradio">
-					<span class="checkmark"></span>
-				</label>
-				<label class="radioLabel sort GW random">Random
-					<input type="radio" name="GWradio">
-					<span class="checkmark"></span>
-				</label>
-				<label class="radioLabel sort GW date">Date
-					<input type="radio" name="GWradio">
-					<span class="checkmark"></span>
-				</label>
-				<label class="radioLabel sort GW distance">Distance
-					<input type="radio" name="GWradio">
-					<span class="checkmark"></span>
-				</label>
+			<div id='sortGWDropdown'>
+				<div id='sortGW' class="controlsTitle" style="padding-top:40px"><div class='navi'></div>Sort GW</div>
+				<div class="radioButtons dropdown-content">
+					<label class="radioLabel sort GW rising">Rising
+						<input type="radio"  name="GWradio">
+						<span class="checkmark"></span>
+					</label>
+					<label class="radioLabel sort GW falling">Falling
+						<input type="radio" name="GWradio">
+						<span class="checkmark"></span>
+					</label>
+					<label class="radioLabel sort GW peaked">Peaked
+						<input type="radio" name="GWradio">
+						<span class="checkmark"></span>
+					</label>
+					<label class="radioLabel sort GW valley">Valley
+						<input type="radio" name="GWradio">
+						<span class="checkmark"></span>
+					</label>
+					<label class="radioLabel sort GW diamond">Diamond
+						<input type="radio" checked="checked" name="GWradio">
+						<span class="checkmark"></span>
+					</label>
+					<label class="radioLabel sort GW random">Random
+						<input type="radio" name="GWradio">
+						<span class="checkmark"></span>
+					</label>
+					<label class="radioLabel sort GW date">Date
+						<input type="radio" name="GWradio">
+						<span class="checkmark"></span>
+					</label>
+					<label class="radioLabel sort GW distance">Distance
+						<input type="radio" name="GWradio">
+						<span class="checkmark"></span>
+					</label>
+				</div>
 			</div>
 
-			<div class="controlsTitle">Sort EM</div>
-			<div class="radioButtons">
-				<label class="radioLabel sort EM rising">Rising
-					<input type="radio"  name="EMradio">
-					<span class="checkmark"></span>
-				</label>
-				<label class="radioLabel sort EM falling">Falling
-					<input type="radio" name="EMradio">
-					<span class="checkmark"></span>
-				</label>
-				<label class="radioLabel sort EM peaked">Peaked
-					<input type="radio" name="EMradio">
-					<span class="checkmark"></span>
-				</label>
-				<label class="radioLabel sort EM valley">Valley
-					<input type="radio" checked="checked" name="EMradio">
-					<span class="checkmark"></span>
-				</label>
-				<label class="radioLabel sort EM diamond">Diamond
-					<input type="radio" name="EMradio">
-					<span class="checkmark"></span>
-				</label>
-				<label class="radioLabel sort EM random">Random
-					<input type="radio" name="EMradio">
-					<span class="checkmark"></span>
-				</label>
+			<div id='sortEMDropdown'>
+				<div id='sortEM' class="controlsTitle"><div class='navi'></div>Sort EM</div>
+				<div class="radioButtons dropdown-content">
+					<label class="radioLabel sort EM rising">Rising
+						<input type="radio"  name="EMradio">
+						<span class="checkmark"></span>
+					</label>
+					<label class="radioLabel sort EM falling">Falling
+						<input type="radio" name="EMradio">
+						<span class="checkmark"></span>
+					</label>
+					<label class="radioLabel sort EM peaked">Peaked
+						<input type="radio" name="EMradio">
+						<span class="checkmark"></span>
+					</label>
+					<label class="radioLabel sort EM valley">Valley
+						<input type="radio" checked="checked" name="EMradio">
+						<span class="checkmark"></span>
+					</label>
+					<label class="radioLabel sort EM diamond">Diamond
+						<input type="radio" name="EMradio">
+						<span class="checkmark"></span>
+					</label>
+					<label class="radioLabel sort EM random">Random
+						<input type="radio" name="EMradio">
+						<span class="checkmark"></span>
+					</label>
+				</div>
 			</div>
-			
+
 			<!-- could make this a single two-sided slider -->
-			<div class="controlsTitle">Point Sizes</div>
-			<div class="controlsTitle" style="font-size:16px; margin-top:5px">Min</div>
-			<div class="slidecontainer">
-				<input type="range" min="1" max="5" value="5" class="slider" id="minPointSize">
-			</div>
-			<div class="controlsTitle" style="font-size:16px; margin-top:5px">Max</div>
-			<div class="slidecontainer">
-				<input type="range" min="5" max="40" value="20" class="slider" id="maxPointSize">
+			<div id='pointSizeDropdown'>
+				<div id = 'pointSize' class="controlsTitle"><div class='navi'></div>Point Sizes</div>
+				<div class='dropdown-content'>
+					<div class="controlsSubtitle">Min</div>
+					<div class="slidecontainer">
+						<input type="range" min="1" max="5" value="5" class="slider" id="minPointSize">
+					</div>
+					<div class="controlsSubtitle">Max</div>
+					<div class="slidecontainer">
+						<input type="range" min="5" max="40" value="20" class="slider" id="maxPointSize">
+					</div>
+				</div>
 			</div>
 
-			<div class="controlsTitle" style="margin-bottom:10px">Arrow Width</div>
-			<div class="slidecontainer">
-				<input type="range" min="2" max="20" value="10" class="slider" id="arrowWidth">
+			<div id='arrowSizeDropdown'>
+				<div id='arrowSize' class="controlsTitle"><div class='navi'></div>Arrow Width</div>
+				<div class="slidecontainer dropdown-content" style="padding-top:10px">
+					<input type="range" min="2" max="20" value="10" class="slider" id="arrowWidth">
+				</div>
 			</div>
 
-			<div class="controlsTitle" style="margin-bottom:10px">Snapshot</div>
-			<div>
-				<input id='renderX' class='textInput' type='text' name='renderX' auotcomplete='off' placeholder="x pixels">
-				<input id='renderY' class='textInput' type='text' name='renderY' auotcomplete='off' placeholder="y pixels">
-			    <input id='renderButton' type="submit" value="Go">
-
+			<div id='snapshotDropdown'>
+				<div id='snapshot' class="controlsTitle"><div class='navi'></div>Snapshot</div>
+				<div class='dropdown-content'  style="padding-top:10px">
+					<input id='renderX' class='textInput' type='text' name='renderX' auotcomplete='off' placeholder="x pixels">
+					<input id='renderY' class='textInput' type='text' name='renderY' auotcomplete='off' placeholder="y pixels">
+					<input id='renderButton' type="submit" value="Go">
+				</div>
 			</div>
 		</div>
 
