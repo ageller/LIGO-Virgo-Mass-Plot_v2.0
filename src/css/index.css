@@ -20,6 +20,16 @@ html,body {
 	font-size:50px;
 }
 
+.credits{
+	fill:var(--plot-text-color);
+	font-size:25px;
+}
+
+.title{
+	fill:var(--plot-text-color);
+	font-size:75px;
+}
+
 .axis{
 	stroke:var(--plot-text-color);
 	color:var(--plot-text-color);

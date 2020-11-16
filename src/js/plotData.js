@@ -1,6 +1,6 @@
 function createPlot(){
 //set up the plot axes, etc.
-	console.log('creating plot object ...');
+	//console.log('creating plot object ...');
 
 	params.SVGwidth = window.innerWidth - params.SVGmargin.left - params.SVGmargin.right; 
 	params.SVGheight = window.innerHeight - params.SVGmargin.top - params.SVGmargin.bottom; 
@@ -12,7 +12,8 @@ function createPlot(){
 		.style('width',params.SVGwidth)
 		.style('background-color',params.SVGbackground)
 		.style("transform", "translate(" + params.SVGmargin.left + "px," + params.SVGmargin.top + "px)")
-		.append("g")
+
+	params.mainPlot = params.SVG.append("g")
 			.attr('id','mainPlot')
 			.attr("transform", "translate(" + params.SVGpadding.left + "," + params.SVGpadding.top + ")");
 
@@ -33,15 +34,15 @@ function createPlot(){
 		.tickFormat(d3.format("d"))
 		.tickValues([1,2,5,10,20,50,100,200]);
 
-	params.SVG.append("g")
+	params.mainPlot.append("g")
 		.attr("class", "axis yaxis")
 		.call(params.yAxis);
 
-	params.SVG.selectAll('.axis').selectAll('line')
+	params.mainPlot.selectAll('.axis').selectAll('line')
 		.style('stroke-width','2px')
-	params.SVG.select('.yaxis').selectAll('.domain').remove();
+	params.mainPlot.select('.yaxis').selectAll('.domain').remove();
 
-	params.SVG.append("text")
+	params.mainPlot.append("text")
 		.attr("class", "axisLabel yaxis")
 		.attr("transform", "rotate(-90)")
 		.attr("x", 0)
@@ -50,7 +51,23 @@ function createPlot(){
 		.style("text-anchor", "end")
 		.text("Solar Masses")
 
+	params.SVG.append("text")
+		.attr("class", "credits")
+		.attr("x", params.SVGwidth/2. + 'px')
+		.attr("y", params.SVGheight + 'px')
+		.attr("dx", params.SVGpadding.left/2. + "px")
+		.attr("dy", "-10px")
+		.style("text-anchor", "middle")
+		.text("LIGO-Virgo | Aaron Geller | Northwestern")
 
+	params.SVG.append("text")
+		.attr("class", "title")
+		.attr("x", params.SVGwidth/2. + 'px')
+		.attr("y", '0px')
+		.attr("dx", params.SVGpadding.left/2. + "px")
+		.attr("dy", "60px")
+		.style("text-anchor", "middle")
+		.text("Masses in the Stellar Graveyard")
 	populatePlot();
 
 }
@@ -144,11 +161,11 @@ function circleColor(tp,mass){
 }
 
 function plotData(){
-	console.log('populating plot ...');
+	//console.log('populating plot ...');
 	params.xNorm = (params.data.length + 2);
 
 	//construct the arrows for GW sources
-	params.SVG.selectAll('.arrow.GW')
+	params.mainPlot.selectAll('.arrow.GW')
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW'})
 		.append("path")
 			.attr("class",function(d){return 'name-'+cleanString(d.commonName) + " arrow GW"})
@@ -168,7 +185,7 @@ function plotData(){
 
 
 	//add all the circles for all the masses
-	params.SVG.selectAll(".dot.mf.GW")
+	params.mainPlot.selectAll(".dot.mf.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source != null })
 		.append("circle")
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf GW";})
@@ -185,7 +202,7 @@ function plotData(){
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut);
 
-	params.SVG.selectAll(".dot.m1.GW")
+	params.mainPlot.selectAll(".dot.m1.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.mass_1_source != null })
 		.append("circle")
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot m1 GW";})
@@ -202,7 +219,7 @@ function plotData(){
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut);
 
-	params.SVG.selectAll(".dot.m2.GW")
+	params.mainPlot.selectAll(".dot.m2.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.mass_2_source != null })
 		.append("circle")
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot m2 GW";})
@@ -220,7 +237,7 @@ function plotData(){
 			.on('mouseout',mouseOut);
 
 	//add any without final masses?
-	params.SVG.selectAll(".dot.mf.no_final_mass.GW")
+	params.mainPlot.selectAll(".dot.mf.no_final_mass.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source == null && d.total_mass_source != null})
 		.append("circle")
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf no_final_mass GW";})
@@ -238,7 +255,7 @@ function plotData(){
 			.on('mouseout',mouseOut)
 
 	//add question marks to these w/o final masses
-	params.SVG.selectAll(".text.mf.no_final_mass.GW")
+	params.mainPlot.selectAll(".text.mf.no_final_mass.GW")
 		.data(params.data).enter().filter(function(d) {return d.messenger == 'GW' && d.final_mass_source == null && d.total_mass_source != null})	
 		.append("text")		
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " text mf no_final_mass GW";})
@@ -255,7 +272,7 @@ function plotData(){
 			.on('mouseout',mouseOut)
 
 	//add the EM data
-	params.SVG.selectAll(".dot.mf.EM")
+	params.mainPlot.selectAll(".dot.mf.EM")
 		.data(params.EMdata).enter().filter(function(d) { return d.messenger == 'EM' && d.mass != null })
 		.append("circle")
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf EM";})
@@ -336,11 +353,11 @@ function changePointSizes(){
 	params.minRadius = +d3.select('#minPointSize').node().value;
 	params.radiusScale.range([params.minRadius,params.maxRadius]);
 
-	params.SVG.selectAll(".dot.mf.GW").attr("r", function(d){return params.radiusScale(+d.final_mass_source);});
-	params.SVG.selectAll(".dot.m1.GW").attr("r", function(d){return params.radiusScale(+d.mass_1_source);});
-	params.SVG.selectAll(".dot.m2.GW").attr("r", function(d){return params.radiusScale(+d.mass_2_source);});
-	params.SVG.selectAll(".dot.mf.no_final_mass.GW").attr("r", function(d){return params.radiusScale(+d.total_mass_source);});
-	params.SVG.selectAll(".dot.mf.EM").attr("r", function(d){return params.radiusScale(+d.mass);});
+	params.mainPlot.selectAll(".dot.mf.GW").attr("r", function(d){return params.radiusScale(+d.final_mass_source);});
+	params.mainPlot.selectAll(".dot.m1.GW").attr("r", function(d){return params.radiusScale(+d.mass_1_source);});
+	params.mainPlot.selectAll(".dot.m2.GW").attr("r", function(d){return params.radiusScale(+d.mass_2_source);});
+	params.mainPlot.selectAll(".dot.mf.no_final_mass.GW").attr("r", function(d){return params.radiusScale(+d.total_mass_source);});
+	params.mainPlot.selectAll(".dot.mf.EM").attr("r", function(d){return params.radiusScale(+d.mass);});
 
 	changeArrowSizes();
 }
@@ -348,7 +365,7 @@ function changePointSizes(){
 function changeArrowSizes(){
 	params.arrowScale = +d3.select('#arrowWidth').node().value*0.1; //scale goes between 1 and 20, but I want 0.1 - 2
 
-	params.SVG.selectAll('.arrow.GW').attr("d", function(d){return createArrow(d)})
+	params.mainPlot.selectAll('.arrow.GW').attr("d", function(d){return createArrow(d)})
 
 }
 
