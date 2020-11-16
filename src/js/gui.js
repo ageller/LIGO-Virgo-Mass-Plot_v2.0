@@ -60,7 +60,10 @@ function moveData(messenger,sortKey){
 	//sortKey = 'peakIndex';
 	//sortKey = 'valleyIndex';
 
+
 	console.log('moving data', messenger, sortKey)
+
+	params[messenger+'sortKey'] = sortKey;
 
 	d3.selectAll('.dot.'+messenger).transition().duration(params.sortTransitionDuration)
 		.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
