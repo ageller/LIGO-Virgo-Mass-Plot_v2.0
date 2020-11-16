@@ -17,6 +17,9 @@ d3.select('#minPointSize').on('input',changePointSizes);
 
 d3.select('#arrowWidth').on('input',changeArrowSizes);
 
+d3.selectAll('.textInput').on('keyup',function(){ params[this.id] = this.value; });
+d3.select('#renderButton').on('click',renderToImage);
+
 params.sizeScaler = window.innerWidth/params.targetWidth;
 
 //////////////////////////////
@@ -79,6 +82,8 @@ function compileData(){
 
 	//now only take those for the final data product
 	GWmasses = [];
+	GWdates = [];
+	GWdistances = [];
 	var num = 0;
 	for (var i=0; i<useEvents.id.length; i+=1){
 		e = useEvents.name[i];
@@ -95,6 +100,8 @@ function compileData(){
 			params.data.push(dat);
 			params.commonNames.push(dat.commonName)
 			GWmasses.push(dat.mass);
+			GWdates.push(dat.GPS);
+			GWdistances.push(dat.luminosity_distance);
 		} else {
 			console.log('removing : ',e)
 		}
@@ -124,6 +131,10 @@ function compileData(){
 	//valleyIndex will sort with most massive in the middle
 	//
 	var sortedGWMasses = sortWithIndices(GWmasses);
+	var sortedGWDates = sortWithIndices(GWdates);
+	var sortedGWDistances = sortWithIndices(GWdistances);
+
+
 	var GWside = 1;
 	var GWside2 = 1;
 	var flipped = false;
@@ -193,16 +204,26 @@ function compileData(){
 	EMindices = shuffle(EMindices);
 	for (var i=0; i<params.data.length; i+=1){
 		var j = 1;
+		var jDate = 1;
+		var jDist = 1;
+
 		if (params.data[i].messenger == 'GW'){
 			j = (sortedGWMasses.sortIndices.indexOf(params.data[i].GWindex) + 1)*params.data.length/GWmasses.length;
+			jDate = (sortedGWDates.sortIndices.indexOf(params.data[i].GWindex) + 1)*params.data.length/GWdates.length;
+			jDist = (sortedGWDistances.sortIndices.indexOf(params.data[i].GWindex) + 1)*params.data.length/GWdistances.length;
 			params.data[i].randomIndex = GWindices[i];
 		}
 		if (params.data[i].messenger == 'EM'){
 			j = (sortedEMMasses.sortIndices.indexOf(params.data[i].EMindex) + 1)*params.data.length/EMmasses.length;
 			params.data[i].randomIndex = EMindices[i - GWindices.length];
 		}
+
 		params.data[i].risingIndex = j;		
 		params.data[i].fallingIndex = params.data.length - j;
+
+		params.data[i].dateIndex = jDate;		
+		params.data[i].distanceIndex = jDist;		
+
 	}
 
 	//create the plot

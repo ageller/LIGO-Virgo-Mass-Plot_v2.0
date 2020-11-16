@@ -29,11 +29,13 @@ var params = new function() {
 	//SVG setup
 	this.SVG;
 	this.mainPlot;
-	this.SVGbackground = getComputedStyle(document.documentElement).getPropertyValue('--plot-background-color');
+	this.SVGbackground = 'black';
 	this.SVGmargin = {'top': 10,'bottom':10,'left': 10,'right':10};
 	this.SVGpadding = {'top': 10, 'bottom':100,'left': 120,'right':10};
 	this.SVGwidth = window.innerWidth - this.SVGmargin.left - this.SVGmargin.right; 
 	this.SVGheight = window.innerHeight - this.SVGmargin.top - this.SVGmargin.bottom; 
+	
+	this.plotReady = false;
 	
 	//this will be modified if the controls gui is open
 	this.SVGscale = 1.;
@@ -46,6 +48,11 @@ var params = new function() {
 	this.opArrow = 0.5;
 
 	this.BHMinMass = 3; //minimum mass for coloring as a black hole in GW sources
+
+	//for rendering
+	this.renderX = 1920; //will be updated from button
+	this.renderY = 1080;
+	this.filename = 'Masses_of_Dead_Stars_LIGO_Virgo.png';
 
 	this.tooltipTransitionDuration = 200;
 	this.sortTransitionDuration = 400;

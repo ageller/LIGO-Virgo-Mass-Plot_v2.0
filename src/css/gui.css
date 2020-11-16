@@ -10,7 +10,7 @@
 .bar1, .bar2, .bar3 {
 	width: 20px;
 	height: 3px;
-	background-color: var(--plot-text-color);
+	background-color: #808080;
 	margin: 4px 0;
 	transition: 0.4s;
 }
@@ -37,7 +37,7 @@
 	top:0;
 	left:100vw;
 	background-color: rgba(200, 200, 200, 0.95);
-	color:var(--plot-background-color);
+	color:#000000;
 	z-index:19;
 
 }
@@ -147,7 +147,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--plot-background-color);
+  background: #000000;
   cursor: pointer;
 }
 
@@ -155,6 +155,35 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--plot-background-color);
+  background: #000000;
   cursor: pointer;
+}
+
+/* */
+/*.textInput{
+	width:45px;
+	height:20px;
+	padding:1px;
+}*/
+input[type=text], select {
+	width: 45px;
+	height:20px;
+	padding:1px;
+	border:1px solid #555555;
+}
+
+input[type=submit] {
+	width: 30px;
+	height:25px;
+	background-color: #555555;
+	color: white;
+	margin: 0;
+	padding:1px;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #000000;
 }

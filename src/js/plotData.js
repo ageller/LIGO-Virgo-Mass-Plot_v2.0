@@ -1,6 +1,8 @@
-function createPlot(){
+function createPlot(width=null, height=null){
 //set up the plot axes, etc.
 	//console.log('creating plot object ...');
+
+	params.plotReady = false;
 
 	var margin = {};
 	var padding = {};
@@ -9,9 +11,11 @@ function createPlot(){
 	var keys = Object.keys(params.SVGpadding);
 	for (var i=0; i<keys.length; i++) padding[keys[i]] = params.SVGpadding[keys[i]]*params.sizeScaler;
 
+	if (!width) width = window.innerWidth; 
+	if (!height) height = window.innerHeight;
 
-	params.SVGwidth = window.innerWidth - margin.left*params.sizeScaler - margin.right; 
-	params.SVGheight = window.innerHeight - margin.top - margin.bottom; 
+	params.SVGwidth = width - margin.left*params.sizeScaler - margin.right; 
+	params.SVGheight = height - margin.top - margin.bottom; 
 
 	//define the SVG element that will contain the plot
 	params.SVG = d3.select('body').append('svg')
@@ -28,6 +32,7 @@ function createPlot(){
 		.attr("y", params.SVGheight + 'px')
 		.attr("dx", padding.left/2. + "px")
 		.attr("dy", "-10px")
+		.style('font-size', 0.02*params.SVGwidth)
 		.text("LIGO-Virgo | Aaron Geller | Northwestern");
 
 	var title = params.SVG.append("text")
@@ -35,6 +40,7 @@ function createPlot(){
 		.attr("x", params.SVGwidth/2. + 'px')
 		.attr("y", '0px')
 		.attr("dx", padding.left/2. + "px")
+		.style('font-size', 0.05*params.SVGwidth)
 		.text("Masses in the Stellar Graveyard");
 	var titleBbox = title.node().getBoundingClientRect();
 	title.attr("dy", titleBbox.height*0.8)
@@ -48,8 +54,9 @@ function createPlot(){
 		.attr("dx", '0px')
 		.attr("dy", "0px")
 		.style('fill',params.colors.GWBH)
+		.style('font-size', 0.015*params.SVGwidth)
 		.text("LIGO-Virgo Black Holes");
-	var offset = GWBH.node().getBoundingClientRect().width + 20;
+	var offset = GWBH.node().getBoundingClientRect().width + 0.01*params.SVGwidth;
 	var GWNS = legend.append("text")
 		.attr("class", "legendText")
 		.attr("x", padding.left + offset + 'px')
@@ -57,8 +64,9 @@ function createPlot(){
 		.attr("dx", '0px')
 		.attr("dy", "0px")
 		.style('fill',params.colors.GWNS)
+		.style('font-size', 0.015*params.SVGwidth)
 		.text("LIGO-Virgo Neutron Stars");
-	offset += GWNS.node().getBoundingClientRect().width + 20;
+	offset += GWNS.node().getBoundingClientRect().width + 0.01*params.SVGwidth;
 	var EMBH = legend.append("text")
 		.attr("class", "legendText")
 		.attr("x", padding.left + offset + 'px')
@@ -66,8 +74,9 @@ function createPlot(){
 		.attr("dx", '0px')
 		.attr("dy", "0px")
 		.style('fill',params.colors.EMBH)
+		.style('font-size', 0.015*params.SVGwidth)
 		.text("EM Black Holes");
-	offset += EMBH.node().getBoundingClientRect().width + 20;
+	offset += EMBH.node().getBoundingClientRect().width + 0.01*params.SVGwidth;
 	var EMNS = legend.append("text")
 		.attr("class", "legendText")
 		.attr("x", padding.left + offset + 'px')
@@ -75,6 +84,7 @@ function createPlot(){
 		.attr("dx", '0px')
 		.attr("dy", "0px")
 		.style('fill',params.colors.EMNS)
+		.style('font-size', 0.015*params.SVGwidth)
 		.text("EM Neutron Stars");
 
 	var legendBbox = legend.node().getBoundingClientRect();
@@ -107,6 +117,7 @@ function createPlot(){
 
 	params.mainPlot.append("g")
 		.attr("class", "axis yaxis")
+		.style('font-size', 0.015*params.SVGwidth)
 		.call(params.yAxis);
 
 	params.mainPlot.selectAll('.axis').selectAll('line')
@@ -119,6 +130,7 @@ function createPlot(){
 		.attr("x", 0)
 		.attr("y", 0)
 		.style("text-anchor", "end")
+		.style('font-size',0.03*params.SVGwidth)
 		.text("Solar Masses")
 	axisLabel.attr('dy','-'+axisLabel.node().getBoundingClientRect().width+'px')
 
@@ -164,26 +176,29 @@ function createArrow(d){
 
 	var dist = Math.abs(y1 - y0);
 
+	var scaleX = params.arrowScale*params.sizeScaler;
+	var scaleY = params.sizeScaler;
+
 	//draw the path for the arrow
 	const context = d3.path();
 
 	//tail
-	context.moveTo(x - (params.arrowThickBottom + params.arrowCurveTail)*params.arrowScale,    y1 + params.arrowHeadStart + r1);
-	context.quadraticCurveTo(x - params.arrowThickBottom*params.arrowScale, y1 + dist/2. + r1, x - params.arrowThickBottom*params.arrowScale, y0 - r0);
-	context.lineTo(x + params.arrowThickBottom*params.arrowScale, y0 - r0);
-	context.quadraticCurveTo(x + params.arrowThickBottom*params.arrowScale, y1 + dist/2. + r1, x + (params.arrowThickBottom + params.arrowCurveTail)*params.arrowScale, y1 + params.arrowHeadStart + r1);
+	context.moveTo(x - (params.arrowThickBottom + params.arrowCurveTail)*scaleX,    y1 + params.arrowHeadStart*scaleY + r1);
+	context.quadraticCurveTo(x - params.arrowThickBottom*scaleX, y1 + dist/2. + r1, x - params.arrowThickBottom*scaleX, y0 - r0);
+	context.lineTo(x + params.arrowThickBottom*scaleX, y0 - r0);
+	context.quadraticCurveTo(x + params.arrowThickBottom*scaleX, y1 + dist/2. + r1, x + (params.arrowThickBottom + params.arrowCurveTail)*scaleX, y1 + params.arrowHeadStart*scaleY + r1);
 
 	//head
 	var theta0 = 0.25*Math.PI;
-	var arrowx = (params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop)*params.arrowScale;
+	var arrowx = (params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop)*scaleX;
 	var rad = arrowx/Math.cos(theta0);
 	var arrowy1 = rad*Math.sin(theta0);
 	var arrowy = rad - arrowy1;
-	context.moveTo(x + (params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop)*params.arrowScale,    y1 + (params.arrowHeadStart + arrowy) + r1);
+	context.moveTo(x + (params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop)*scaleX,    y1 + (params.arrowHeadStart*scaleY + arrowy) + r1);
 	context.lineTo(x, y1 + r1);
-	context.lineTo(x - (params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop)*params.arrowScale,    y1 + (params.arrowHeadStart + arrowy) + r1);
+	context.lineTo(x - (params.arrowThickBottom + params.arrowCurveTail + params.arrowThickTop)*scaleX,    y1 + (params.arrowHeadStart*scaleY + arrowy) + r1);
 
-	context.arc(x, y1 + params.arrowHeadStart + rad + r1, rad, Math.PI + theta0, 2.*Math.PI - theta0);
+	context.arc(x, y1 + params.arrowHeadStart*scaleY + rad + r1, rad, Math.PI + theta0, 2.*Math.PI - theta0);
 
 
 	return context.toString();
@@ -245,7 +260,7 @@ function plotData(){
 			.style("fill-opacity",params.opMass)
 			.style("stroke", function(d){return getColor(d.messenger, d.final_mass_source);})
 			.style("stroke-opacity", 1)
-			.style("stroke-width", 2)
+			.style("stroke-width", 2*params.sizeScaler)
 			.style("cursor", "arrow")
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut);
@@ -262,7 +277,7 @@ function plotData(){
 			.style("fill-opacity",params.opMass)
 			.style("stroke", function(d){return getColor(d.messenger, d.mass_1_source);})
 			.style("stroke-opacity", 1)
-			.style("stroke-width", 2)
+			.style("stroke-width", 2*params.sizeScaler)
 			.style("cursor", "arrow")
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut);
@@ -279,7 +294,7 @@ function plotData(){
 			.style("fill-opacity",params.opMass)
 			.style("stroke", function(d){return getColor(d.messenger, d.mass_2_source);})
 			.style("stroke-opacity", 1)
-			.style("stroke-width", 2)
+			.style("stroke-width", 2*params.sizeScaler)
 			.style("cursor", "arrow")
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut);
@@ -297,7 +312,7 @@ function plotData(){
 			.style("fill-opacity",params.opMass)
 			.style("stroke", function(d){return getColor(d.messenger, d.total_mass_source);})
 			.style("stroke-opacity", 1)
-			.style("stroke-width", 2)
+			.style("stroke-width", 2*params.sizeScaler)
 			.style("cursor", "arrow")
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut)
@@ -332,90 +347,14 @@ function plotData(){
 			.style("fill-opacity",params.opMass)
 			.style("stroke", function(d){return getColor(d.messenger, d.mass);})
 			.style("stroke-opacity", 1)
-			.style("stroke-width", 2)
+			.style("stroke-width", 2*params.sizeScaler)
 			.style("cursor", "arrow")
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut);
+
+	params.plotReady = true;
 }
 
-function moveData(messenger,sortKey){
-	//sortKey = 'risingIndex';
-	//sortKey = 'fallingIndex';
-	//sortKey = 'peakIndex';
-	//sortKey = 'valleyIndex';
-
-	console.log('moving data', messenger, sortKey)
-
-	d3.selectAll('.dot.'+messenger).transition().duration(params.sortTransitionDuration)
-		.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
-
-	d3.selectAll('.text.'+messenger).transition().duration(params.sortTransitionDuration)
-		.attr("x", function(d) {return params.xAxisScale(+(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
-
-	if (messenger == 'GW'){
-		d3.selectAll('.arrow.GW').transition().duration(params.sortTransitionDuration)
-			.attr('transform',function(d){
-				var x = params.xAxisScale(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);
-				var y = 0;
-				return 'translate(' + x +',' + y + ')';
-			})
-	}
-}
-
-function sortPlot(){
-	var classes = d3.select(this).attr('class').split(' ');
-
-	var messenger = null;
-	if (classes.indexOf('GW') != -1){
-		messenger = 'GW'
-	}
-	if (classes.indexOf('EM') != -1){
-		messenger = 'EM'
-	}	
-
-	if (messenger){
-		if (classes.indexOf('rising') != -1){
-			moveData(messenger,'risingIndex')
-		}
-		if (classes.indexOf('falling') != -1){
-			moveData(messenger,'fallingIndex')
-		}
-		if (classes.indexOf('peaked') != -1){
-			moveData(messenger,'peakIndex')
-		}
-		if (classes.indexOf('valley') != -1){
-			moveData(messenger,'valleyIndex')
-		}
-		if (classes.indexOf('diamond') != -1){ //currently only available for GW
-			moveData(messenger,'diamondIndex')
-		}
-			if (classes.indexOf('random') != -1){ 
-			moveData(messenger,'randomIndex')
-		}
-	}
-}
-
-function changePointSizes(){
-	//console.log(this.value);
-	params.maxRadius = +d3.select('#maxPointSize').node().value;
-	params.minRadius = +d3.select('#minPointSize').node().value;
-	params.radiusScale.range([params.minRadius,params.maxRadius]);
-
-	params.mainPlot.selectAll(".dot.mf.GW").attr("r", function(d){return params.radiusScale(+d.final_mass_source);});
-	params.mainPlot.selectAll(".dot.m1.GW").attr("r", function(d){return params.radiusScale(+d.mass_1_source);});
-	params.mainPlot.selectAll(".dot.m2.GW").attr("r", function(d){return params.radiusScale(+d.mass_2_source);});
-	params.mainPlot.selectAll(".dot.mf.no_final_mass.GW").attr("r", function(d){return params.radiusScale(+d.total_mass_source);});
-	params.mainPlot.selectAll(".dot.mf.EM").attr("r", function(d){return params.radiusScale(+d.mass);});
-
-	changeArrowSizes();
-}
-
-function changeArrowSizes(){
-	params.arrowScale = +d3.select('#arrowWidth').node().value*0.1; //scale goes between 1 and 20, but I want 0.1 - 2
-
-	params.mainPlot.selectAll('.arrow.GW').attr("d", function(d){return createArrow(d)})
-
-}
 
 function resizePlot(){
 	//resize the plot when the user resizes the window

@@ -1,47 +1,41 @@
-:root {
-	--plot-text-color: #808080;
-	--plot-background-color: #000000;
-}
-
 
 html,body {
 	font: 12px sans-serif;
 	font-family: sans-serif;
 	padding:0;
 	margin:0;
-	background-color :  var(--plot-background-color);
+	background-color :  #000000;
 	overflow: hidden;
 	color: #FFFFFF;
 	height:100%;
 }
 
+#svg{
+	font-family: sans-serif;
+}
+
 .axisLabel{
-	fill:var(--plot-text-color);
-	font-size:3vw;
+	fill:#808080;
 }
 
 .credits{
-	fill:var(--plot-text-color);
-	font-size:2vw;
+	fill:#808080;
 	text-anchor:middle;
 }
 
 .title{
-	/*fill:var(--plot-text-color);*/
+	/*fill:#808080;*/
 	fill:white;
-	font-size:5vw;
 	text-anchor:middle;
 }
 .legendText{
-	font-size:1.5vw;
 	text-anchor:start;
 	font-style: italic;
 }
 
 .axis{
-	stroke:var(--plot-text-color);
-	color:var(--plot-text-color);
-	font-size:1.5vw;
+	stroke:#808080;
+	color:#808080;
 }
 
 .inFront{
@@ -60,4 +54,5 @@ html,body {
 	margin:0;
 	box-sizing: border-box;
 }
+
 
