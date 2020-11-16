@@ -19,7 +19,8 @@ function createPlot(){
 		.style('height',params.SVGheight)
 		.style('width',params.SVGwidth)
 		.style('background-color',params.SVGbackground)
-		.style("transform", "translate(" + margin.left + "px," + margin.top + "px)")
+		//.style("transform", "translate(" + margin.left + "px," + margin.top + "px)")
+		.style('transform', 'translate(' + (margin.left + params.controlsX/2) + 'px,' + margin.top + 'px)scaleX(' + params.SVGscale + ')')
 
 	var credits = params.SVG.append("text")
 		.attr("class", "credits")
@@ -36,7 +37,7 @@ function createPlot(){
 		.attr("dx", padding.left/2. + "px")
 		.text("Masses in the Stellar Graveyard");
 	var titleBbox = title.node().getBoundingClientRect();
-	title.attr("dy", titleBbox.height)
+	title.attr("dy", titleBbox.height*0.8)
 
 	var legend = params.SVG.append('g').attr('id','legend')
 

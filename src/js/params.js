@@ -34,6 +34,10 @@ var params = new function() {
 	this.SVGpadding = {'top': 10, 'bottom':100,'left': 120,'right':10};
 	this.SVGwidth = window.innerWidth - this.SVGmargin.left - this.SVGmargin.right; 
 	this.SVGheight = window.innerHeight - this.SVGmargin.top - this.SVGmargin.bottom; 
+	
+	//this will be modified if the controls gui is open
+	this.SVGscale = 1.;
+	this.controlsX = 0.;
 
 	this.colors = {'GWBH':'#00BFFF','GWNS':'#d78122', 'EMBH':'#6b509f', 'EMNS':'#dfc23f' };
 
