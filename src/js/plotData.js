@@ -23,8 +23,6 @@ function createPlot(width=null, height=null){
 		.style('height',params.SVGheight)
 		.style('width',params.SVGwidth)
 		.style('background-color',params.SVGbackground)
-		//.style("transform", "translate(" + margin.left + "px," + margin.top + "px)")
-		.style('transform', 'translate(' + (margin.left + params.controlsX/2) + 'px,' + margin.top + 'px)scaleX(' + params.SVGscale + ')')
 
 	var credits = params.SVG.append("text")
 		.attr("class", "credits")
@@ -133,6 +131,9 @@ function createPlot(width=null, height=null){
 		.style('font-size',0.03*params.SVGwidth)
 		.text("Solar Masses")
 	axisLabel.attr('dy','-'+axisLabel.node().getBoundingClientRect().width+'px')
+
+	params.SVG.style('transform', 'translate(' + (margin.left + params.controlsX/2) + 'px,' + margin.top + 'px)scaleX(' + params.SVGscale + ')')
+
 
 	populatePlot();
 
