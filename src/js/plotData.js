@@ -2,8 +2,16 @@ function createPlot(){
 //set up the plot axes, etc.
 	//console.log('creating plot object ...');
 
-	params.SVGwidth = window.innerWidth - params.SVGmargin.left - params.SVGmargin.right; 
-	params.SVGheight = window.innerHeight - params.SVGmargin.top - params.SVGmargin.bottom; 
+	var margin = {};
+	var padding = {};
+	var keys = Object.keys(params.SVGmargin);
+	for (var i=0; i<keys.length; i++) margin[keys[i]] = params.SVGmargin[keys[i]]*params.sizeScaler;
+	var keys = Object.keys(params.SVGpadding);
+	for (var i=0; i<keys.length; i++) padding[keys[i]] = params.SVGpadding[keys[i]]*params.sizeScaler;
+
+
+	params.SVGwidth = window.innerWidth - margin.left*params.sizeScaler - margin.right; 
+	params.SVGheight = window.innerHeight - margin.top - margin.bottom; 
 
 	//define the SVG element that will contain the plot
 	params.SVG = d3.select('body').append('svg')
@@ -11,26 +19,88 @@ function createPlot(){
 		.style('height',params.SVGheight)
 		.style('width',params.SVGwidth)
 		.style('background-color',params.SVGbackground)
-		.style("transform", "translate(" + params.SVGmargin.left + "px," + params.SVGmargin.top + "px)")
+		.style("transform", "translate(" + margin.left + "px," + margin.top + "px)")
+
+	var credits = params.SVG.append("text")
+		.attr("class", "credits")
+		.attr("x", params.SVGwidth/2. + 'px')
+		.attr("y", params.SVGheight + 'px')
+		.attr("dx", padding.left/2. + "px")
+		.attr("dy", "-10px")
+		.text("LIGO-Virgo | Aaron Geller | Northwestern");
+
+	var title = params.SVG.append("text")
+		.attr("class", "title")
+		.attr("x", params.SVGwidth/2. + 'px')
+		.attr("y", '0px')
+		.attr("dx", padding.left/2. + "px")
+		.text("Masses in the Stellar Graveyard");
+	var titleBbox = title.node().getBoundingClientRect();
+	title.attr("dy", titleBbox.height)
+
+	var legend = params.SVG.append('g').attr('id','legend')
+
+	var GWBH = legend.append("text")
+		.attr("class", "legendText")
+		.attr("x", padding.left + 'px')
+		.attr("y", '0px')
+		.attr("dx", '0px')
+		.attr("dy", "0px")
+		.style('fill',params.colors.GWBH)
+		.text("LIGO-Virgo Black Holes");
+	var offset = GWBH.node().getBoundingClientRect().width + 20;
+	var GWNS = legend.append("text")
+		.attr("class", "legendText")
+		.attr("x", padding.left + offset + 'px')
+		.attr("y", '0px')
+		.attr("dx", '0px')
+		.attr("dy", "0px")
+		.style('fill',params.colors.GWNS)
+		.text("LIGO-Virgo Neutron Stars");
+	offset += GWNS.node().getBoundingClientRect().width + 20;
+	var EMBH = legend.append("text")
+		.attr("class", "legendText")
+		.attr("x", padding.left + offset + 'px')
+		.attr("y", '0px')
+		.attr("dx", '0px')
+		.attr("dy", "0px")
+		.style('fill',params.colors.EMBH)
+		.text("EM Black Holes");
+	offset += EMBH.node().getBoundingClientRect().width + 20;
+	var EMNS = legend.append("text")
+		.attr("class", "legendText")
+		.attr("x", padding.left + offset + 'px')
+		.attr("y", '0px')
+		.attr("dx", '0px')
+		.attr("dy", "0px")
+		.style('fill',params.colors.EMNS)
+		.text("EM Neutron Stars");
+
+	var legendBbox = legend.node().getBoundingClientRect();
+	var legendY = legendBbox.height + titleBbox.height;
+	var legendX = (params.SVGwidth - padding.left - legendBbox.width)/2.
+	legend.attr('transform','translate(' +legendX + ',' + legendY + ')')
+
+	var top = title.node().getBoundingClientRect().height + legend.node().getBoundingClientRect().height + padding.top;
 
 	params.mainPlot = params.SVG.append("g")
 			.attr('id','mainPlot')
-			.attr("transform", "translate(" + params.SVGpadding.left + "," + params.SVGpadding.top + ")");
+			.attr("transform", "translate(" + padding.left + "," + top + ")");
 
 	//define the radius scaling
-	params.radiusScale = d3.scaleLinear().range([params.minRadius,params.maxRadius]).domain(d3.extent(params.data, function(d){ return +d.final_mass_source; }));
+	params.radiusScale = d3.scaleLinear().range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]).domain(d3.extent(params.data, function(d){ return +d.final_mass_source; }));
 
 	//define the axes
-	params.xAxisScale = d3.scaleLinear().range([0, params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right]);
-	params.yAxisScale = d3.scaleLog().range([params.SVGheight - params.SVGpadding.top - params.SVGpadding.bottom, 1]);
+	params.xAxisScale = d3.scaleLinear().range([0, params.SVGwidth - padding.left - padding.right]);
+	params.yAxisScale = d3.scaleLog().range([params.SVGheight - top - padding.bottom, 1]);
 
-	params.xAxisScale.domain([0, params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right]); //pixels on screen
+	params.xAxisScale.domain([0, params.SVGwidth - padding.left - padding.right]); //pixels on screen
 	//params.yAxisScale.domain(d3.extent(params.data, function(d){if (d.final_mass_source != null) return +d.final_mass_source; })); //masses
 	params.yAxisScale.domain(d3.extent([1, 200])); //masses
 
 	params.yAxis = d3.axisLeft(params.yAxisScale)
 		.scale(params.yAxisScale)
-		.tickSize(-(params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right))
+		.tickSize(-(params.SVGwidth - padding.left - padding.right))
 		.tickFormat(d3.format("d"))
 		.tickValues([1,2,5,10,20,50,100,200]);
 
@@ -42,32 +112,15 @@ function createPlot(){
 		.style('stroke-width','2px')
 	params.mainPlot.select('.yaxis').selectAll('.domain').remove();
 
-	params.mainPlot.append("text")
+	var axisLabel = params.mainPlot.append("text")
 		.attr("class", "axisLabel yaxis")
 		.attr("transform", "rotate(-90)")
 		.attr("x", 0)
-		.attr("y", -(params.SVGpadding.left-2))
-		.attr("dy", ".71em")
+		.attr("y", 0)
 		.style("text-anchor", "end")
 		.text("Solar Masses")
+	axisLabel.attr('dy','-'+axisLabel.node().getBoundingClientRect().width+'px')
 
-	params.SVG.append("text")
-		.attr("class", "credits")
-		.attr("x", params.SVGwidth/2. + 'px')
-		.attr("y", params.SVGheight + 'px')
-		.attr("dx", params.SVGpadding.left/2. + "px")
-		.attr("dy", "-10px")
-		.style("text-anchor", "middle")
-		.text("LIGO-Virgo | Aaron Geller | Northwestern")
-
-	params.SVG.append("text")
-		.attr("class", "title")
-		.attr("x", params.SVGwidth/2. + 'px')
-		.attr("y", '0px')
-		.attr("dx", params.SVGpadding.left/2. + "px")
-		.attr("dy", "60px")
-		.style("text-anchor", "middle")
-		.text("Masses in the Stellar Graveyard")
 	populatePlot();
 
 }
@@ -144,19 +197,13 @@ function populatePlot(){
 	plotData();
 }
 
-function circleColor(tp,mass){
-	if (tp == 'GW'){
-		if (mass > params.BHMinMass){ 
-			return '#00BFFF'; //black hole
-		} 
-		return '#d78122'; //neutron star
-	}
-	if (tp == 'EM'){
-		if (mass > params.BHMinMass){ 
-			return '6b509f'; //black hole
-		} 
-		return '#dfc23f'; //neutron star
-	}
+function getColor(tp,mass){
+	var rem = 'BH'
+	if (mass < params.BHMinMass) rem = 'NS';
+
+	var key = tp+rem;
+
+	return params.colors[key];
 
 }
 
@@ -193,9 +240,9 @@ function plotData(){
 			.attr("r", function(d){return params.radiusScale(+d.final_mass_source);})
 			.attr("cx", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
 			.attr("cy", function(d) {return params.yAxisScale(+d.final_mass_source);})
-			.style("fill", function(d){return circleColor(d.messenger, d.final_mass_source);})
+			.style("fill", function(d){return getColor(d.messenger, d.final_mass_source);})
 			.style("fill-opacity",params.opMass)
-			.style("stroke", function(d){return circleColor(d.messenger, d.final_mass_source);})
+			.style("stroke", function(d){return getColor(d.messenger, d.final_mass_source);})
 			.style("stroke-opacity", 1)
 			.style("stroke-width", 2)
 			.style("cursor", "arrow")
@@ -210,9 +257,9 @@ function plotData(){
 			.attr("r", function(d){return params.radiusScale(+d.mass_1_source);})
 			.attr("cx", function(d) {return params.xAxisScale(+d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
 			.attr("cy", function(d) {return params.yAxisScale(+d.mass_1_source);})
-			.style("fill", function(d){return circleColor(d.messenger, d.mass_1_source);})
+			.style("fill", function(d){return getColor(d.messenger, d.mass_1_source);})
 			.style("fill-opacity",params.opMass)
-			.style("stroke", function(d){return circleColor(d.messenger, d.mass_1_source);})
+			.style("stroke", function(d){return getColor(d.messenger, d.mass_1_source);})
 			.style("stroke-opacity", 1)
 			.style("stroke-width", 2)
 			.style("cursor", "arrow")
@@ -227,9 +274,9 @@ function plotData(){
 			.attr("r", function(d){return params.radiusScale(+d.mass_2_source);})
 			.attr("cx", function(d) {return params.xAxisScale(+d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
 			.attr("cy", function(d) {return params.yAxisScale(+d.mass_2_source);})
-			.style("fill", function(d){return circleColor(d.messenger, d.mass_2_source);})
+			.style("fill", function(d){return getColor(d.messenger, d.mass_2_source);})
 			.style("fill-opacity",params.opMass)
-			.style("stroke", function(d){return circleColor(d.messenger, d.mass_2_source);})
+			.style("stroke", function(d){return getColor(d.messenger, d.mass_2_source);})
 			.style("stroke-opacity", 1)
 			.style("stroke-width", 2)
 			.style("cursor", "arrow")
@@ -245,9 +292,9 @@ function plotData(){
 			.attr("r", function(d){return params.radiusScale(+d.total_mass_source);})
 			.attr("cx", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
 			.attr("cy", function(d) {return params.yAxisScale(+d.total_mass_source);})
-			.style("fill", function(d){return circleColor(d.messenger, d.total_mass_source);})
+			.style("fill", function(d){return getColor(d.messenger, d.total_mass_source);})
 			.style("fill-opacity",params.opMass)
-			.style("stroke", function(d){return circleColor(d.messenger, d.total_mass_source);})
+			.style("stroke", function(d){return getColor(d.messenger, d.total_mass_source);})
 			.style("stroke-opacity", 1)
 			.style("stroke-width", 2)
 			.style("cursor", "arrow")
@@ -280,9 +327,9 @@ function plotData(){
 			.attr("r", function(d){return params.radiusScale(+d.mass);})
 			.attr("cx", function(d) {return params.xAxisScale(+d[params.EMsortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
 			.attr("cy", function(d) {return params.yAxisScale(+d.mass);})
-			.style("fill", function(d){return circleColor(d.messenger, d.mass);})
+			.style("fill", function(d){return getColor(d.messenger, d.mass);})
 			.style("fill-opacity",params.opMass)
-			.style("stroke", function(d){return circleColor(d.messenger, d.mass);})
+			.style("stroke", function(d){return getColor(d.messenger, d.mass);})
 			.style("stroke-opacity", 1)
 			.style("stroke-width", 2)
 			.style("cursor", "arrow")
@@ -372,6 +419,8 @@ function changeArrowSizes(){
 function resizePlot(){
 	//resize the plot when the user resizes the window
 	//for now I'll just redraw
+	params.sizeScaler = window.innerWidth/params.targetWidth;
+
 	d3.select('#svg').remove();
 	createPlot();
 }

@@ -17,23 +17,31 @@ html,body {
 
 .axisLabel{
 	fill:var(--plot-text-color);
-	font-size:50px;
+	font-size:3vw;
 }
 
 .credits{
 	fill:var(--plot-text-color);
-	font-size:25px;
+	font-size:2vw;
+	text-anchor:middle;
 }
 
 .title{
-	fill:var(--plot-text-color);
-	font-size:75px;
+	/*fill:var(--plot-text-color);*/
+	fill:white;
+	font-size:5vw;
+	text-anchor:middle;
+}
+.legendText{
+	font-size:1.5vw;
+	text-anchor:start;
+	font-style: italic;
 }
 
 .axis{
 	stroke:var(--plot-text-color);
 	color:var(--plot-text-color);
-	font-size:28px;
+	font-size:1.5vw;
 }
 
 .inFront{

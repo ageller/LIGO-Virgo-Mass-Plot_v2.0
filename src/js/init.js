@@ -17,6 +17,8 @@ d3.select('#minPointSize').on('input',changePointSizes);
 
 d3.select('#arrowWidth').on('input',changeArrowSizes);
 
+params.sizeScaler = window.innerWidth/params.targetWidth;
+
 //////////////////////////////
 //read in the data and reformat
 
