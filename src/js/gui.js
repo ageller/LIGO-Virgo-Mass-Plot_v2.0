@@ -28,7 +28,6 @@ function toggleControls(){
 
 //handle the dropdown menus
 function dropdown(){
-	console.log(params.dropdownHeights)
 	//rotate the triangle
 	var navi = d3.select(this).select('.navi');
 	navi.classed("rotate180", !navi.classed("rotate180")); 
