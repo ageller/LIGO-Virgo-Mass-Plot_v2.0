@@ -127,6 +127,7 @@ function renderToImage(){
 		d3.select('#svg').remove();
 		createPlot(params.renderX, params.renderY);
 
+		//wait until drawing in is complete
 		var imgCheck = setInterval(function(){ 
 			if (params.plotReady){
 				console.log('plot is ready')
@@ -150,14 +151,7 @@ function saveImage(){
 	svgString2Image( svgString, params.renderX, params.renderY, 'png', save );
 
 	function save( dataBlob, filesize){
-		//could do this in a series of callbacks, but this is easier
-		var imgCheck = setInterval(function(){ 
-			if (params.plotReady){
-				console.log('plot is ready')
-				clearInterval(imgCheck);
-				saveAs( dataBlob, params.filename ); // FileSaver.js function
-			} 
-		}, 100);
+		saveAs( dataBlob, params.filename ); // FileSaver.js function
 	}
 
 

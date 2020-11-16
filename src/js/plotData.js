@@ -324,7 +324,7 @@ function plotData(){
 			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " text mf no_final_mass GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("x", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
-			.attr("y", function(d) {return params.yAxisScale(+d.total_mass_source) + 0.75*params.radiusScale(+d.total_mass_source);})
+			.attr("y", function(d) {return params.yAxisScale(+d.total_mass_source) + 0.5*params.radiusScale(+d.total_mass_source);})
 			.style('fill','white')
 			.style('font-family',"sans-serif")
 			.style('font-size',function(d) {return 1.5*params.radiusScale(+d.total_mass_source)+"px";})
