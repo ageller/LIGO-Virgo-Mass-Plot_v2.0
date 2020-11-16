@@ -115,6 +115,9 @@ function changeArrowSizes(){
 //in Frank's version I was able to make this simply scale the image, but here it seems like I need to redraw.  I wonder why??
 function renderToImage(){
 	
+	var saveSVGscale = params.SVGscale;
+	var saveControlsX = params.controlsX;
+
 	if (!isNaN(params.renderX) && !isNaN(params.renderY)){	
 		params.sizeScaler = params.renderX/params.targetWidth;
 		params.SVGscale = 1.;
@@ -129,6 +132,8 @@ function renderToImage(){
 				console.log('plot is ready')
 				clearInterval(imgCheck);
 				saveImage();
+				params.SVGscale = saveSVGscale;
+				params.controlsX = saveControlsX;
 				resizePlot();
 			} 
 		}, 100);
@@ -151,7 +156,6 @@ function saveImage(){
 				console.log('plot is ready')
 				clearInterval(imgCheck);
 				saveAs( dataBlob, params.filename ); // FileSaver.js function
-				//resizePlot();
 			} 
 		}, 100);
 	}
