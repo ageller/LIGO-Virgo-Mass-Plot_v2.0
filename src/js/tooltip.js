@@ -66,7 +66,11 @@ function formatTooltip(name){
 	var str = ''
 	str += '<span style="font-size:16px"><b>Name : </b>'+name + '</span><br/>';
 	if (d.messenger != null) str += '<b>messenger : </b>'+d.messenger.replace('GW','Gravitational Waves').replace('EM','Electromagnetic') + '<br/>';
-	if (d.final_mass_source != null) str += '<b>m_final : </b>'+d.final_mass_source + ' (+' + d.final_mass_source_upper + ' '+d.final_mass_source_lower + ') ' + d.final_mass_source_unit.replace('M_sun','Solar Masses') + '<br/>'; 
+	if (d.final_mass_source != null) {
+		str += '<b>m_final : </b>'+d.final_mass_source
+		if (d.final_mass_source_upper != null) str += ' (+' + d.final_mass_source_upper + ' '+d.final_mass_source_lower + ')'
+		str += ' ' + d.final_mass_source_unit.replace('M_sun','Solar Masses') + '<br/>'; 
+	}
 	if (d.messenger == 'GW' && d.final_mass_source == null) str += '<b>m_final</b> : unknown <br/>';
 	if (d.total_mass_source != null) str += '<b>m_total : </b>'+d.total_mass_source + ' (+' + d.total_mass_source_upper + ' '+d.total_mass_source_lower + ') ' + d.total_mass_source_unit.replace('M_sun','Solar Masses') + '<br/>'; 
 	if (d.mass_1_source != null) str += '<b>m_1 : </b>'+d.mass_1_source + ' (+' + d.mass_1_source_upper + ' '+d.mass_1_source_lower + ') ' + d.mass_1_source_unit.replace('M_sun','Solar Masses') + '<br/>'; 

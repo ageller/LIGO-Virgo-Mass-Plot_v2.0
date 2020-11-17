@@ -110,7 +110,7 @@ function compileData(){
 			dat.mass = params.inputGWdata.events[e].final_mass_source;
 			dat.GWindex = num;
 			num += 1;
-			if (params.inputGWdata.events[e].final_mass_source == null){
+			if (params.inputGWdata.events[e].final_mass_source == null || params.inputGWdata.events[e].final_mass_source_upper == null){
 				console.log("check",params.inputGWdata.events[e]);
 				dat.mass = params.inputGWdata.events[e].total_mass_source;
 			} 

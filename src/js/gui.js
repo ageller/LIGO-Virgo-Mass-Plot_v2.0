@@ -123,11 +123,12 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration)
 			.on('end',function(){d3.selectAll(cls+'.dot').style('display','none')})
 		d3.selectAll(cls+'.text').transition().duration(dur).style("opacity",0).on('end',function(){d3.selectAll(cls+'.text').style('display','none')});
 	} else {
-		d3.selectAll(cls+'.arrow').transition().duration(dur).style("opacity",params.opArrow)
+		d3.selectAll(cls+'.arrow').transition().duration(dur).style("opacity",params.opArrow).on('start',function(){d3.selectAll(cls+'.arrow').style('display','block')})
 		d3.selectAll(cls+'.dot').transition().duration(dur)
 			.style("fill-opacity",params.opMass)
 			.style("stroke-opacity",1)
-		d3.selectAll(cls+'.text').transition().duration(dur).style("opacity",1)
+			.on('start',function(){d3.selectAll(cls+'.dot').style('display','block')})
+		d3.selectAll(cls+'.text').transition().duration(dur).style("opacity",1).on('end',function(){d3.selectAll(cls+'.text').style('display','block')})
 	}
 }
 
@@ -142,40 +143,38 @@ function togglePlot(){
 
 	var keys = Object.keys(params.hidden);
 
-	//gather all the hidden items
-	var cls = ''
+	//show the items first
 	for (var i=0; i<keys.length; i+=1){
-		if (params.hidden[keys[i]]) cls += '.'+keys[i];
-	}
-
-	//show+hide the necessary items
-	for (var i=0; i<keys.length; i+=1){
-		if (!params.hidden[keys[i]]){
-			//show
-			d3.selectAll('.'+keys[i]).style('display','block');
-			if (keys[i] == 'plotTitle' || keys[i] == 'plotLegend' || keys[i] == 'axis') {
+		if (!params.hidden[keys[i]]) {
+			if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM'){
+				resetOpacities('.'+keys[i], false, params.fadeTransitionDuration);
+			} else {
 				d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
 					.style("opacity",1)
-					.on('start',function(){d3.selectAll(cls+'.text').style('display','block')});
-			} else {
-				resetOpacities('.'+keys[i], false, params.fadeTransitionDuration);
-			}
-		} else {
-			if (keys[i] == 'plotTitle' || keys[i] == 'plotLegend' || keys[i] == 'axis') {
-				d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
-					.style("opacity",0)
-					.on('end',function(){d3.selectAll('.'+keys[i]).style('display','none')});
-			} else {
-				resetOpacities('.'+keys[i], true, params.fadeTransitionDuration);
+					.on('start',function(){d3.selectAll('.'+keys[i]).style('display','block')});
 			}
 		}
 	}
 
+	//then hide the items
+	for (var i=0; i<keys.length; i+=1){
+		if (params.hidden[keys[i]]){
+			if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM'){
+				resetOpacities('.'+keys[i], true, params.fadeTransitionDuration);
+			} else {
+				d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
+					.style("opacity",0)
+					.on('end',function(){d3.selectAll('.'+keys[i]).style('display','none')});
+			}
+		}
+	}
 
-
-
+	//fix the arrows for combined NS BH
+	if (params.hidden['BH'] && params.hidden['NS']) resetOpacities('.BHNS', true, params.fadeTransitionDuration);
 
 }
+
+
 function changeArrowSizes(){
 	params.arrowScale = +d3.select('#arrowWidth').node().value*0.1; //scale goes between 1 and 20, but I want 0.1 - 2
 

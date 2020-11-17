@@ -358,6 +358,24 @@ function plotData(){
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut)
 
+	//any without uncertainties on final masses
+	//add question marks to these w/o final masses
+	params.mainPlot.selectAll(".text.mf.no_final_mass_error.GW")
+		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source != null && d.final_mass_source_upper == null})
+		.append("text")		
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.final_mass_source) + " text mf no_final_mass_error GW";})
+			.attr("data-name", function(d){return d.commonName;})
+			.attr("x", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
+			.attr("y", function(d) {return params.yAxisScale(+d.final_mass_source) + 0.5*params.radiusScale(+d.final_mass_source);})
+			.style('fill','white')
+			.style('font-family',"sans-serif")
+			.style('font-size',function(d) {return 1.5*params.radiusScale(+d.final_mass_source)+"px";})
+			.style("text-anchor", "middle")
+			.style("cursor", "arrow")
+			.text("?")
+			.on('mouseover',mouseOver)
+			.on('mouseout',mouseOut)
+
 	//add the EM data
 	params.mainPlot.selectAll(".dot.mf.EM")
 		.data(params.EMdata).enter().filter(function(d) { return d.messenger == 'EM' && d.mass != null })
