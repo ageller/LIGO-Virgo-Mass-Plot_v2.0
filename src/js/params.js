@@ -70,7 +70,9 @@ var params = new function() {
 
 	this.dropdownHeights = {};
 
-	this.hidden = {'BH':false,'NS':false,'GW':false,'EM':false,'plotTitle':false};
+	this.hidden = {'BH':false,'NS':false,'GW':false,'EM':false,'plotTitle':false,'massGap':true};
+
+	this.massGap = [2.75, 4.9];
 };
 
 

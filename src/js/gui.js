@@ -151,7 +151,7 @@ function togglePlot(){
 			} else {
 				d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
 					.style("opacity",1)
-					.on('start',function(){d3.selectAll('.'+keys[i]).style('display','block')});
+					//.on('start',function(){d3.selectAll('.'+keys[i]).style('display','block')});
 			}
 		}
 	}
@@ -164,7 +164,7 @@ function togglePlot(){
 			} else {
 				d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
 					.style("opacity",0)
-					.on('end',function(){d3.selectAll('.'+keys[i]).style('display','none')});
+					//.on('end',function(){d3.selectAll('.'+keys[i]).style('display','none')});
 			}
 		}
 	}

@@ -135,6 +135,29 @@ function createPlot(width=null, height=null){
 	params.SVG.style('transform', 'translate(' + (margin.left + params.controlsX/2) + 'px,' + margin.top + 'px)scaleX(' + params.SVGscale + ')')
 
 
+	//mass Gap
+	params.mainPlot.append('rect')
+		.attr('class','rect massGap')
+		.attr('x',params.xAxisScale(0))
+		.attr('y',params.yAxisScale(params.massGap[1]))
+		.attr('width',params.xAxisScale(params.SVGwidth - padding.left - padding.right))
+		.attr('height',params.yAxisScale(params.massGap[0]) - params.yAxisScale(params.massGap[1]))
+		.attr('fill','#303030')
+		.style('opacity',0)
+
+	params.mainPlot.append('text')
+		.attr('class','text massGap')
+		.attr("x", params.SVGwidth/2. + 'px')
+		.attr("y", (params.yAxisScale(params.massGap[0]) + params.yAxisScale(params.massGap[1]))/2. + 'px')
+		.attr("dx", -0.025*params.SVGwidth*2. + "px")
+		.attr("dy", (params.yAxisScale(params.massGap[0]) - params.yAxisScale(params.massGap[1]))/2. - 0.025*params.SVGwidth/2. + 'px')
+		.style("text-anchor", "middle")
+		.style('font-size', 0.025*params.SVGwidth)
+		.style('font-weight', 'bold')
+		.style('color','black')
+		.style('opacity',0)
+		.text('Mass Gap?')
+
 	populatePlot();
 
 }
