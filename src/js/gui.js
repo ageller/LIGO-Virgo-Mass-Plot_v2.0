@@ -98,20 +98,7 @@ function sortPlot(){
 	}
 }
 
-function changePointSizes(){
-	//console.log(this.value);
-	params.maxRadius = +d3.select('#maxPointSize').node().value;
-	params.minRadius = +d3.select('#minPointSize').node().value;
-	params.radiusScale.range([params.minRadius,params.maxRadius]);
 
-	params.mainPlot.selectAll(".dot.mf.GW").attr("r", function(d){return params.radiusScale(+d.final_mass_source);});
-	params.mainPlot.selectAll(".dot.m1.GW").attr("r", function(d){return params.radiusScale(+d.mass_1_source);});
-	params.mainPlot.selectAll(".dot.m2.GW").attr("r", function(d){return params.radiusScale(+d.mass_2_source);});
-	params.mainPlot.selectAll(".dot.mf.no_final_mass.GW").attr("r", function(d){return params.radiusScale(+d.total_mass_source);});
-	params.mainPlot.selectAll(".dot.mf.EM").attr("r", function(d){return params.radiusScale(+d.mass);});
-
-	changeArrowSizes();
-}
 
 function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration){
 	//normal opacities
@@ -174,6 +161,25 @@ function togglePlot(){
 
 }
 
+function changePointSizes(){
+	//console.log(this.value);
+	params.maxRadius = +d3.select('#maxPointSize').node().value;
+	params.minRadius = +d3.select('#minPointSize').node().value;
+	params.radiusScale.range([params.minRadius,params.maxRadius]);
+
+	params.mainPlot.selectAll(".dot.mf.GW").attr("r", function(d){return params.radiusScale(+d.final_mass_source);});
+	params.mainPlot.selectAll(".dot.m1.GW").attr("r", function(d){return params.radiusScale(+d.mass_1_source);});
+	params.mainPlot.selectAll(".dot.m2.GW").attr("r", function(d){return params.radiusScale(+d.mass_2_source);});
+	params.mainPlot.selectAll(".dot.mf.no_final_mass.GW").attr("r", function(d){return params.radiusScale(+d.total_mass_source);});
+	params.mainPlot.selectAll(".dot.mf.EM").attr("r", function(d){return params.radiusScale(+d.mass);});
+
+	params.mainPlot.selectAll(".text.qmark")
+		.attr("y", function(d) {return params.yAxisScale(+d.mass) + 0.5*params.radiusScale(+d.mass);})
+		.style('font-size',function(d) {return 1.5*params.radiusScale(+d.mass)+"px";})
+
+
+	changeArrowSizes();
+}
 
 function changeArrowSizes(){
 	params.arrowScale = +d3.select('#arrowWidth').node().value*0.1; //scale goes between 1 and 20, but I want 0.1 - 2

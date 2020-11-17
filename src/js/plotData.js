@@ -347,10 +347,10 @@ function plotData(){
 			.on('mouseout',mouseOut);
 
 	//add any without final masses?
-	params.mainPlot.selectAll(".dot.mf.no_final_mass.GW")
+	params.mainPlot.selectAll(".dot.mf.no_final_mass.qmark.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source == null && d.total_mass_source != null})
 		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.total_mass_source) + " dot mf no_final_mass GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.total_mass_source) + " dot mf no_final_mass qmark GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.total_mass_source);})
 			.attr("cx", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
@@ -365,10 +365,10 @@ function plotData(){
 			.on('mouseout',mouseOut)
 
 	//add question marks to these w/o final masses
-	params.mainPlot.selectAll(".text.mf.no_final_mass.GW")
+	params.mainPlot.selectAll(".text.mf.no_final_mass.qmark.GW")
 		.data(params.data).enter().filter(function(d) {return d.messenger == 'GW' && d.final_mass_source == null && d.total_mass_source != null})	
 		.append("text")		
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.total_mass_source) + " text mf no_final_mass GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.total_mass_source) + " text mf no_final_mass qmark GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("x", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
 			.attr("y", function(d) {return params.yAxisScale(+d.total_mass_source) + 0.5*params.radiusScale(+d.total_mass_source);})
@@ -383,10 +383,10 @@ function plotData(){
 
 	//any without uncertainties on final masses
 	//add question marks to these w/o final masses
-	params.mainPlot.selectAll(".text.mf.no_final_mass_error.GW")
+	params.mainPlot.selectAll(".text.mf.no_final_mass_error.qmark.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source != null && d.final_mass_source_upper == null})
 		.append("text")		
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.final_mass_source) + " text mf no_final_mass_error GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.final_mass_source) + " text mf no_final_mass_error qmark GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("x", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
 			.attr("y", function(d) {return params.yAxisScale(+d.final_mass_source) + 0.5*params.radiusScale(+d.final_mass_source);})
@@ -417,6 +417,22 @@ function plotData(){
 			.on('mouseover',mouseOver)
 			.on('mouseout',mouseOut);
 
+	//any EM question marks
+	params.mainPlot.selectAll(".text.mf.qmark.EM")
+		.data(params.data).enter().filter(function(d) { return d.messenger == 'EM' && d.special == 2})
+		.append("text")		
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass) + " text mf qmark EM";})
+			.attr("data-name", function(d){return d.commonName;})
+			.attr("x", function(d) {return params.xAxisScale(+(d[params.EMsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
+			.attr("y", function(d) {return params.yAxisScale(+d.mass) + 0.5*params.radiusScale(+d.mass);})
+			.style('fill','white')
+			.style('font-family',"sans-serif")
+			.style('font-size',function(d) {return 1.5*params.radiusScale(+d.mass)+"px";})
+			.style("text-anchor", "middle")
+			.style("cursor", "arrow")
+			.text("?")
+			.on('mouseover',mouseOver)
+			.on('mouseout',mouseOut)
 	params.plotReady = true;
 }
 
