@@ -32,6 +32,10 @@ function cleanString (s){
 	return s.replace(/[\W]+/g,"");
 }
 
+function onlyUnique(value, index, self) {
+  return self.indexOf(value) === index;
+}
+
 function sortWithIndices(toSort) {
 	for (var i = 0; i < toSort.length; i++) {
 		toSort[i] = [toSort[i], i];

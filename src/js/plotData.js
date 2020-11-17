@@ -238,7 +238,24 @@ function plotData(){
 	params.mainPlot.selectAll('.arrow.GW')
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW'})
 		.append("path")
-			.attr("class",function(d){return 'name-'+cleanString(d.commonName) + " arrow GW"})
+			.attr("class",function(d){
+				var rem = [];
+				if (d.final_mass_source != null){
+					rem.push(getRem(d.final_mass_source));
+				} else {
+					rem.push(getRem(d.total_mass_source));
+				}
+				if (d.mass_1_source != null){
+					rem.push(getRem(d.mass_1_source));
+				}
+				if (d.mass_2_source != null){
+					rem.push(getRem(d.mass_2_source));
+				}
+				var urem = rem.filter(onlyUnique);
+				var crem = ''
+				for (var i=0; i<urem.length; i+=1) crem += urem[i];
+				return 'name-'+cleanString(d.commonName) + " " + crem + " arrow GW"
+			})
 			.attr("data-name", function(d){return d.commonName})
 			.attr('stroke', 'none')
 			.attr('fill', 'white')	
