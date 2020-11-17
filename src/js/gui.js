@@ -93,30 +93,8 @@ function sortPlot(){
 	}	
 
 	if (messenger){
-		if (classes.indexOf('rising') != -1){
-			moveData(messenger,'risingIndex')
-		}
-		if (classes.indexOf('falling') != -1){
-			moveData(messenger,'fallingIndex')
-		}
-		if (classes.indexOf('peaked') != -1){
-			moveData(messenger,'peakIndex')
-		}
-		if (classes.indexOf('valley') != -1){
-			moveData(messenger,'valleyIndex')
-		}
-		if (classes.indexOf('diamond') != -1){ 
-			moveData(messenger,'diamondIndex')
-		}
-		if (classes.indexOf('random') != -1){ 
-			moveData(messenger,'randomIndex')
-		}
-		if (classes.indexOf('date') != -1){ //currently only available for GW
-			moveData(messenger,'dateIndex')
-		}
-		if (classes.indexOf('distance') != -1){ //currently only available for GW
-			moveData(messenger,'distanceIndex')
-		}
+		srt = classes[classes.length-1];
+		moveData(messenger,srt+'Index');
 	}
 }
 
@@ -135,11 +113,30 @@ function changePointSizes(){
 	changeArrowSizes();
 }
 
+function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration){
+	//normal opacities
+	if (off){
+		d3.selectAll(cls+'.arrow').transition().duration(dur).style("opacity",0).on('end',function(){d3.selectAll(cls+'.arrow').style('display','none')});
+		d3.selectAll(cls+'.dot').transition().duration(dur)
+			.style("fill-opacity",0)
+			.style("stroke-opacity",0)
+			.on('end',function(){d3.selectAll(cls+'.dot').style('display','none')})
+		d3.selectAll(cls+'.text').transition().duration(dur).style("opacity",0).on('end',function(){d3.selectAll(cls+'.text').style('display','none')});
+	} else {
+		d3.selectAll(cls+'.arrow').transition().duration(dur).style("opacity",params.opArrow)
+		d3.selectAll(cls+'.dot').transition().duration(dur)
+			.style("fill-opacity",params.opMass)
+			.style("stroke-opacity",1)
+		d3.selectAll(cls+'.text').transition().duration(dur).style("opacity",1)
+	}
+}
+
 function togglePlot(){
 	var classes = d3.select(this).attr('class').split(' ');
+
 	//get the toggle
 	var j = classes.indexOf('toggle');
-	var tog = classes[j+1];
+	var tog = classes[j+1].replace('toggle','');;
 
 	params.hidden[tog] = !params.hidden[tog];
 
@@ -151,17 +148,30 @@ function togglePlot(){
 		if (params.hidden[keys[i]]) cls += '.'+keys[i];
 	}
 
-	//show everything
+	//show+hide the necessary items
 	for (var i=0; i<keys.length; i+=1){
-		d3.selectAll('.'+keys[i]).classed('hidden',false);
+		if (!params.hidden[keys[i]]){
+			//show
+			d3.selectAll('.'+keys[i]).style('display','block');
+			if (keys[i] == 'plotTitle' || keys[i] == 'plotLegend' || keys[i] == 'axis') {
+				d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
+					.style("opacity",1)
+					.on('start',function(){d3.selectAll(cls+'.text').style('display','block')});
+			} else {
+				resetOpacities('.'+keys[i], false, params.fadeTransitionDuration);
+			}
+		} else {
+			if (keys[i] == 'plotTitle' || keys[i] == 'plotLegend' || keys[i] == 'axis') {
+				d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
+					.style("opacity",0)
+					.on('end',function(){d3.selectAll('.'+keys[i]).style('display','none')});
+			} else {
+				resetOpacities('.'+keys[i], true, params.fadeTransitionDuration);
+			}
+		}
 	}
 
-	//hide the necessary items
-	if (cls != ''){
-		d3.selectAll(cls).classed('hidden',true);
-		//d3.selectAll(cls).transition().duration(params.fadeTransitionDuration).opacity(0);
 
-	}
 
 
 

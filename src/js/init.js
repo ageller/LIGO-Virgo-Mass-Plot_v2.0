@@ -98,6 +98,9 @@ function compileData(){
 	GWmasses = [];
 	GWdates = [];
 	GWdistances = [];
+	GWchirp = [];
+	GWchi = [];
+	GWSNR = [];
 	var num = 0;
 	for (var i=0; i<useEvents.id.length; i+=1){
 		e = useEvents.name[i];
@@ -116,6 +119,9 @@ function compileData(){
 			GWmasses.push(dat.mass);
 			GWdates.push(dat.GPS);
 			GWdistances.push(dat.luminosity_distance);
+			GWchirp.push(dat.chirp_mass_source);
+			GWchi.push(dat.chi_eff);
+			GWSNR.push(dat.network_matched_filter_snr);
 		} else {
 			console.log('removing : ',e)
 		}
@@ -147,7 +153,9 @@ function compileData(){
 	var sortedGWMasses = sortWithIndices(GWmasses);
 	var sortedGWDates = sortWithIndices(GWdates);
 	var sortedGWDistances = sortWithIndices(GWdistances);
-
+	var sortedGWChirp = sortWithIndices(GWchirp);
+	var sortedGWChi = sortWithIndices(GWchi);
+	var sortedGWSNR = sortWithIndices(GWSNR);
 
 	var GWside = 1;
 	var GWside2 = 1;
@@ -220,11 +228,17 @@ function compileData(){
 		var j = 1;
 		var jDate = 1;
 		var jDist = 1;
+		var jChirp = 1;
+		var jChi = 1;
+		var jSNR = 1;
 
 		if (params.data[i].messenger == 'GW'){
 			j = (sortedGWMasses.sortIndices.indexOf(params.data[i].GWindex) + 1)*params.data.length/GWmasses.length;
 			jDate = (sortedGWDates.sortIndices.indexOf(params.data[i].GWindex) + 1)*params.data.length/GWdates.length;
 			jDist = (sortedGWDistances.sortIndices.indexOf(params.data[i].GWindex) + 1)*params.data.length/GWdistances.length;
+			jChirp = (sortedGWChirp.sortIndices.indexOf(params.data[i].GWindex) + 1)*params.data.length/GWchirp.length;
+			jChi = (sortedGWChi.sortIndices.indexOf(params.data[i].GWindex) + 1)*params.data.length/GWchi.length;
+			jSNR = (sortedGWSNR.sortIndices.indexOf(params.data[i].GWindex) + 1)*params.data.length/GWSNR.length;
 			params.data[i].randomIndex = GWindices[i];
 		}
 		if (params.data[i].messenger == 'EM'){
@@ -237,6 +251,9 @@ function compileData(){
 
 		params.data[i].dateIndex = jDate;		
 		params.data[i].distanceIndex = jDist;		
+		params.data[i].chirpIndex = jChirp;		
+		params.data[i].chiIndex = jChi;		
+		params.data[i].SNRIndex = jSNR;		
 
 	}
 

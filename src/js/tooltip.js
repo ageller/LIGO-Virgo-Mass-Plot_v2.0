@@ -31,13 +31,10 @@ function mouseOver(){
 		.style('top',top + 'px')
 }
 
+
 function mouseOut(){
-	//normal opacities
-	d3.selectAll('.arrow').transition().duration(params.tooltipTransitionDuration).style("opacity",params.opArrow)
-	d3.selectAll('.dot').transition().duration(params.tooltipTransitionDuration)
-		.style("fill-opacity",params.opMass)
-		.style("stroke-opacity",1)
-	d3.selectAll('.text').transition().duration(params.tooltipTransitionDuration).style("opacity",1)
+
+	resetOpacities();
 
 	//back to normal ordering
 	var cls = d3.select(this).attr('class').split(" ")[0];
@@ -80,6 +77,7 @@ function formatTooltip(name){
 	if (d.luminosity_distance != null) str += '<b>D_L : </b>'+d.luminosity_distance + ' (+' + d.luminosity_distance_upper + ' '+d.luminosity_distance_lower + ') ' + d.luminosity_distance_unit + '<br/>'; 
 	if (d['catalog.shortName'] != null) str += '<b>catalog : </b>' + d['catalog.shortName'] + '<br/>';
 	if (d.GPS != null) str += '<b>GPS : </b>' + d.GPS + '<br/>';
+	if (d.network_matched_filter_snr != null) str += '<b>SNR : </b>' + d.network_matched_filter_snr.toFixed(2) + '<br/>';
 
 	d3.select('#tooltip')
 		.html(str)

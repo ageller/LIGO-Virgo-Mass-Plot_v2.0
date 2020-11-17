@@ -34,7 +34,7 @@ function createPlot(width=null, height=null){
 		.text("LIGO-Virgo | Aaron Geller | Northwestern");
 
 	var title = params.SVG.append("text")
-		.attr("class", "title")
+		.attr("class", "title plotTitle")
 		.attr("x", params.SVGwidth/2. + 'px')
 		.attr("y", '0px')
 		.attr("dx", padding.left/2. + "px")
@@ -43,7 +43,7 @@ function createPlot(width=null, height=null){
 	var titleBbox = title.node().getBoundingClientRect();
 	title.attr("dy", titleBbox.height*0.8)
 
-	var legend = params.SVG.append('g').attr('id','legend')
+	var legend = params.SVG.append('g').attr('id','legend').attr('class','plotLegend')
 
 	var GWBH = legend.append("text")
 		.attr("class", "legendText")
@@ -123,7 +123,7 @@ function createPlot(width=null, height=null){
 	params.mainPlot.select('.yaxis').selectAll('.domain').remove();
 
 	var axisLabel = params.mainPlot.append("text")
-		.attr("class", "axisLabel yaxis")
+		.attr("class", "axis axisLabel yaxis")
 		.attr("transform", "rotate(-90)")
 		.attr("x", 0)
 		.attr("y", 0)

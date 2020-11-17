@@ -70,7 +70,7 @@ var params = new function() {
 
 	this.dropdownHeights = {};
 
-	this.hidden = {'BH':false,'NS':false,'GW':false,'EM':false};
+	this.hidden = {'BH':false,'NS':false,'GW':false,'EM':false,'plotTitle':false};
 };
 
 
