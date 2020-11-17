@@ -19,7 +19,10 @@ d3.select('#minPointSize').on('input',changePointSizes);
 
 d3.select('#arrowWidth').on('input',changeArrowSizes);
 
-d3.selectAll('.textInput').on('keyup',function(){ params[this.id] = this.value; });
+d3.selectAll('.textInput').on('keyup',function(){ 
+	params[this.id] = this.value; 
+	params[this.id+'changed'] = true;
+});
 d3.select('#renderButton').on('click',renderToImage);
 //get the heights for all the dropdown menus first, then hide them
 d3.selectAll('.dropdown-content').each(function(d) {

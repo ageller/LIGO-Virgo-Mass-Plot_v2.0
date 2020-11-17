@@ -252,7 +252,7 @@ function plotData(){
 					rem.push(getRem(d.mass_2_source));
 				}
 				var urem = rem.filter(onlyUnique);
-				var crem = ''
+				var crem = '';
 				for (var i=0; i<urem.length; i+=1) crem += urem[i];
 				return 'name-'+cleanString(d.commonName) + " " + crem + " arrow GW"
 			})
@@ -384,6 +384,8 @@ function resizePlot(){
 	//resize the plot when the user resizes the window
 	//for now I'll just redraw
 	params.sizeScaler = window.innerWidth/params.targetWidth;
+	if (!params.renderXchanged) params.renderX = window.innerWidth;
+	if (!params.renderYchanged) params.renderY = window.innerHeight;
 
 	d3.select('#svg').remove();
 	createPlot();

@@ -50,12 +50,15 @@ var params = new function() {
 	this.BHMinMass = 3; //minimum mass for coloring as a black hole in GW sources
 
 	//for rendering
-	this.renderX = 1920; //will be updated from button
-	this.renderY = 1080;
+	this.renderX = window.innerWidth; //will be updated from button
+	this.renderXchanged = false;
+	this.renderY = window.innerHeight;
+	this.renderYchanged = false;
 	this.filename = 'Masses_of_Dead_Stars_LIGO_Virgo.png';
 
 	this.tooltipTransitionDuration = 200;
 	this.sortTransitionDuration = 400;
+	this.fadeTransitionDuration = 400;
 	this.controlsTransitionDuration = 200;
 
 	//arrow settings

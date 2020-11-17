@@ -159,6 +159,8 @@ function togglePlot(){
 	//hide the necessary items
 	if (cls != ''){
 		d3.selectAll(cls).classed('hidden',true);
+		//d3.selectAll(cls).transition().duration(params.fadeTransitionDuration).opacity(0);
+
 	}
 
 
