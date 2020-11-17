@@ -214,6 +214,7 @@ function populatePlot(){
 	plotData();
 }
 
+//could simply use the rem value?
 function getColor(tp,mass){
 	var rem = 'BH'
 	if (mass < params.BHMinMass) rem = 'NS';
@@ -222,6 +223,11 @@ function getColor(tp,mass){
 
 	return params.colors[key];
 
+}
+
+function getRem(mass){
+	if (mass < params.BHMinMass) return 'NS';
+	return 'BH';
 }
 
 function plotData(){
@@ -252,7 +258,7 @@ function plotData(){
 	params.mainPlot.selectAll(".dot.mf.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source != null })
 		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " " + getRem(d.final_mass_source) + " dot mf GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.final_mass_source);})
 			.attr("cx", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
@@ -269,7 +275,7 @@ function plotData(){
 	params.mainPlot.selectAll(".dot.m1.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.mass_1_source != null })
 		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot m1 GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass_1_source) + " dot m1 GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass_1_source);})
 			.attr("cx", function(d) {return params.xAxisScale(+d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
@@ -286,7 +292,7 @@ function plotData(){
 	params.mainPlot.selectAll(".dot.m2.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.mass_2_source != null })
 		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot m2 GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass_2_source) + " dot m2 GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass_2_source);})
 			.attr("cx", function(d) {return params.xAxisScale(+d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
@@ -304,7 +310,7 @@ function plotData(){
 	params.mainPlot.selectAll(".dot.mf.no_final_mass.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source == null && d.total_mass_source != null})
 		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf no_final_mass GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.total_mass_source) + " dot mf no_final_mass GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.total_mass_source);})
 			.attr("cx", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
@@ -322,7 +328,7 @@ function plotData(){
 	params.mainPlot.selectAll(".text.mf.no_final_mass.GW")
 		.data(params.data).enter().filter(function(d) {return d.messenger == 'GW' && d.final_mass_source == null && d.total_mass_source != null})	
 		.append("text")		
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " text mf no_final_mass GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.total_mass_source) + " text mf no_final_mass GW";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("x", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
 			.attr("y", function(d) {return params.yAxisScale(+d.total_mass_source) + 0.5*params.radiusScale(+d.total_mass_source);})
@@ -339,7 +345,7 @@ function plotData(){
 	params.mainPlot.selectAll(".dot.mf.EM")
 		.data(params.EMdata).enter().filter(function(d) { return d.messenger == 'EM' && d.mass != null })
 		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " dot mf EM";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass) + " dot mf EM";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass);})
 			.attr("cx", function(d) {return params.xAxisScale(+d[params.EMsortKey]/params.xNorm*params.xAxisScale.domain()[1]);})

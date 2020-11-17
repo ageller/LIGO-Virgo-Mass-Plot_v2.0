@@ -4,7 +4,7 @@
 		<meta charset='UTF-8' name='viewport' content='width=device-width, user-scalable=no'> 
 		<title>LIGO-Virgo Mass Plot</title>
 
-	    <link rel="icon" href="icon.png" type="image/png" />
+			<link rel="icon" href="icon.png" type="image/png" />
 
 		<!-- my style sheet -->
 		<link rel="stylesheet" type="text/css" href="src/css/index.css" />
@@ -23,74 +23,101 @@
 			<div class='bar3'></div>
 		</div>
 		<div id='controls'>
+
+			<!-- sort options for GW -->
 			<div id='sortGWDropdown'>
 				<div id='sortGW' class="controlsTitle" style="padding-top:40px"><div class='navi'></div>Sort GW</div>
 				<div class="radioButtons dropdown-content">
 					<label class="radioLabel sort GW rising">Rising
 						<input type="radio"  name="GWradio">
-						<span class="checkmark"></span>
+						<span class="radioCheckmark"></span>
 					</label>
 					<label class="radioLabel sort GW falling">Falling
 						<input type="radio" name="GWradio">
-						<span class="checkmark"></span>
+						<span class="radioCheckmark"></span>
 					</label>
 					<label class="radioLabel sort GW peaked">Peaked
 						<input type="radio" name="GWradio">
-						<span class="checkmark"></span>
+						<span class="radioCheckmark"></span>
 					</label>
 					<label class="radioLabel sort GW valley">Valley
 						<input type="radio" name="GWradio">
-						<span class="checkmark"></span>
+						<span class="radioCheckmark"></span>
 					</label>
 					<label class="radioLabel sort GW diamond">Diamond
 						<input type="radio" checked="checked" name="GWradio">
-						<span class="checkmark"></span>
+						<span class="radioCheckmark"></span>
 					</label>
 					<label class="radioLabel sort GW random">Random
 						<input type="radio" name="GWradio">
-						<span class="checkmark"></span>
+						<span class="radioCheckmark"></span>
 					</label>
 					<label class="radioLabel sort GW date">Date
 						<input type="radio" name="GWradio">
-						<span class="checkmark"></span>
+						<span class="radioCheckmark"></span>
 					</label>
 					<label class="radioLabel sort GW distance">Distance
 						<input type="radio" name="GWradio">
-						<span class="checkmark"></span>
+						<span class="radioCheckmark"></span>
 					</label>
 				</div>
 			</div>
 
+			<!-- sort options for EM -->
 			<div id='sortEMDropdown'>
 				<div id='sortEM' class="controlsTitle"><div class='navi'></div>Sort EM</div>
 				<div class="radioButtons dropdown-content">
 					<label class="radioLabel sort EM rising">Rising
 						<input type="radio"  name="EMradio">
-						<span class="checkmark"></span>
+						<span class="radioCheckmark"></span>
 					</label>
 					<label class="radioLabel sort EM falling">Falling
 						<input type="radio" name="EMradio">
-						<span class="checkmark"></span>
+						<span class="radioCheckmark"></span>
 					</label>
 					<label class="radioLabel sort EM peaked">Peaked
 						<input type="radio" name="EMradio">
-						<span class="checkmark"></span>
+						<span class="radioCheckmark"></span>
 					</label>
 					<label class="radioLabel sort EM valley">Valley
 						<input type="radio" checked="checked" name="EMradio">
-						<span class="checkmark"></span>
+						<span class="radioCheckmark"></span>
 					</label>
 					<label class="radioLabel sort EM diamond">Diamond
 						<input type="radio" name="EMradio">
-						<span class="checkmark"></span>
+						<span class="radioCheckmark"></span>
 					</label>
 					<label class="radioLabel sort EM random">Random
 						<input type="radio" name="EMradio">
-						<span class="checkmark"></span>
+						<span class="radioCheckmark"></span>
 					</label>
 				</div>
 			</div>
 
+			<!-- on/off toggles -->
+			<div id='toggleDropdown'>
+				<div id='toggle' class="controlsTitle"><div class='navi'></div>Toggles</div>
+				<div class="checkboxButtons dropdown-content">
+					<label class="checkboxLabel toggle BH">Black Holes
+						<input type="checkbox" checked="checked">
+						<span class="checkboxCheckmark"></span>
+					</label>
+					<label class="checkboxLabel toggle NS">Neutron Stars
+						<input type="checkbox" checked="checked">
+						<span class="checkboxCheckmark"></span>
+					</label>
+					<label class="checkboxLabel toggle GW">GW Detections
+						<input type="checkbox" checked="checked">
+						<span class="checkboxCheckmark"></span>
+					</label>
+					<label class="checkboxLabel toggle EM">EM Detections
+						<input type="checkbox" checked="checked">
+						<span class="checkboxCheckmark"></span>
+					</label>
+				</div>
+			</div>
+
+			<!-- point size slider -->
 			<!-- could make this a single two-sided slider -->
 			<div id='pointSizeDropdown'>
 				<div id = 'pointSize' class="controlsTitle"><div class='navi'></div>Point Sizes</div>
@@ -106,6 +133,7 @@
 				</div>
 			</div>
 
+			<!-- arrow size slider -->
 			<div id='arrowSizeDropdown'>
 				<div id='arrowSize' class="controlsTitle"><div class='navi'></div>Arrow Width</div>
 				<div class="slidecontainer dropdown-content">
@@ -113,6 +141,7 @@
 				</div>
 			</div>
 
+			<!-- screen grab -->
 			<div id='snapshotDropdown'>
 				<div id='snapshot' class="controlsTitle"><div class='navi'></div>Snapshot</div>
 				<div class='dropdown-content'  style="padding-top:10px">

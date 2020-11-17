@@ -135,6 +135,35 @@ function changePointSizes(){
 	changeArrowSizes();
 }
 
+function togglePlot(){
+	var classes = d3.select(this).attr('class').split(' ');
+	//get the toggle
+	var j = classes.indexOf('toggle');
+	var tog = classes[j+1];
+
+	params.hidden[tog] = !params.hidden[tog];
+
+	var keys = Object.keys(params.hidden);
+
+	//gather all the hidden items
+	var cls = ''
+	for (var i=0; i<keys.length; i+=1){
+		if (params.hidden[keys[i]]) cls += '.'+keys[i];
+	}
+
+	//show everything
+	for (var i=0; i<keys.length; i+=1){
+		d3.selectAll('.'+keys[i]).classed('hidden',false);
+	}
+
+	//hide the necessary items
+	if (cls != ''){
+		d3.selectAll(cls).classed('hidden',true);
+	}
+
+
+
+}
 function changeArrowSizes(){
 	params.arrowScale = +d3.select('#arrowWidth').node().value*0.1; //scale goes between 1 and 20, but I want 0.1 - 2
 

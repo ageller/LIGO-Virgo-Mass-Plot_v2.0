@@ -66,6 +66,8 @@ var params = new function() {
 	this.arrowScale = 1;
 
 	this.dropdownHeights = {};
+
+	this.hidden = {'BH':false,'NS':false,'GW':false,'EM':false};
 };
 
 

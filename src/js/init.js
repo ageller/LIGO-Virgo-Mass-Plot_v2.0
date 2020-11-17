@@ -12,6 +12,7 @@ d3.select('#hamburger').on('mousedown',toggleControls);
 d3.selectAll('.controlsTitle').on('mousedown',dropdown);
 
 d3.selectAll('.radioLabel.sort').on('mousedown', sortPlot);
+d3.selectAll('.checkboxLabel.toggle').on('mousedown', togglePlot);
 
 d3.select('#maxPointSize').on('input',changePointSizes);
 d3.select('#minPointSize').on('input',changePointSizes);
@@ -39,6 +40,7 @@ d3.json("src/data/GWOSCdata.json").then(function(data){
 	params.inputGWdata = data;
 	compileData(); //this will compile the data and then create the plot
 });
+
 
 
 function compileData(){

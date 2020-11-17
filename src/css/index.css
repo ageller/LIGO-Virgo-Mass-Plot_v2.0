@@ -42,6 +42,10 @@ html,body {
 	z-index:10;
 }
 
+.hidden{
+	display:none;
+}
+
 #tooltip{
 	background-color: white;
 	border-radius:5px;
