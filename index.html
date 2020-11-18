@@ -172,10 +172,30 @@
 			<!-- screen grab -->
 			<div id='snapshotDropdown'>
 				<div id='snapshot' class="controlsTitle"><div class='navi'></div>Snapshot</div>
-				<div class='dropdown-content'  style="padding-top:10px">
-					<input id='renderX' class='textInput' type='text' name='renderX' auotcomplete='off' placeholder="x pixels">
-					<input id='renderY' class='textInput' type='text' name='renderY' auotcomplete='off' placeholder="y pixels">
+				<div class='dropdown-content'  style="padding-top:10px; padding-left:12px">
+					<div class='textInputContainer'>
+						<input id='renderX' class='textInput' type='text' name='renderX' auotcomplete='off' placeholder="x pixels">
+						<p> x pixels </p>
+					</div>
+					<div class='textInputContainer'>
+						<input id='renderY' class='textInput' type='text' name='renderY' auotcomplete='off' placeholder="y pixels">
+						<p> y pixels </p>
+					</div>
 					<input id='renderButton' type="submit" value="Go">
+					<div style="margin-top:20px;"></div>
+						<label class="radioLabel aspect free">free
+							<input type="radio" name="aspectRadio" checked="checked" >
+							<span class="radioCheckmark"></span>
+						</label>
+						<label class="radioLabel aspect four_three">4x3
+							<input type="radio" name="aspectRadio">
+							<span class="radioCheckmark"></span>
+						</label>
+						<label class="radioLabel aspect sixteen_nine">16x9
+							<input type="radio" name="aspectRadio">
+							<span class="radioCheckmark"></span>
+						</label>
+					</div>
 				</div>
 			</div>
 		</div>

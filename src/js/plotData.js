@@ -443,6 +443,11 @@ function resizePlot(){
 	params.sizeScaler = window.innerWidth/params.targetWidth;
 	if (!params.renderXchanged) params.renderX = window.innerWidth;
 	if (!params.renderYchanged) params.renderY = window.innerHeight;
+	
+	params.renderY = Math.round(params.renderAspect*params.renderX);
+
+	d3.select('#renderX').attr('placeholder',params.renderX);
+	d3.select('#renderY').attr('placeholder',params.renderY);
 
 	d3.select('#svg').remove();
 	createPlot();

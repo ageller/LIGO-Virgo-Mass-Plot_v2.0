@@ -188,6 +188,24 @@ function changeArrowSizes(){
 
 }
 
+function changeAspect(){
+	var classes = d3.select(this).attr('class').split(' ');
+
+	if (classes.indexOf('free') != -1){
+		if (!params.renderXchanged) params.renderX = window.innerWidth;
+		if (!params.renderYchanged) params.renderY = window.innerHeight;
+		params.renderAspect = params.renderY/params.renderX;
+	}
+
+	if (classes.indexOf('four_three') != -1) params.renderAspect = 3./4.;
+	if (classes.indexOf('sixteen_nine') != -1) params.renderAspect = 9./16.;
+
+	params.renderY = Math.round(params.renderAspect*params.renderX);
+
+	d3.select('#renderX').attr('placeholder',params.renderX);
+	d3.select('#renderY').attr('placeholder',params.renderY);
+}
+
 //http://bl.ocks.org/Rokotyan/0556f8facbaf344507cdc45dc3622177
 //render an image from the SVG element
 //in Frank's version I was able to make this simply scale the image, but here it seems like I need to redraw.  I wonder why??

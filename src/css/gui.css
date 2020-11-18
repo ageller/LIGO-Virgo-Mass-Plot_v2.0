@@ -198,6 +198,18 @@
 	height:20px;
 	padding:1px;
 }*/
+.textInputContainer {
+	float:left;
+	margin-right:4px;
+}
+.textInputContainer p{
+	top:10px;
+	font-size:10px;
+	margin:0;
+	padding:0;
+	text-align:center;
+}
+
 input[type=text], select {
 	width: 45px;
 	height:20px;
@@ -207,7 +219,7 @@ input[type=text], select {
 
 input[type=submit] {
 	width: 30px;
-	height:25px;
+	height:24px;
 	background-color: #555555;
 	color: white;
 	margin: 0;

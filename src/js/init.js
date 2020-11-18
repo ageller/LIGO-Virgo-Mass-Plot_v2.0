@@ -24,6 +24,7 @@ d3.selectAll('.textInput').on('keyup',function(){
 	params[this.id+'changed'] = true;
 });
 d3.select('#renderButton').on('click',renderToImage);
+
 //get the heights for all the dropdown menus first, then hide them
 d3.selectAll('.dropdown-content').each(function(d) {
 	params.dropdownHeights[this.parentNode.id] = this.getBoundingClientRect().height;
@@ -32,6 +33,9 @@ d3.selectAll('.dropdown-content').each(function(d) {
 		.style('visibility','hidden');
 });
 
+d3.select('#renderX').attr('placeholder',params.renderX);
+d3.select('#renderY').attr('placeholder',params.renderY);
+d3.selectAll('.radioLabel.aspect').on('mousedown', changeAspect);
 
 params.sizeScaler = window.innerWidth/params.targetWidth;
 

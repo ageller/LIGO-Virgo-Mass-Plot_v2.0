@@ -54,6 +54,8 @@ var params = new function() {
 	this.renderXchanged = false;
 	this.renderY = window.innerHeight;
 	this.renderYchanged = false;
+	this.renderAspect = this.renderY/this.renderX; // default to keep the screen size
+	
 	this.filename = 'Masses_of_Dead_Stars_LIGO_Virgo.png';
 
 	this.tooltipTransitionDuration = 200;
