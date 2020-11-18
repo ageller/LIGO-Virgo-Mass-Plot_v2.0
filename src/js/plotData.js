@@ -46,7 +46,7 @@ function createPlot(width=null, height=null){
 	var legend = params.SVG.append('g').attr('id','legend').attr('class','plotLegend')
 
 	var GWBH = legend.append("text")
-		.attr("class", "legendText")
+		.attr("class", "legendText GW BH")
 		.attr("x", padding.left + 'px')
 		.attr("y", '0px')
 		.attr("dx", '0px')
@@ -56,7 +56,7 @@ function createPlot(width=null, height=null){
 		.text("LIGO-Virgo Black Holes");
 	var offset = GWBH.node().getBoundingClientRect().width + 0.01*params.SVGwidth;
 	var GWNS = legend.append("text")
-		.attr("class", "legendText")
+		.attr("class", "legendText GW NS")
 		.attr("x", padding.left + offset + 'px')
 		.attr("y", '0px')
 		.attr("dx", '0px')
@@ -66,7 +66,7 @@ function createPlot(width=null, height=null){
 		.text("LIGO-Virgo Neutron Stars");
 	offset += GWNS.node().getBoundingClientRect().width + 0.01*params.SVGwidth;
 	var EMBH = legend.append("text")
-		.attr("class", "legendText")
+		.attr("class", "legendText EM BH")
 		.attr("x", padding.left + offset + 'px')
 		.attr("y", '0px')
 		.attr("dx", '0px')
@@ -76,7 +76,7 @@ function createPlot(width=null, height=null){
 		.text("EM Black Holes");
 	offset += EMBH.node().getBoundingClientRect().width + 0.01*params.SVGwidth;
 	var EMNS = legend.append("text")
-		.attr("class", "legendText")
+		.attr("class", "legendText EM NS")
 		.attr("x", padding.left + offset + 'px')
 		.attr("y", '0px')
 		.attr("dx", '0px')
@@ -443,7 +443,7 @@ function resizePlot(){
 	params.sizeScaler = window.innerWidth/params.targetWidth;
 	if (!params.renderXchanged) params.renderX = window.innerWidth;
 	if (!params.renderYchanged) params.renderY = window.innerHeight;
-	
+
 	params.renderY = Math.round(params.renderAspect*params.renderX);
 
 	d3.select('#renderX').attr('placeholder',params.renderX);

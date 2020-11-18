@@ -109,13 +109,15 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration)
 			.style("stroke-opacity",0)
 			.on('end',function(){d3.selectAll(cls+'.dot').style('display','none')})
 		d3.selectAll(cls+'.text').transition().duration(dur).style("opacity",0).on('end',function(){d3.selectAll(cls+'.text').style('display','none')});
+		d3.selectAll(cls+'.legendText').transition().duration(dur).style("opacity",0).on('end',function(){d3.selectAll(cls+'.legendText').style('display','none')});
 	} else {
 		d3.selectAll(cls+'.arrow').transition().duration(dur).style("opacity",params.opArrow).on('start',function(){d3.selectAll(cls+'.arrow').style('display','block')})
 		d3.selectAll(cls+'.dot').transition().duration(dur)
 			.style("fill-opacity",params.opMass)
 			.style("stroke-opacity",1)
 			.on('start',function(){d3.selectAll(cls+'.dot').style('display','block')})
-		d3.selectAll(cls+'.text').transition().duration(dur).style("opacity",1).on('end',function(){d3.selectAll(cls+'.text').style('display','block')})
+		d3.selectAll(cls+'.text').transition().duration(dur).style("opacity",1).on('start',function(){d3.selectAll(cls+'.text').style('display','block')})
+		d3.selectAll(cls+'.legendText').transition().duration(dur).style("opacity",1).on('start',function(){d3.selectAll(cls+'.legendText').style('display','block')});
 	}
 }
 
