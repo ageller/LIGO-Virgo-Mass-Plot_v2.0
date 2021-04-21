@@ -77,6 +77,19 @@ function formatTooltip(name){
 	var str = ''
 	str += '<span style="font-size:16px"><b>Name : </b>'+name + '</span><br/>';
 	if (d.messenger != null) str += '<b>messenger : </b>'+d.messenger.replace('GW','Gravitational Waves').replace('EM','Electromagnetic') + '<br/>';
+	if (d.messenger == 'EM'){
+		if (d.category != null) str += '<b>category : </b>'+d.category + '<br/>';
+		if (d.mass != null) {
+			str += '<b>mass : </b>'+d.mass
+			if (d.error_high != null) {
+				dech = d.error_high.countDecimals()
+				decl = d.error_low.countDecimals()
+				str += ' (+' + (d.error_high - d.mass).toFixed(dech) + ' -'+ (d.mass - d.error_low).toFixed(decl) + ')'
+			}
+			str += ' Solar Masses<br/>'; 
+		}
+	}
+
 	if (d.final_mass_source != null) {
 		str += '<b>m_final : </b>'+d.final_mass_source
 		if (d.final_mass_source_upper != null) str += ' (+' + d.final_mass_source_upper + ' '+d.final_mass_source_lower + ')'
