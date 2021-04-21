@@ -2,10 +2,11 @@
 //attach events
 
 //attach resize event
-window.addEventListener("resize", resizePlot);
+window.addEventListener('resize', resizePlot);
 
 //attach event to move tooltip
 //window.addEventListener('mousemove', moveTooltip);
+d3.select('body').on('click',hideTooltip);
 
 //attach the controls
 d3.select('#hamburger').on('mousedown',toggleControls);

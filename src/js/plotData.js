@@ -277,7 +277,7 @@ function plotData(){
 				var urem = rem.filter(onlyUnique);
 				var crem = '';
 				for (var i=0; i<urem.length; i+=1) crem += urem[i];
-				return 'name-'+cleanString(d.commonName) + " " + crem + " arrow GW"
+				return 'name-'+cleanString(d.commonName) + " " + crem + " arrow GW clickable"
 			})
 			.attr("data-name", function(d){return d.commonName})
 			.attr('stroke', 'none')
@@ -290,15 +290,16 @@ function plotData(){
 				return 'translate(' + x +',' + y + ')';
 			})
 			.attr("d", function(d){return createArrow(d)})
-			.on('mouseover',mouseOver)
-			.on('mouseout',mouseOut);
+			//.on('mouseover',mouseOver)
+			//.on('mouseout',mouseOut);
+			.on('click',showTooltip)
 
 
 	//add all the circles for all the masses
 	params.mainPlot.selectAll(".dot.mf.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source != null })
 		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " " + getRem(d.final_mass_source) + " dot mf GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " " + getRem(d.final_mass_source) + " dot mf GW clickable";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.final_mass_source);})
 			.attr("cx", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
@@ -309,13 +310,14 @@ function plotData(){
 			.style("stroke-opacity", 1)
 			.style("stroke-width", 2*params.sizeScaler)
 			.style("cursor", "arrow")
-			.on('mouseover',mouseOver)
-			.on('mouseout',mouseOut);
+			//.on('mouseover',mouseOver)
+			//.on('mouseout',mouseOut);
+			.on('click',showTooltip)
 
 	params.mainPlot.selectAll(".dot.m1.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.mass_1_source != null })
 		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass_1_source) + " dot m1 GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass_1_source) + " dot m1 GW clickable";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass_1_source);})
 			.attr("cx", function(d) {return params.xAxisScale(+d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
@@ -326,13 +328,14 @@ function plotData(){
 			.style("stroke-opacity", 1)
 			.style("stroke-width", 2*params.sizeScaler)
 			.style("cursor", "arrow")
-			.on('mouseover',mouseOver)
-			.on('mouseout',mouseOut);
+			//.on('mouseover',mouseOver)
+			//.on('mouseout',mouseOut);
+			.on('click',showTooltip)
 
 	params.mainPlot.selectAll(".dot.m2.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.mass_2_source != null })
 		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass_2_source) + " dot m2 GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass_2_source) + " dot m2 GW clickable";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass_2_source);})
 			.attr("cx", function(d) {return params.xAxisScale(+d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
@@ -343,14 +346,15 @@ function plotData(){
 			.style("stroke-opacity", 1)
 			.style("stroke-width", 2*params.sizeScaler)
 			.style("cursor", "arrow")
-			.on('mouseover',mouseOver)
-			.on('mouseout',mouseOut);
+			//.on('mouseover',mouseOver)
+			//.on('mouseout',mouseOut);
+			.on('click',showTooltip)
 
 	//add any without final masses?
 	params.mainPlot.selectAll(".dot.mf.no_final_mass.qmark.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source == null && d.total_mass_source != null})
 		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.total_mass_source) + " dot mf no_final_mass qmark GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.total_mass_source) + " dot mf no_final_mass qmark GW clickable";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.total_mass_source);})
 			.attr("cx", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
@@ -361,14 +365,15 @@ function plotData(){
 			.style("stroke-opacity", 1)
 			.style("stroke-width", 2*params.sizeScaler)
 			.style("cursor", "arrow")
-			.on('mouseover',mouseOver)
-			.on('mouseout',mouseOut)
+			//.on('mouseover',mouseOver)
+			//.on('mouseout',mouseOut)
+			.on('click',showTooltip)
 
 	//add question marks to these w/o final masses
 	params.mainPlot.selectAll(".text.mf.no_final_mass.qmark.GW")
 		.data(params.data).enter().filter(function(d) {return d.messenger == 'GW' && d.final_mass_source == null && d.total_mass_source != null})	
 		.append("text")		
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.total_mass_source) + " text mf no_final_mass qmark GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.total_mass_source) + " text mf no_final_mass qmark GW clickable";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("x", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
 			.attr("y", function(d) {return params.yAxisScale(+d.total_mass_source) + 0.5*params.radiusScale(+d.total_mass_source);})
@@ -378,15 +383,16 @@ function plotData(){
 			.style("text-anchor", "middle")
 			.style("cursor", "arrow")
 			.text("?")
-			.on('mouseover',mouseOver)
-			.on('mouseout',mouseOut)
+			//.on('mouseover',mouseOver)
+			//.on('mouseout',mouseOut)
+			.on('click',showTooltip)
 
 	//any without uncertainties on final masses
 	//add question marks to these w/o final masses
 	params.mainPlot.selectAll(".text.mf.no_final_mass_error.qmark.GW")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source != null && d.final_mass_source_upper == null})
 		.append("text")		
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.final_mass_source) + " text mf no_final_mass_error qmark GW";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.final_mass_source) + " text mf no_final_mass_error qmark GW clickable";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("x", function(d) {return params.xAxisScale(+(d[params.GWsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
 			.attr("y", function(d) {return params.yAxisScale(+d.final_mass_source) + 0.5*params.radiusScale(+d.final_mass_source);})
@@ -396,14 +402,15 @@ function plotData(){
 			.style("text-anchor", "middle")
 			.style("cursor", "arrow")
 			.text("?")
-			.on('mouseover',mouseOver)
-			.on('mouseout',mouseOut)
+			//.on('mouseover',mouseOver)
+			//.on('mouseout',mouseOut)
+			.on('click',showTooltip)
 
 	//add the EM data
 	params.mainPlot.selectAll(".dot.mf.EM")
 		.data(params.EMdata).enter().filter(function(d) { return d.messenger == 'EM' && d.mass != null })
 		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass) + " dot mf EM";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass) + " dot mf EM clickable";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("r", function(d){return params.radiusScale(+d.mass);})
 			.attr("cx", function(d) {return params.xAxisScale(+d[params.EMsortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
@@ -414,14 +421,15 @@ function plotData(){
 			.style("stroke-opacity", 1)
 			.style("stroke-width", 2*params.sizeScaler)
 			.style("cursor", "arrow")
-			.on('mouseover',mouseOver)
-			.on('mouseout',mouseOut);
+			//.on('mouseover',mouseOver)
+			//.on('mouseout',mouseOut);
+			.on('click',showTooltip)
 
 	//any EM question marks
 	params.mainPlot.selectAll(".text.mf.qmark.EM")
 		.data(params.data).enter().filter(function(d) { return d.messenger == 'EM' && d.special == 2})
 		.append("text")		
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass) + " text mf qmark EM";})
+			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass) + " text mf qmark EM clickable";})
 			.attr("data-name", function(d){return d.commonName;})
 			.attr("x", function(d) {return params.xAxisScale(+(d[params.EMsortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
 			.attr("y", function(d) {return params.yAxisScale(+d.mass) + 0.5*params.radiusScale(+d.mass);})
@@ -431,8 +439,10 @@ function plotData(){
 			.style("text-anchor", "middle")
 			.style("cursor", "arrow")
 			.text("?")
-			.on('mouseover',mouseOver)
-			.on('mouseout',mouseOut)
+			//.on('mouseover',mouseOver)
+			//.on('mouseout',mouseOut)
+			.on('click',showTooltip)
+
 	params.plotReady = true;
 }
 

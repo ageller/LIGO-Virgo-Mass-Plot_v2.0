@@ -1,4 +1,6 @@
-function mouseOver(){
+function showTooltip(){
+	params.selectedElement = this;
+
 	//lighten everything
 	d3.selectAll('.dot').transition().duration(params.tooltipTransitionDuration)
 		.style("fill-opacity",0.1)
@@ -32,20 +34,29 @@ function mouseOver(){
 }
 
 
-function mouseOut(){
+function hideTooltip(){
+	
+	var x = event.clientX;
+	var y = event.clientY;
+    var elementMouseIsOver = document.elementFromPoint(x, y);
 
-	resetOpacities();
+	if (!elementMouseIsOver.classList.contains('clickable') && elementMouseIsOver.id != 'tooltip' && elementMouseIsOver.parentNode.id != 'tooltip'){
+		resetOpacities();
 
-	//back to normal ordering
-	var cls = d3.select(this).attr('class').split(" ")[0];
-	d3.selectAll('.'+cls).classed("inFront",false);
+		//back to normal ordering
+		if (params.selectedElement){
+			var cls = d3.select(params.selectedElement).attr('class').split(" ")[0];
+			d3.selectAll('.'+cls).classed("inFront",false);
+		}
 
-	//remove tooltip
-	d3.select('#tooltip').transition().duration(params.tooltipTransitionDuration).style("opacity",0)
-		.on("end", function(){
-			d3.select('#tooltip').style('left','-500px')});
+		//remove tooltip
+		d3.select('#tooltip').transition().duration(params.tooltipTransitionDuration).style("opacity",0)
+			.on("end", function(){
+				d3.select('#tooltip').style('left','-500px')});
+	}
 
 }
+
 
 function moveTooltip(){
 	var coord = d3.pointer(event);
@@ -82,6 +93,9 @@ function formatTooltip(name){
 	if (d['catalog.shortName'] != null) str += '<b>catalog : </b>' + d['catalog.shortName'] + '<br/>';
 	if (d.GPS != null) str += '<b>GPS : </b>' + d.GPS + '<br/>';
 	if (d.network_matched_filter_snr != null) str += '<b>SNR : </b>' + d.network_matched_filter_snr.toFixed(2) + '<br/>';
+	ref = d.reference;
+	if (ref == '/GWTC-2/') ref = "https://www.gw-openscience.org/GWTC-2/"
+	if (d.reference != null) str += '<b>Reference : </b><a target="_blank" href="' + ref + '">' + ref + '</a><br/>';
 
 	d3.select('#tooltip')
 		.html(str)

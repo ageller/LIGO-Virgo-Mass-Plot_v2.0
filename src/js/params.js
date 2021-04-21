@@ -62,6 +62,7 @@ var params = new function() {
 	this.sortTransitionDuration = 400;
 	this.fadeTransitionDuration = 400;
 	this.controlsTransitionDuration = 200;
+	this.selectedElement = null;
 
 	//arrow settings
 	this.arrowThickBottom = 2;

@@ -47,7 +47,7 @@ html,body {
 }
 
 #tooltip{
-	background-color: white;
+	background-color: #eeeeee;
 	border-radius:5px;
 	color:black;
 	z-index:30;
@@ -59,4 +59,6 @@ html,body {
 	box-sizing: border-box;
 }
 
-
+.clickable:hover{
+	cursor:pointer;
+}
