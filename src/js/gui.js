@@ -54,25 +54,29 @@ function dropdown(){
 }
 
 //resizing the plot elements based on input from the controls panel
-function moveData(messenger,sortKey){
+function moveData(messenger,sortKey, reset=false, dur=params.sortTransitionDuration){
 	//sortKey = 'risingIndex';
 	//sortKey = 'fallingIndex';
 	//sortKey = 'peakIndex';
 	//sortKey = 'valleyIndex';
 
 
-	console.log('moving data', messenger, sortKey)
+	console.log('moving data', messenger, sortKey);
 
 	params[messenger+'sortKey'] = sortKey;
 
-	d3.selectAll('.dot.'+messenger).transition().duration(params.sortTransitionDuration)
-		.attr("cx", function(d) {return params.xAxisScale(+d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);})
+	d3.selectAll('.dot.'+messenger).transition().duration(dur)
+		.attr("cx", function(d) {return defineXpos(d,d3.select(this).attr('class'),reset);})
+		.attr("cy", function(d) {return defineYpos(d,d3.select(this).attr('class'),reset);})
+		.attr("r", function(d) {return defineRadius(d,d3.select(this).attr('class'),reset);})
 
-	d3.selectAll('.text.'+messenger).transition().duration(params.sortTransitionDuration)
-		.attr("x", function(d) {return params.xAxisScale(+(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]));})
+	d3.selectAll('.text.'+messenger).transition().duration(dur)
+		.attr("x", function(d) {return defineXpos(d,d3.select(this).attr('class'),reset);})
+		.attr("y", function(d) {return defineYpos(d,d3.select(this).attr('class'),reset) + 0.5*defineRadius(d,d3.select(this).attr('class'),reset);})
+		.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'),reset)+"px";})
 
-	if (messenger == 'GW'){
-		d3.selectAll('.arrow.GW').transition().duration(params.sortTransitionDuration)
+	if (messenger == 'GW' && params.viewType == 'default'){
+		d3.selectAll('.arrow.GW').transition().duration(dur)
 			.attr('transform',function(d){
 				var x = params.xAxisScale(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);
 				var y = 0;
@@ -98,12 +102,125 @@ function sortPlot(){
 	}
 }
 
+function changeView(){
+	var classes = d3.select(this).attr('class').split(' ');
 
+	//default
+	if (classes.indexOf('default') != -1){
+		params.simulation.stop();
+		params.viewType = 'default';
+
+		//turn off the axes
+		d3.selectAll('.axis').transition().duration(params.fadeTransitionDuration).style("opacity",1);
+
+		//reset the radius scaling
+		params.sizeScaler = params.sizeScalerOrg;
+		params.radiusScale = d3.scaleLinear().range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]).domain(d3.extent(params.data, function(d){ return +d.final_mass_source; }));
+		d3.select('#maxPointSize')
+			.attr('value',function(){
+				var elem = d3.select('#maxPointSize').node();
+				elem.value = elem.value/2.;
+				return elem.value;
+			})
+			.attr('max',40);
+
+		//determine with sort method is used (there is likely a better way to do this)
+		srtGW = 'diamond'
+		d3.selectAll('.radioLabl.sort.GW').each(function(d){
+			var cls = d3.select(this).attr('class').split(' ');
+			if (this.checked == 'checked') srtGW = cls[cls.length - 1];
+		});
+		srtEM= 'valley'
+		d3.selectAll('.radioLabl.sort.EM').each(function(d){
+			var cls = d3.select(this).attr('class').split(' ');
+			if (this.checked == 'checked') srtEM = cls[cls.length - 1];
+		});
+
+		//move and resize the data
+		moveData('GW',srtGW+'Index');
+		moveData('EM',srtEM+'Index');
+
+		//reset the opacities (which will also turn on the arrows)
+		setTimeout(resetOpacities,1.1*params.sortTransitionDuration);
+
+	}
+
+	//circle packing
+	if (classes.indexOf('packing') != -1){
+		//need to fix radius changes and fix arrow sizes
+		//need to fix start (big offset due to force center)
+		
+		params.viewType = 'packing';
+
+		//increase the radius scaling
+		params.sizeScaler = params.sizeScalerOrg*2.
+		params.radiusScale = d3.scaleLinear().range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]).domain(d3.extent(params.data, function(d){ return +d.final_mass_source; }));
+		d3.select('#maxPointSize')
+			.attr('value',function(){
+				var elem = d3.select('#maxPointSize').node();
+				elem.value = elem.value*2.;
+				return elem.value;
+			})
+			.attr('max',80);
+
+		//turn off the axes and arrows
+		d3.selectAll('.axis').transition().duration(params.fadeTransitionDuration).style("opacity",0);
+		d3.selectAll('.arrow').transition().duration(params.fadeTransitionDuration).style("opacity",0);
+
+		//move and resize the data
+		moveData('GW',null, true, dur=params.packingTransitionDuration);
+		moveData('EM',null, true, dur=params.packingTransitionDuration);
+
+		//start the simulation
+		setTimeout(function(){
+			// Features of the forces applied to the nodes:
+			params.collide = d3.forceCollide()
+				.strength(0.75)
+				.radius(function(d){return params.radiusScale(+d.mass) + 2;})
+				.iterations(2)
+
+			params.simulation = d3.forceSimulation()
+				.force('center', d3.forceCenter().x((params.SVGwidth - 150)/2).y((params.SVGheight - 175)/2)) // Attraction to the center of the svg area
+				.force('charge', d3.forceManyBody().strength(17)) // Nodes are attracted one each other of value is > 0
+				.force('collide', params.collide) // Force that avoids circle overlapping
+
+			// Apply these forces to the nodes and update their positions.
+			// Once the force algorithm is happy with positions ('alpha' value is low enough), simulations will stop.
+			params.simulation
+				.nodes(params.data)
+				.on('tick', function(){
+
+					d3.selectAll('.dot').each(function(d){
+						d.x = clamp(d.x,0,params.SVGwidth - 150);
+						d.y = clamp(d.y,0,params.SVGheight - 175);
+
+						//move the dots
+						d3.select(this)
+							.attr('cx', d.x)
+							.attr('cy', d.y);
+
+						//move the question marks
+						var cls = '.'+d3.select(this).attr('class').replace('dot','').replaceAll(' ','.').replaceAll('..','.');
+						d3.selectAll(cls)
+							.attr('x', d.x)
+							.attr('y', d.y + 0.5*d.r);
+
+					});
+				});
+		}, 1.1*params.packingTransitionDuration);
+
+
+
+	}
+
+	console.log('view', params.viewType)
+
+}
 
 function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration){
 	//normal opacities
 	if (off){
-		d3.selectAll(cls+'.arrow').transition().duration(dur).style("opacity",0).on('end',function(){d3.selectAll(cls+'.arrow').style('display','none')});
+		if (params.viewType == 'default') d3.selectAll(cls+'.arrow').transition().duration(dur).style("opacity",0).on('end',function(){d3.selectAll(cls+'.arrow').style('display','none')});
 		d3.selectAll(cls+'.dot').transition().duration(dur)
 			.style("fill-opacity",0)
 			.style("stroke-opacity",0)
@@ -111,7 +228,7 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration)
 		d3.selectAll(cls+'.text').transition().duration(dur).style("opacity",0).on('end',function(){d3.selectAll(cls+'.text').style('display','none')});
 		d3.selectAll(cls+'.legendText').transition().duration(dur).style("opacity",0).on('end',function(){d3.selectAll(cls+'.legendText').style('display','none')});
 	} else {
-		d3.selectAll(cls+'.arrow').transition().duration(dur).style("opacity",params.opArrow).on('start',function(){d3.selectAll(cls+'.arrow').style('display','block')})
+		if (params.viewType == 'default') d3.selectAll(cls+'.arrow').transition().duration(dur).style("opacity",params.opArrow).on('start',function(){d3.selectAll(cls+'.arrow').style('display','block')})
 		d3.selectAll(cls+'.dot').transition().duration(dur)
 			.style("fill-opacity",params.opMass)
 			.style("stroke-opacity",1)
@@ -169,16 +286,19 @@ function changePointSizes(){
 	params.minRadius = +d3.select('#minPointSize').node().value;
 	params.radiusScale.range([params.minRadius,params.maxRadius]);
 
-	params.mainPlot.selectAll(".dot.mf.GW").attr("r", function(d){return params.radiusScale(+d.final_mass_source);});
-	params.mainPlot.selectAll(".dot.m1.GW").attr("r", function(d){return params.radiusScale(+d.mass_1_source);});
-	params.mainPlot.selectAll(".dot.m2.GW").attr("r", function(d){return params.radiusScale(+d.mass_2_source);});
-	params.mainPlot.selectAll(".dot.mf.no_final_mass.GW").attr("r", function(d){return params.radiusScale(+d.total_mass_source);});
-	params.mainPlot.selectAll(".dot.mf.EM").attr("r", function(d){return params.radiusScale(+d.mass);});
+	params.mainPlot.selectAll('.dot').attr("r", function(d){ 
+		d.r = defineRadius(d,d3.select(this).attr('class'))
+		return d.r
+	});
+
+	if (params.viewType == 'packing') {
+		params.collide.initialize(params.simulation.nodes());
+		params.simulation.alphaTarget(.01).restart();
+	}
 
 	params.mainPlot.selectAll(".text.qmark")
-		.attr("y", function(d) {return params.yAxisScale(+d.mass) + 0.5*params.radiusScale(+d.mass);})
-		.style('font-size',function(d) {return 1.5*params.radiusScale(+d.mass)+"px";})
-
+		.attr("y", function(d) {return defineYpos(d,d3.select(this).attr('class')) + 0.5*defineRadius(d,d3.select(this).attr('class'));})
+		.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'))+"px";})
 
 	changeArrowSizes();
 }

@@ -80,3 +80,7 @@ function hasSomeParentWithClass(elem, searchString) {
 	var test = elem.closest(searchString);  
 	return Boolean(test);
 }
+
+function clamp(num, min, max){
+	return Math.min(Math.max(num, min), max);
+}

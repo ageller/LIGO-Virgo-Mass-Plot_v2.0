@@ -21,6 +21,7 @@ var params = new function() {
 
 	this.targetWidth = 1920;//pixels for a target window width to scale point sizes
 	this.sizeScaler = 1;
+	this.sizeScalerOrg = 1;
 
 	//sorting
 	this.GWsortKey = 'diamondIndex';
@@ -61,6 +62,7 @@ var params = new function() {
 	this.tooltipTransitionDuration = 200;
 	this.sortTransitionDuration = 400;
 	this.fadeTransitionDuration = 400;
+	this.packingTransitionDuration = 1000;
 	this.controlsTransitionDuration = 200;
 	this.selectedElement = null;
 
@@ -76,6 +78,12 @@ var params = new function() {
 	this.hidden = {'BH':false,'NS':false,'GW':false,'EM':false,'plotTitle':false,'massGap':true};
 
 	this.massGap = [2.74, 4.9];
+
+	//for changing the view 
+	this.viewType = 'default';
+	this.simulation = d3.forceSimulation();
+	this.collide = d3.forceCollide();
+
 };
 
 

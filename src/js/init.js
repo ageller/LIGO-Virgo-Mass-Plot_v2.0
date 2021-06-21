@@ -14,6 +14,7 @@ d3.selectAll('.controlsTitle').on('mousedown',dropdown);
 
 d3.selectAll('.radioLabel.sort').on('mousedown', sortPlot);
 d3.selectAll('.checkboxLabel.toggle').on('mousedown', togglePlot);
+d3.selectAll('.radioLabel.view').on('mousedown', changeView);
 
 d3.select('#maxPointSize').on('input',changePointSizes);
 d3.select('#minPointSize').on('input',changePointSizes);
@@ -117,7 +118,7 @@ function compileData(){
 			num += 1;
 			if (params.inputGWdata.events[e].final_mass_source == null || params.inputGWdata.events[e].final_mass_source_upper == null){
 				console.log("check",params.inputGWdata.events[e]);
-				dat.mass = params.inputGWdata.events[e].total_mass_source;
+				if (params.inputGWdata.events[e].total_mass_source) dat.mass = params.inputGWdata.events[e].total_mass_source;
 			} 
 			params.data.push(dat);
 			params.commonNames.push(dat.commonName)
@@ -261,6 +262,7 @@ function compileData(){
 		params.data[i].SNRIndex = jSNR;		
 
 	}
+
 
 	//create the plot
 	createPlot(); //this also calls populate plot
