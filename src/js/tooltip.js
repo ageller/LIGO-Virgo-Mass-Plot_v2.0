@@ -35,12 +35,11 @@ function showTooltip(){
 
 
 function hideTooltip(){
-	
 	var x = event.clientX;
 	var y = event.clientY;
     var elementMouseIsOver = document.elementFromPoint(x, y);
 
-	if (!elementMouseIsOver.classList.contains('clickable') && elementMouseIsOver.id != 'tooltip' && elementMouseIsOver.parentNode.id != 'tooltip'){
+	if (!elementMouseIsOver.classList.contains('clickable') && elementMouseIsOver.id != 'tooltip' && elementMouseIsOver.parentNode.id != 'tooltip' && !hasSomeParentWithClass(elementMouseIsOver,'#controls')){
 		resetOpacities();
 
 		//back to normal ordering

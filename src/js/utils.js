@@ -54,14 +54,14 @@ function sortWithIndices(toSort) {
 function shuffle(array) {
 	var currentIndex = array.length, temporaryValue, randomIndex;
 
-	// While there remain elements to shuffle...
+	// While there remain elems to shuffle...
 	while (0 !== currentIndex) {
 
-		// Pick a remaining element...
+		// Pick a remaining elem...
 		randomIndex = Math.floor(Math.random() * currentIndex);
 		currentIndex -= 1;
 
-		// And swap it with the current element.
+		// And swap it with the current elem.
 		temporaryValue = array[currentIndex];
 		array[currentIndex] = array[randomIndex];
 		array[randomIndex] = temporaryValue;
@@ -73,4 +73,10 @@ function shuffle(array) {
 Number.prototype.countDecimals = function () {
     if(Math.floor(this.valueOf()) === this.valueOf()) return 0;
     return this.toString().split(".")[1].length || 0; 
+}
+
+// returns true if the element or one of its parents has the class classname
+function hasSomeParentWithClass(elem, searchString) {
+	var test = elem.closest(searchString);  
+	return Boolean(test);
 }
