@@ -19,7 +19,8 @@ function createPlot(width=null, height=null){
 
 	var annotations = addPlotAnnotations();
 
-
+	if (params.viewType == 'packing') params.plotReady = true;
+	
 	if (params.viewType == 'default'){
 		d3.select('#plotSVG').select('#mainPlot').remove();
 
@@ -100,6 +101,7 @@ function addPlotAnnotations(){
 	var annotations = params.SVG.append('g').attr('id','annotations');
 	
 	var credits = annotations.append("text")
+		.attr("id", "credits")
 		.attr("class", "credits")
 		.attr("x", params.SVGwidth/2. + 'px')
 		.attr("y", params.SVGheight + 'px')
@@ -109,6 +111,7 @@ function addPlotAnnotations(){
 		.text("LIGO-Virgo | Aaron Geller | Northwestern");
 
 	var title = annotations.append("text")
+		.attr("id", "title")
 		.attr("class", "title plotTitle")
 		.attr("x", params.SVGwidth/2. + 'px')
 		.attr("y", '0px')
@@ -472,6 +475,7 @@ function resizePlot(){
 	//resize the plot when the user resizes the window
 	//for now I'll just redraw
 	params.sizeScaler = window.innerWidth/params.targetWidth;
+	params.sizeScalerOrg = params.sizeScaler;
 	if (params.viewType == 'packing') params.sizeScaler *= 2;
 	if (!params.renderXchanged) params.renderX = window.innerWidth;
 	if (!params.renderYchanged) params.renderY = window.innerHeight;

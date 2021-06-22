@@ -40,6 +40,7 @@ d3.select('#renderY').attr('placeholder',params.renderY);
 d3.selectAll('.radioLabel.aspect').on('mousedown', changeAspect);
 
 params.sizeScaler = window.innerWidth/params.targetWidth;
+params.sizeScalerOrg = params.sizeScaler;
 
 //////////////////////////////
 //read in the data and reformat

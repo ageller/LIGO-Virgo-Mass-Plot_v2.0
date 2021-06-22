@@ -133,14 +133,7 @@ function changeView(){
 
 		//reset the radius scaling
 		params.sizeScaler = params.sizeScalerOrg;
-		params.radiusScale = d3.scaleLinear().range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]).domain(d3.extent(params.data, function(d){ return +d.final_mass_source; }));
-		d3.select('#maxPointSize')
-			.attr('value',function(){
-				var elem = d3.select('#maxPointSize').node();
-				elem.value = elem.value/2.;
-				return elem.value;
-			})
-			.attr('max',40);
+		params.radiusScale.range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]);
 
 		//determine with sort method is used (there is likely a better way to do this)
 		srtGW = 'diamond'
@@ -170,15 +163,9 @@ function changeView(){
 		//make a separate plotData within compileData, with the index of the associated data.  then the plotting function can be simplified and each circle will have a data associated with it.  
 		//force simulation to attract the 3 GW masses together (without collision)
 		//could maintain the GW masses as separate circles with links
-		//deal with resizes (maybe size the circles somehow based on the size of the SVG)
 
 		params.viewType = 'packing';
 
-		//get the size of the area and offset for the center
-		var width = params.SVGwidth - params.SVGpadding.right - params.SVGpadding.left;
-		var height = params.SVGheight - params.SVGpadding.top - params.SVGpadding.bottom - 125; //for legend and credits
-		var offsetX = 0;
-		var offsetY = 50;
 
 		//gray out and disable the sorting
 		d3.select('#sortGWDropdown').classed('disabled', true);
@@ -192,14 +179,7 @@ function changeView(){
 
 		//increase the radius scaling
 		params.sizeScaler = params.sizeScalerOrg*2.
-		params.radiusScale = d3.scaleLinear().range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]).domain(d3.extent(params.data, function(d){ return +d.final_mass_source; }));
-		d3.select('#maxPointSize')
-			.attr('value',function(){
-				var elem = d3.select('#maxPointSize').node();
-				elem.value = elem.value*2.;
-				return elem.value;
-			})
-			.attr('max',80);
+		params.radiusScale.range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]);
 
 		//turn off the axes and arrows
 		d3.selectAll('.axis').transition().duration(params.fadeTransitionDuration).style("opacity",0);
@@ -208,6 +188,12 @@ function changeView(){
 		//move and resize the data
 		moveData('GW',null, true, dur=params.packingTransitionDuration, ease=d3.easePolyInOut.exponent(2));
 		moveData('EM',null, true, dur=params.packingTransitionDuration, ease=d3.easePolyInOut.exponent(2));
+
+		//get the size of the area and offset for the center
+		var offsetX = 0;
+		var offsetY = d3.select('#legend').node().getBoundingClientRect().height + d3.select('#credits').node().getBoundingClientRect().height; //don't fully understand this measurement
+		var width = params.SVGwidth - params.SVGpadding.right - params.SVGpadding.left - params.radiusScale.invert(params.maxRadius);
+		var height = params.SVGheight - params.SVGpadding.top - params.SVGpadding.bottom - offsetY - 2.*params.radiusScale.invert(params.maxRadius); 
 
 		//start the simulation
 		setTimeout(function(){
@@ -322,7 +308,8 @@ function changePointSizes(){
 	//console.log(this.value);
 	params.maxRadius = +d3.select('#maxPointSize').node().value;
 	params.minRadius = +d3.select('#minPointSize').node().value;
-	params.radiusScale.range([params.minRadius,params.maxRadius]);
+	params.radiusScale.range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]);
+
 
 	params.mainPlot.selectAll('.dot').attr("r", function(d){ 
 		d.r = defineRadius(d,d3.select(this).attr('class'))
@@ -390,6 +377,7 @@ function renderToImage(){
 				saveImage();
 				params.SVGscale = saveSVGscale;
 				params.controlsX = saveControlsX;
+				params.sizeScaler = params.sizeScalerOrg;
 				resizePlot();
 			} 
 		}, 100);
