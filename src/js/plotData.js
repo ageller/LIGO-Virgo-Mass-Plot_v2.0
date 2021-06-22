@@ -18,6 +18,7 @@ function createPlot(width=null, height=null){
 		.style('transform', 'translate(' + (params.SVGmargin.left + params.controlsX/2) + 'px,' + params.SVGmargin.top + 'px)scaleX(' + params.SVGscale + ')')
 
 	var annotations = addPlotAnnotations();
+	params.SVG.append('g').attr('class','links'); //will hold the links for the circle packing
 
 	if (params.viewType == 'packing') params.plotReady = true;
 

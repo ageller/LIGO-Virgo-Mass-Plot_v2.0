@@ -288,6 +288,8 @@ function compileData(){
 		
 
 	}
+	//give everything a key for the index for easy searching later
+	params.plotData.forEach(function(d,i){d.idx = i});
 
 	//create the plot
 	createPlot(); //this also calls populate plot

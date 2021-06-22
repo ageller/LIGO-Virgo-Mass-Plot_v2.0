@@ -161,11 +161,6 @@ function changeView(){
 
 	//circle packing
 	if (classes.includes('packing')){
-		//can I make the start smoother -- have the circles come to overlap while they are under the force?
-		//make a separate plotData within compileData, with the index of the associated data.  then the plotting function can be simplified and each circle will have a data associated with it.  
-		//force simulation to attract the 3 GW masses together (without collision)
-		//could maintain the GW masses as separate circles with links
-
 		params.viewType = 'packing';
 
 
@@ -186,6 +181,24 @@ function changeView(){
 		//turn off the axes and arrows
 		d3.selectAll('.axis').transition().duration(params.fadeTransitionDuration).style("opacity",0);
 		d3.selectAll('.arrow').transition().duration(params.fadeTransitionDuration).style("opacity",0);
+		d3.selectAll('.massGap').transition().duration(params.fadeTransitionDuration).style("opacity",0);
+
+		//determine the links
+		var links = [];
+		params.plotData.filter(function(d){return d.parent}).forEach(function(parent){
+			var children = params.plotData.filter(function(d){return d.commonName == parent.commonName && !d.parent});
+			if (children.length > 0){
+				children.forEach(function(child){
+					links.push({'source':parseInt(parent.idx),'target':parseInt(child.idx)})
+				})
+			}
+		})
+		//create the lines
+		d3.select('.links').selectAll('line').remove()
+		d3.select('.links').selectAll('line').data(links).enter()
+			.append('line')
+				.attr('class',function(d){return params.plotData[d.source].classString})
+
 
 		setTimeout(function(){
 		//resize the circles and question marks
@@ -202,60 +215,81 @@ function changeView(){
 			var width = params.SVGwidth - params.SVGpadding.right - params.SVGpadding.left - params.radiusScale.invert(params.maxRadius);
 			var height = params.SVGheight - params.SVGpadding.top - params.SVGpadding.bottom - offsetY - 2.*params.radiusScale.invert(params.maxRadius); 
 
-			//start the simulation
-				// Features of the forces applied to the nodes:
-				params.collide = d3.forceCollide()
-					.strength(0.75)
-					.radius(function(d){return params.radiusScale(+d.mass) + 2;})
-					.iterations(2)
+			// define the collision force
+			params.forceCollide = d3.forceCollide()
+				.strength(0.75)
+				.radius(function(d){return params.radiusScale(+d.mass) + 2;})
+				.iterations(2)
 
-				params.ticker = function(){
-					d3.selectAll('.dot').each(function(d){
-						d.x = clamp(d.x,offsetX,width + offsetX);
-						d.y = clamp(d.y,offsetY,height + offsetY);
 
-						//move the dots
-						d3.select(this)
-							.attr('cx', d.x)
-							.attr('cy', d.y);
-
-						//move the question marks
-						var cls = '.'+d3.select(this).attr('class').replace('dot','').replaceAll(' ','.').replaceAll('..','.');
-						d3.selectAll(cls)
-							.attr('x', d.x)
-							.attr('y', d.y + 0.5*d.r);
-
-					});
-				}
-
-				// Once the force algorithm is happy with positions ('alpha' value is low enough), simulations will stop.
-				// parent simulation
-				params.parentSimulation = d3.forceSimulation()
-					.force('center', d3.forceCenter().x(offsetX + width/2).y(offsetY + height/2).strength(0.02)) // Attraction to the center of the svg area
-					.force('charge', d3.forceManyBody().strength(20)) // Nodes are attracted one each other of value is > 0
-					.force('collide', params.collide) // Force that avoids circle overlapping
-					.nodes(params.plotData.filter(function(d){return d.parent}))// Apply these forces to the nodes and update their positions.
-					.on('tick', params.ticker);
-
-				// child simulations
-				params.childSimulations = [];
-				params.plotData.filter(function(d){return d.parent}).forEach(function(parent){
-					var children = params.plotData.filter(function(d){return d.commonName == parent.commonName && !d.parent});
-					if (children.length > 0){
-						// var sim = d3.forceSimulation()
-						// 	.force('center', d3.forceCenter().x(parent.x).y(parent.y).strength(0.02)) 
-						// 	.force('charge', d3.forceManyBody().strength(20)) 
-						// 	.nodes(children)
-						// 	.on('tick', params.ticker);
-						var sim = setInterval(function(){
-							children.forEach(function(d){
-								d.x -= (d.x - parent.x)/100.;
-								d.y -= (d.y - parent.y)/100.;;
-							})
-						}, 10)
-						params.childSimulations.push(sim);
-					}
+			//define the link force
+			params.forceLink = d3.forceLink()
+				.distance(function(d){
+					return Math.abs(params.yAxisScale(d.target.mass) - params.yAxisScale(d.source.mass)); //reversed because 0 is up
 				})
+				.strength(2)
+
+			//modify the nodes and links during the simulation
+			params.ticker = function(){
+
+				//update the nodes
+				d3.selectAll('.dot').each(function(d){
+					d.x = clamp(d.x,offsetX,width + offsetX);
+					d.y = clamp(d.y,offsetY,height + offsetY);
+
+					//move the dots
+					d3.select(this)
+						.attr('cx', d.x)
+						.attr('cy', d.y);
+
+					//move the question marks
+					var cls = '.'+d3.select(this).attr('class').replace('dot','').replaceAll(' ','.').replaceAll('..','.');
+					d3.selectAll(cls)
+						.attr('x', d.x)
+						.attr('y', d.y + 0.5*d.r);
+
+				});
+
+				//update the links (where do these offsets come from??! I just added them by eye)
+				d3.select('.links').selectAll('line')
+					.attr('x1', function(d) {return d.source.x + params.SVGpadding.left;})
+					.attr('y1', function(d) {return d.source.y + 110;})
+					.attr('x2', function(d) {return d.target.x + params.SVGpadding.left;})
+					.attr('y2', function(d) {return d.target.y + 110;})
+
+			}
+
+			//start the simulation
+			// Once the force algorithm is happy with positions ('alpha' value is low enough), simulations will stop.
+			// parent simulation
+			params.parentSimulation = d3.forceSimulation()
+				.nodes(params.plotData)// Apply these forces to the nodes and update their positions.
+				.force('center', d3.forceCenter().x(offsetX + width/2).y(offsetY + height/2).strength(0.02)) // Attraction to the center of the svg area
+				.force('charge', d3.forceManyBody().strength(10)) // Nodes are attracted one each other of value is > 0
+				.force('collide', params.forceCollide) // Force that avoids circle overlapping
+				.force('link', params.forceLink.links(links))
+				//.nodes(params.plotData.filter(function(d){return d.parent}))// Apply these forces to the nodes and update their positions.
+				.on('tick', params.ticker);
+
+			// child simulations
+			params.childSimulations = [];
+			// params.plotData.filter(function(d){return d.parent}).forEach(function(parent){
+			// 	var children = params.plotData.filter(function(d){return d.commonName == parent.commonName && !d.parent});
+			// 	if (children.length > 0){
+			// 		// var sim = d3.forceSimulation()
+			// 		// 	.force('center', d3.forceCenter().x(parent.x).y(parent.y).strength(0.02)) 
+			// 		// 	.force('charge', d3.forceManyBody().strength(20)) 
+			// 		// 	.nodes(children)
+			// 		// 	.on('tick', params.ticker);
+			// 		var sim = setInterval(function(){
+			// 			children.forEach(function(d){
+			// 				d.x -= (d.x - parent.x)/100.;
+			// 				d.y -= (d.y - parent.y)/100.;;
+			// 			})
+			// 		}, 10)
+			// 		params.childSimulations.push(sim);
+			// 	}
+			// })
 
 		}, params.fadeTransitionDuration);
 
@@ -295,39 +329,43 @@ function togglePlot(){
 	var j = classes.indexOf('toggle');
 	var tog = classes[j+1].replace('toggle','');;
 
-	params.hidden[tog] = !params.hidden[tog];
+	var doToggle = true;
+	if (tog == 'massGap' && params.viewType == 'packing') doToggle = false;
 
-	var keys = Object.keys(params.hidden);
+	if (doToggle){
+		params.hidden[tog] = !params.hidden[tog];
 
-	//show the items first
-	for (var i=0; i<keys.length; i+=1){
-		if (!params.hidden[keys[i]]) {
-			if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM'){
-				resetOpacities('.'+keys[i], false, params.fadeTransitionDuration);
-			} else {
-				d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
-					.style("opacity",1)
-					//.on('start',function(){d3.selectAll('.'+keys[i]).style('display','block')});
+		var keys = Object.keys(params.hidden);
+
+		//show the items first
+		for (var i=0; i<keys.length; i+=1){
+			if (!params.hidden[keys[i]]) {
+				if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM'){
+					resetOpacities('.'+keys[i], false, params.fadeTransitionDuration);
+				} else {
+					d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
+						.style("opacity",1)
+						//.on('start',function(){d3.selectAll('.'+keys[i]).style('display','block')});
+				}
 			}
 		}
-	}
 
-	//then hide the items
-	for (var i=0; i<keys.length; i+=1){
-		if (params.hidden[keys[i]]){
-			if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM'){
-				resetOpacities('.'+keys[i], true, params.fadeTransitionDuration);
-			} else {
-				d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
-					.style("opacity",0)
-					//.on('end',function(){d3.selectAll('.'+keys[i]).style('display','none')});
+		//then hide the items
+		for (var i=0; i<keys.length; i+=1){
+			if (params.hidden[keys[i]]){
+				if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM'){
+					resetOpacities('.'+keys[i], true, params.fadeTransitionDuration);
+				} else {
+					d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
+						.style("opacity",0)
+						//.on('end',function(){d3.selectAll('.'+keys[i]).style('display','none')});
+				}
 			}
 		}
+
+		//fix the arrows for combined NS BH
+		if (params.hidden['BH'] && params.hidden['NS']) resetOpacities('.BHNS', true, params.fadeTransitionDuration);
 	}
-
-	//fix the arrows for combined NS BH
-	if (params.hidden['BH'] && params.hidden['NS']) resetOpacities('.BHNS', true, params.fadeTransitionDuration);
-
 }
 
 function changePointSizes(){
@@ -343,7 +381,7 @@ function changePointSizes(){
 	});
 
 	if (params.viewType == 'packing') {
-		params.collide.initialize(params.parentSimulation.nodes());
+		params.forceCollide.initialize(params.parentSimulation.nodes());
 		params.parentSimulation.alphaTarget(.01).restart();
 		// params.childSimulations.forEach(function(d){d.alphaTarget(.01).restart()});
 	}

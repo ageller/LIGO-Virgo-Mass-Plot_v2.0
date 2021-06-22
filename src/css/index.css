@@ -62,3 +62,9 @@ html,body {
 .clickable:hover{
 	cursor:pointer;
 }
+
+.links{
+	stroke: white;
+	stroke-width: 2px;
+	opacity: 0.5;
+}

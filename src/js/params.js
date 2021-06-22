@@ -85,7 +85,8 @@ var params = new function() {
 	//for the circle packing
 	this.parentSimulation = d3.forceSimulation();
 	this.childSimulations = [];
-	this.collide = d3.forceCollide();
+	this.forceCollide = d3.forceCollide();
+	this.forceLink = d3.forceLink();
 	this.ticker;
 
 };
