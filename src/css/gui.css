@@ -306,3 +306,9 @@ input[type=submit]:hover {
 	padding-top:6px;
 	padding-left:12px;
 }
+
+.disabled{
+	color: #ccc;
+	border-top-color: #ccc;
+	transition: all 0.5s ease;
+}

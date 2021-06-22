@@ -28,25 +28,31 @@ function toggleControls(){
 
 //handle the dropdown menus
 function dropdown(){
-	//rotate the triangle
-	var navi = d3.select(this).select('.navi');
-	navi.classed("rotate180", !navi.classed("rotate180")); 
+	var doDrop = true;
+	if (params.viewType == 'packing' && this.id.includes('sort')) doDrop = false;
 
 	//expand the dropdown (is there a way to do this purely in css with unknown height?)
 	var dropdown = d3.select('#'+this.id+'Dropdown').select('.dropdown-content')
 	var shown = dropdown.classed('show-dropdown');
-	if (shown){
-		dropdown
-			.style('visibility','hidden')
-			.style('opacity',0)
-			.style('height',0)
-			.classed("show-dropdown", false)
-	} else {
-		dropdown
-			.style('visibility','visible')
-			.style('opacity',1)
-			.style('height',params.dropdownHeights[this.parentNode.id] + 'px')
-			.classed("show-dropdown", true)
+
+	if (doDrop || shown){
+		//rotate the triangle
+		var navi = d3.select(this).select('.navi');
+		navi.classed("rotate180", !navi.classed("rotate180")); 
+
+		if (shown){
+			dropdown
+				.style('visibility','hidden')
+				.style('opacity',0)
+				.style('height',0)
+				.classed("show-dropdown", false)
+		} else {
+			dropdown
+				.style('visibility','visible')
+				.style('opacity',1)
+				.style('height',params.dropdownHeights[this.parentNode.id] + 'px')
+				.classed("show-dropdown", true)
+		}
 	}
 
 
@@ -54,7 +60,7 @@ function dropdown(){
 }
 
 //resizing the plot elements based on input from the controls panel
-function moveData(messenger,sortKey, reset=false, dur=params.sortTransitionDuration){
+function moveData(messenger,sortKey, reset=false, dur=params.sortTransitionDuration, ease=d3.easePolyInOut){
 	//sortKey = 'risingIndex';
 	//sortKey = 'fallingIndex';
 	//sortKey = 'peakIndex';
@@ -65,18 +71,18 @@ function moveData(messenger,sortKey, reset=false, dur=params.sortTransitionDurat
 
 	params[messenger+'sortKey'] = sortKey;
 
-	d3.selectAll('.dot.'+messenger).transition().duration(dur)
+	d3.selectAll('.dot.'+messenger).transition().ease(ease).duration(dur)
 		.attr("cx", function(d) {return defineXpos(d,d3.select(this).attr('class'),reset);})
 		.attr("cy", function(d) {return defineYpos(d,d3.select(this).attr('class'),reset);})
 		.attr("r", function(d) {return defineRadius(d,d3.select(this).attr('class'),reset);})
 
-	d3.selectAll('.text.'+messenger).transition().duration(dur)
+	d3.selectAll('.text.'+messenger).transition().ease(ease).duration(dur)
 		.attr("x", function(d) {return defineXpos(d,d3.select(this).attr('class'),reset);})
 		.attr("y", function(d) {return defineYpos(d,d3.select(this).attr('class'),reset) + 0.5*defineRadius(d,d3.select(this).attr('class'),reset);})
 		.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'),reset)+"px";})
 
 	if (messenger == 'GW' && params.viewType == 'default'){
-		d3.selectAll('.arrow.GW').transition().duration(dur)
+		d3.selectAll('.arrow.GW').transition().ease(ease).duration(dur)
 			.attr('transform',function(d){
 				var x = params.xAxisScale(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);
 				var y = 0;
@@ -86,31 +92,41 @@ function moveData(messenger,sortKey, reset=false, dur=params.sortTransitionDurat
 }
 
 function sortPlot(){
-	var classes = d3.select(this).attr('class').split(' ');
+	if (params.viewType == 'default'){
+		var classes = d3.select(this).attr('class').split(' ');
 
-	var messenger = null;
-	if (classes.indexOf('GW') != -1){
-		messenger = 'GW'
-	}
-	if (classes.indexOf('EM') != -1){
-		messenger = 'EM'
-	}	
+		var messenger = null;
+		if (classes.indexOf('GW') != -1){
+			messenger = 'GW'
+		}
+		if (classes.indexOf('EM') != -1){
+			messenger = 'EM'
+		}	
 
-	if (messenger){
-		srt = classes[classes.length-1];
-		moveData(messenger,srt+'Index');
+		if (messenger){
+			srt = classes[classes.length-1];
+			moveData(messenger,srt+'Index');
+		}
 	}
 }
 
 function changeView(){
-	var classes = d3.select(this).attr('class').split(' ');
+	var classes = d3.select(this).attr('class');
 
 	//default
-	if (classes.indexOf('default') != -1){
+	if (classes.includes('default')){
 		params.simulation.stop();
 		params.viewType = 'default';
 
-		//turn off the axes
+		//enable the sorting
+		d3.select('#sortGWDropdown').classed('disabled', false);
+		d3.select('#sortGWDropdown').select('.navi').classed('disabled', false);
+		d3.select('#sortGWDropdown').selectAll('input').attr('disabled', false);
+		d3.select('#sortEMDropdown').classed('disabled', false);
+		d3.select('#sortEMDropdown').select('.navi').classed('disabled', false);
+		d3.select('#sortEMDropdown').selectAll('input').attr('disabled', false);
+
+		//turn on the axes
 		d3.selectAll('.axis').transition().duration(params.fadeTransitionDuration).style("opacity",1);
 
 		//reset the radius scaling
@@ -146,11 +162,26 @@ function changeView(){
 	}
 
 	//circle packing
-	if (classes.indexOf('packing') != -1){
+	if (classes.includes('packing')){
 		//need to fix radius changes and fix arrow sizes
-		//need to fix start (big offset due to force center)
-		
+		//do better job of calculating the center
+		//can I make the start smoother -- have the circles come to overlap while they are under the force?
+		//make a separate plotData within compileData, with the index of the associated data.  then the plotting function can be simplified and each circle will have a data associated with it.  
+		//force simulation to attract the 3 GW masses together (without collision)
+		//could maintain the GW masses as separate circles with links
+		//disable sorting dropdowns when in packing
+		//deal with resizes (maybe size the circles somehow based on the size of the SVG)
+
+
 		params.viewType = 'packing';
+
+		//gray out and disable the sorting
+		d3.select('#sortGWDropdown').classed('disabled', true);
+		d3.select('#sortGWDropdown').select('.navi').classed('disabled', true);
+		d3.select('#sortGWDropdown').selectAll('input').attr('disabled', true);
+		d3.select('#sortEMDropdown').classed('disabled', true);
+		d3.select('#sortEMDropdown').select('.navi').classed('disabled', true);
+		d3.select('#sortEMDropdown').selectAll('input').attr('disabled', true);
 
 		//increase the radius scaling
 		params.sizeScaler = params.sizeScalerOrg*2.
@@ -168,8 +199,8 @@ function changeView(){
 		d3.selectAll('.arrow').transition().duration(params.fadeTransitionDuration).style("opacity",0);
 
 		//move and resize the data
-		moveData('GW',null, true, dur=params.packingTransitionDuration);
-		moveData('EM',null, true, dur=params.packingTransitionDuration);
+		moveData('GW',null, true, dur=params.packingTransitionDuration, ease=d3.easePolyInOut.exponent(2));
+		moveData('EM',null, true, dur=params.packingTransitionDuration, ease=d3.easePolyInOut.exponent(2));
 
 		//start the simulation
 		setTimeout(function(){
@@ -180,8 +211,8 @@ function changeView(){
 				.iterations(2)
 
 			params.simulation = d3.forceSimulation()
-				.force('center', d3.forceCenter().x((params.SVGwidth - 150)/2).y((params.SVGheight - 175)/2)) // Attraction to the center of the svg area
-				.force('charge', d3.forceManyBody().strength(17)) // Nodes are attracted one each other of value is > 0
+				.force('center', d3.forceCenter().x((params.SVGwidth - 150)/2).y((params.SVGheight - 175)/2).strength(0.02)) // Attraction to the center of the svg area
+				.force('charge', d3.forceManyBody().strength(20)) // Nodes are attracted one each other of value is > 0
 				.force('collide', params.collide) // Force that avoids circle overlapping
 
 			// Apply these forces to the nodes and update their positions.
@@ -207,7 +238,7 @@ function changeView(){
 
 					});
 				});
-		}, 1.1*params.packingTransitionDuration);
+		}, params.packingTransitionDuration);
 
 
 
