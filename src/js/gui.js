@@ -76,7 +76,7 @@ function moveData(messenger,sortKey, reset=false, dur=params.sortTransitionDurat
 		.attr("cy", function(d) {return defineYpos(d,d3.select(this).attr('class'),reset);})
 		.attr("r", function(d) {return defineRadius(d,d3.select(this).attr('class'),reset);})
 
-	d3.selectAll('.text.'+messenger).transition().ease(ease).duration(dur)
+	d3.selectAll('.text.qmark.'+messenger).transition().ease(ease).duration(dur)
 		.attr("x", function(d) {return defineXpos(d,d3.select(this).attr('class'),reset);})
 		.attr("y", function(d) {return defineYpos(d,d3.select(this).attr('class'),reset) + 0.5*defineRadius(d,d3.select(this).attr('class'),reset);})
 		.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'),reset)+"px";})
@@ -115,7 +115,10 @@ function changeView(){
 
 	//default
 	if (classes.includes('default')){
-		params.simulation.stop();
+		params.parentSimulation.stop();
+		// params.childSimulations.forEach(function(d){d.stop()});
+		params.childSimulations.forEach(function(d){clearInterval(d)});
+
 		params.viewType = 'default';
 
 		//enable the sorting
@@ -158,7 +161,6 @@ function changeView(){
 
 	//circle packing
 	if (classes.includes('packing')){
-		//need to fix radius changes and fix arrow sizes
 		//can I make the start smoother -- have the circles come to overlap while they are under the force?
 		//make a separate plotData within compileData, with the index of the associated data.  then the plotting function can be simplified and each circle will have a data associated with it.  
 		//force simulation to attract the 3 GW masses together (without collision)
@@ -185,35 +187,29 @@ function changeView(){
 		d3.selectAll('.axis').transition().duration(params.fadeTransitionDuration).style("opacity",0);
 		d3.selectAll('.arrow').transition().duration(params.fadeTransitionDuration).style("opacity",0);
 
-		//move and resize the data
-		moveData('GW',null, true, dur=params.packingTransitionDuration, ease=d3.easePolyInOut.exponent(2));
-		moveData('EM',null, true, dur=params.packingTransitionDuration, ease=d3.easePolyInOut.exponent(2));
-
-		//get the size of the area and offset for the center
-		var offsetX = 0;
-		var offsetY = d3.select('#legend').node().getBoundingClientRect().height + d3.select('#credits').node().getBoundingClientRect().height; //don't fully understand this measurement
-		var width = params.SVGwidth - params.SVGpadding.right - params.SVGpadding.left - params.radiusScale.invert(params.maxRadius);
-		var height = params.SVGheight - params.SVGpadding.top - params.SVGpadding.bottom - offsetY - 2.*params.radiusScale.invert(params.maxRadius); 
-
-		//start the simulation
 		setTimeout(function(){
-			// Features of the forces applied to the nodes:
-			params.collide = d3.forceCollide()
-				.strength(0.75)
-				.radius(function(d){return params.radiusScale(+d.mass) + 2;})
-				.iterations(2)
+		//resize the circles and question marks
+			d3.selectAll('.dot').transition().duration(params.fadeTransitionDuration)
+				.attr("r", function(d) {return defineRadius(d,d3.select(this).attr('class'));})
 
-			params.simulation = d3.forceSimulation()
-				.force('center', d3.forceCenter().x(offsetX + width/2).y(offsetY + height/2).strength(0.02)) // Attraction to the center of the svg area
-				.force('charge', d3.forceManyBody().strength(20)) // Nodes are attracted one each other of value is > 0
-				.force('collide', params.collide) // Force that avoids circle overlapping
+			d3.selectAll('.text.qmark').transition().duration(params.fadeTransitionDuration)
+				.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'))+"px";})
 
-			// Apply these forces to the nodes and update their positions.
-			// Once the force algorithm is happy with positions ('alpha' value is low enough), simulations will stop.
-			params.simulation
-				.nodes(params.data)
-				.on('tick', function(){
 
+			//get the size of the area and offset for the center
+			var offsetX = 0;
+			var offsetY = d3.select('#legend').node().getBoundingClientRect().height + d3.select('#credits').node().getBoundingClientRect().height; //don't fully understand this measurement
+			var width = params.SVGwidth - params.SVGpadding.right - params.SVGpadding.left - params.radiusScale.invert(params.maxRadius);
+			var height = params.SVGheight - params.SVGpadding.top - params.SVGpadding.bottom - offsetY - 2.*params.radiusScale.invert(params.maxRadius); 
+
+			//start the simulation
+				// Features of the forces applied to the nodes:
+				params.collide = d3.forceCollide()
+					.strength(0.75)
+					.radius(function(d){return params.radiusScale(+d.mass) + 2;})
+					.iterations(2)
+
+				params.ticker = function(){
 					d3.selectAll('.dot').each(function(d){
 						d.x = clamp(d.x,offsetX,width + offsetX);
 						d.y = clamp(d.y,offsetY,height + offsetY);
@@ -230,8 +226,38 @@ function changeView(){
 							.attr('y', d.y + 0.5*d.r);
 
 					});
-				});
-		}, params.packingTransitionDuration);
+				}
+
+				// Once the force algorithm is happy with positions ('alpha' value is low enough), simulations will stop.
+				// parent simulation
+				params.parentSimulation = d3.forceSimulation()
+					.force('center', d3.forceCenter().x(offsetX + width/2).y(offsetY + height/2).strength(0.02)) // Attraction to the center of the svg area
+					.force('charge', d3.forceManyBody().strength(20)) // Nodes are attracted one each other of value is > 0
+					.force('collide', params.collide) // Force that avoids circle overlapping
+					.nodes(params.plotData.filter(function(d){return d.parent}))// Apply these forces to the nodes and update their positions.
+					.on('tick', params.ticker);
+
+				// child simulations
+				params.childSimulations = [];
+				params.plotData.filter(function(d){return d.parent}).forEach(function(parent){
+					var children = params.plotData.filter(function(d){return d.commonName == parent.commonName && !d.parent});
+					if (children.length > 0){
+						// var sim = d3.forceSimulation()
+						// 	.force('center', d3.forceCenter().x(parent.x).y(parent.y).strength(0.02)) 
+						// 	.force('charge', d3.forceManyBody().strength(20)) 
+						// 	.nodes(children)
+						// 	.on('tick', params.ticker);
+						var sim = setInterval(function(){
+							children.forEach(function(d){
+								d.x -= (d.x - parent.x)/100.;
+								d.y -= (d.y - parent.y)/100.;;
+							})
+						}, 10)
+						params.childSimulations.push(sim);
+					}
+				})
+
+		}, params.fadeTransitionDuration);
 
 
 
@@ -317,8 +343,9 @@ function changePointSizes(){
 	});
 
 	if (params.viewType == 'packing') {
-		params.collide.initialize(params.simulation.nodes());
-		params.simulation.alphaTarget(.01).restart();
+		params.collide.initialize(params.parentSimulation.nodes());
+		params.parentSimulation.alphaTarget(.01).restart();
+		// params.childSimulations.forEach(function(d){d.alphaTarget(.01).restart()});
 	}
 
 	params.mainPlot.selectAll(".text.qmark")

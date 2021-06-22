@@ -20,7 +20,7 @@ function createPlot(width=null, height=null){
 	var annotations = addPlotAnnotations();
 
 	if (params.viewType == 'packing') params.plotReady = true;
-	
+
 	if (params.viewType == 'default'){
 		d3.select('#plotSVG').select('#mainPlot').remove();
 
@@ -247,10 +247,6 @@ function populatePlot(){
 }
 
 
-function getRem(mass){
-	if (mass < params.BHMinMass) return 'NS';
-	return 'BH';
-}
 
 function plotData(){
 	//console.log('populating plot ...');
@@ -294,63 +290,22 @@ function plotData(){
 			.on('click',showTooltip)
 
 
-	//add all the circles for all the GW sources
-	params.mainPlot.selectAll(".dot.mf.GW")
-		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source != null })
-		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName) + " " + getRem(d.final_mass_source) + " dot mf GW clickable";})
 
-	//GW m1
-	params.mainPlot.selectAll(".dot.m1.GW")
-		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.mass_1_source != null })
-		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass_1_source) + " dot m1 GW clickable";})
+	//create elements for all the circles
+	params.mainPlot.selectAll('.dot').data(params.plotData).enter()
+		.append('circle')
+			.attr('class', function(d){return d.classString;});
 
-	//GW m2
-	params.mainPlot.selectAll(".dot.m2.GW")
-		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.mass_2_source != null })
-		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass_2_source) + " dot m2 GW clickable";})
+	//create elements for the question marks
+	params.mainPlot.selectAll('.qmark').data(params.plotData).enter().filter(function(d){return d.qmark;})
+		.append('text')
+			.attr('class', function(d){return d.classString.replace('dot','text') + ' qmark';})
 
 
-	//add any without final masses?
-	params.mainPlot.selectAll(".dot.mf.no_final_mass.qmark.GW")
-		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source == null && d.total_mass_source != null})
-		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.total_mass_source) + " dot mf no_final_mass qmark GW clickable";})
-
-	//add the EM data
-	params.mainPlot.selectAll(".dot.mf.EM")
-		.data(params.EMdata).enter().filter(function(d) { return d.messenger == 'EM' && d.mass != null })
-		.append("circle")
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass) + " dot mf EM clickable";})
-
-
-	//add question marks to these w/o final masses
-	params.mainPlot.selectAll(".text.mf.no_final_mass.qmark.GW")
-		.data(params.data).enter().filter(function(d) {return d.messenger == 'GW' && d.final_mass_source == null && d.total_mass_source != null})	
-		.append("text")		
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.total_mass_source) + " text mf no_final_mass qmark GW clickable";})
-
-	//any without uncertainties on final masses
-	//add question marks to these w/o final masses
-	params.mainPlot.selectAll(".text.mf.no_final_mass_error.qmark.GW")
-		.data(params.data).enter().filter(function(d) { return d.messenger == 'GW' && d.final_mass_source != null && d.final_mass_source_upper == null})
-		.append("text")		
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.final_mass_source) + " text mf no_final_mass_error qmark GW clickable";})
-
-
-	//any EM question marks
-	params.mainPlot.selectAll(".text.mf.qmark.EM")
-		.data(params.data).enter().filter(function(d) { return d.messenger == 'EM' && d.special == 2})
-		.append("text")		
-			.attr("class", function(d){return 'name-'+cleanString(d.commonName)+ " " + getRem(d.mass) + " text mf qmark EM clickable";})
-
-
-	//now add all the points
+	//now add all the circles
 	d3.selectAll('circle').each(function(d){
 		d3.select(this)
-			.attr("data-name", d.commonName)
+			.attr("data-name", params.data[d.dataIndex].commonName)
 			.attr("r", defineRadius(d,d3.select(this).attr('class')))
 			.attr("cx", defineXpos(d,d3.select(this).attr('class')))
 			.attr("cy", defineYpos(d,d3.select(this).attr('class')))
@@ -373,7 +328,7 @@ function plotData(){
 	//add all the question marks
 	d3.selectAll('.qmark').each(function(d){
 		d3.select(this)
-			.attr("data-name", d.commonName)
+			.attr("data-name", params.data[d.dataIndex].commonName)
 			.attr("x", defineXpos(d,d3.select(this).attr('class')))
 			.attr("y", defineYpos(d,d3.select(this).attr('class')) + 0.5*defineRadius(d,d3.select(this).attr('class')))
 			.style('fill','white')
@@ -395,13 +350,14 @@ function plotData(){
 }
 
 function defineXpos(d, classStr, reset=false){
+	if ('dataIndex' in d) dUse = params.data[d.dataIndex];
 	if (reset) return d.x;
 
 	var cls = '.'+classStr.replace('clickable','').replaceAll(' ','.');
 
 	var skey = params.GWsortKey;
 	if (cls.includes('EM')) skey = params.EMsortKey;
-	var x = params.xAxisScale(+(d[skey]/params.xNorm*params.xAxisScale.domain()[1]));
+	var x = params.xAxisScale(+(dUse[skey]/params.xNorm*params.xAxisScale.domain()[1]));
 
 	d.x = x;
 	return x;
@@ -411,16 +367,6 @@ function defineYpos(d,classStr, reset=false){
 	if (reset) return d.y;
 
 	var y = params.yAxisScale(+d.mass);
-
-	var cls = '.'+classStr.replace('clickable','').replaceAll(' ','.');
-	if (cls.includes('.dot.mf.GW')) y = params.yAxisScale(+d.final_mass_source);
-	if (cls.includes('.dot.m1.GW')) y = params.yAxisScale(+d.mass_1_source);
-	if (cls.includes('.dot.m2.GW')) y = params.yAxisScale(+d.mass_2_source);
-	if (cls.includes('.dot.mf.no_final_mass.qmark.GW')) y = params.yAxisScale(+d.total_mass_source);
-	if (cls.includes('.text.mf.no_final_mass.qmark.GW')) y = params.yAxisScale(+d.total_mass_source);
-	if (cls.includes('.text.mf.no_final_mass_error.qmark.GW')) y = params.yAxisScale(+d.final_mass_source);
-	if (cls.includes('.dot.mf.EM')) y = params.yAxisScale(+d.mass);
-	if (cls.includes('.text.mf.qmark.EM')) y = params.yAxisScale(+d.mass);
 
 	d.y = y;
 	return y;
@@ -432,16 +378,6 @@ function defineRadius(d,classStr, reset=false){
 
 	var r = params.radiusScale(+d.mass);
 
-	var cls = '.'+classStr.replace('clickable','').replaceAll(' ','.');
-	if (cls.includes('.dot.mf.GW')) r = params.radiusScale(+d.final_mass_source);
-	if (cls.includes('.dot.m1.GW')) r = params.radiusScale(+d.mass_1_source);
-	if (cls.includes('.dot.m2.GW')) r = params.radiusScale(+d.mass_2_source);
-	if (cls.includes('.dot.mf.no_final_mass.qmark.GW')) r = params.radiusScale(+d.total_mass_source);
-	if (cls.includes('.text.mf.no_final_mass.qmark.GW')) r = params.radiusScale(+d.total_mass_source);
-	if (cls.includes('.text.mf.no_final_mass_error.qmark.GW')) r = params.radiusScale(+d.final_mass_source);
-	if (cls.includes('.dot.mf.EM')) r = params.radiusScale(+d.mass);
-	if (cls.includes('.text.mf.qmark.EM')) r = params.radiusScale(+d.mass);
-
 	d.r = r;
 	return r;
 }
@@ -452,18 +388,8 @@ function defineColor(d, classStr){
 	var tp = 'GW';
 	if (cls.includes('.EM')) tp = 'EM';
 
-	var mass = d.mass;
-	if (cls.includes('.dot.mf.GW')) mass = d.final_mass_source;
-	if (cls.includes('.dot.m1.GW')) mass = d.mass_1_source;
-	if (cls.includes('.dot.m2.GW')) mass = d.mass_2_source;
-	if (cls.includes('.dot.mf.no_final_mass.qmark.GW')) mass = d.total_mass_source;
-	if (cls.includes('.text.mf.no_final_mass.qmark.GW')) mass = d.total_mass_source;
-	if (cls.includes('.text.mf.no_final_mass_error.qmark.GW')) mass = d.final_mass_source;
-	if (cls.includes('.dot.mf.EM')) mass = d.mass;
-	if (cls.includes('.text.mf.qmark.EM')) mass = d.mass;
-
 	var rem = 'BH'
-	if (mass < params.BHMinMass) rem = 'NS';
+	if (d.mass < params.BHMinMass) rem = 'NS';
 
 	var key = tp+rem;
 
@@ -492,7 +418,7 @@ function resizePlot(){
 // What happens when a circle is dragged
 function dragstarted(event, d) {
 	if (params.viewType == 'packing'){
-		if (!event.active) params.simulation.alphaTarget(.01).restart();
+		if (!event.active && d.parent) params.parentSimulation.alphaTarget(.01).restart();
 		d.fx = d.x;
 		d.fy = d.y;
 	}
@@ -501,11 +427,15 @@ function dragged(event, d) {
 	if (params.viewType == 'packing'){
 		d.fx = event.x;
 		d.fy = event.y;
+		if (!d.parent){
+			d.x = event.x;
+			d.y = event.y;
+		}
 	}
 }
 function dragended(event, d) {
 	if (params.viewType == 'packing'){
-		if (!event.active) params.simulation.alphaTarget(.01);
+		if (!event.active && d.parent) params.parentSimulation.alphaTarget(.01);
 		d.fx = null;
 		d.fy = null;
 	}

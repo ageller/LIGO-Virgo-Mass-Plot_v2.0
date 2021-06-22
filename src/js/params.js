@@ -4,7 +4,8 @@ var params = new function() {
 
 	//holds the data from GWOSC
 	this.inputGWdata;
-	this.data = [];
+	this.data = []; //this will hold the data as read in from GWOSC (3 BHs per entry) and our EM database
+	this.plotData = []; //this will hold reformatted data for the plot where each of the GW sources have 3 entries (and point back to this.data)
 	this.commonNames = [];
 
 	//axes scaling
@@ -32,7 +33,7 @@ var params = new function() {
 	this.mainPlot;
 	this.SVGbackground = 'black';
 	this.SVGmargin = {'top': 10,'bottom':10,'left': 10,'right':10};
-	this.SVGpadding = {'top': 10, 'bottom':60,'left': 60,'right':10};
+	this.SVGpadding = {'top': 10, 'bottom':60,'left': 70,'right':10};
 	this.SVGwidth = window.innerWidth - this.SVGmargin.left - this.SVGmargin.right; 
 	this.SVGheight = window.innerHeight - this.SVGmargin.top - this.SVGmargin.bottom; 
 	
@@ -81,8 +82,11 @@ var params = new function() {
 
 	//for changing the view 
 	this.viewType = 'default';
-	this.simulation = d3.forceSimulation();
+	//for the circle packing
+	this.parentSimulation = d3.forceSimulation();
+	this.childSimulations = [];
 	this.collide = d3.forceCollide();
+	this.ticker;
 
 };
 

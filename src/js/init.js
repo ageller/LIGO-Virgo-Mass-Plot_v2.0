@@ -52,10 +52,15 @@ d3.json("src/data/GWOSCdata.json").then(function(data){
 });
 
 
-
+function getRem(mass){
+	if (mass < params.BHMinMass) return 'NS';
+	return 'BH';
+}
 function compileData(){
 	//identify the GW events to use; only want those with masses and then only the most recent version
 	console.log('compiling data ...');
+	params.data = [];
+	params.plotData = [];
 
 	var events = Object.keys(params.inputGWdata.events)
 	var useEvents = {'name':[],'id':[],'version':[]}
@@ -260,10 +265,29 @@ function compileData(){
 		params.data[i].distanceIndex = jDist;		
 		params.data[i].chirpIndex = jChirp;		
 		params.data[i].chiIndex = jChi;		
-		params.data[i].SNRIndex = jSNR;		
+		params.data[i].SNRIndex = jSNR;	
+
+
+		//add to the plotData
+		var dat = {};
+		var d = params.data[i];
+		if (d.messenger == 'GW'){
+			//check for necessary question marks for the final masses
+			var qmark = false
+			if (d.final_mass_source != null && d.final_mass_source_upper == null) qmark = true;
+
+			//normal sources
+			if (d.final_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.final_mass_source, 'classString':'name-'+cleanString(d.commonName) + ' ' + getRem(d.final_mass_source) + ' dot mf GW clickable','qmark':qmark,'parent':true,'commonName':d.commonName});
+			if (d.mass_1_source != null) params.plotData.push({'dataIndex':i, 'mass':d.mass_1_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass_1_source) + ' dot m1 GW clickable','qmark':false,'parent':false,'commonName':d.commonName});
+			if (d.mass_2_source != null) params.plotData.push({'dataIndex':i, 'mass':d.mass_2_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass_2_source) + ' dot m2 GW clickable','qmark':false,'parent':false,'commonName':d.commonName});
+
+			//add any without final masses
+			if (d.final_mass_source == null && d.total_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.total_mass_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.total_mass_source) + ' dot mf no_final_mass GW clickable','qmark':true,'parent':true,'commonName':d.commonName});
+		}
+		if (d.messenger == 'EM' && d.mass != null) params.plotData.push({'dataIndex':i, 'mass':d.mass, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass) + ' dot mf EM clickable', 'qmark':(d.special==2),'parent':true,'commonName':d.commonName});
+		
 
 	}
-
 
 	//create the plot
 	createPlot(); //this also calls populate plot

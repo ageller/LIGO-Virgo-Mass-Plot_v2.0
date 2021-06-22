@@ -1,7 +1,7 @@
 /*for the controls*/
 #hamburger{
 	position:absolute;
-	top:0;
+	top:10px;
 	left:97vw;
 	padding:10px;
 	z-index:20;
