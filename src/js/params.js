@@ -32,7 +32,7 @@ var params = new function() {
 	this.mainPlot;
 	this.SVGbackground = 'black';
 	this.SVGmargin = {'top': 10,'bottom':10,'left': 10,'right':10};
-	this.SVGpadding = {'top': 10, 'bottom':100,'left': 120,'right':10};
+	this.SVGpadding = {'top': 10, 'bottom':60,'left': 60,'right':10};
 	this.SVGwidth = window.innerWidth - this.SVGmargin.left - this.SVGmargin.right; 
 	this.SVGheight = window.innerHeight - this.SVGmargin.top - this.SVGmargin.bottom; 
 	

@@ -4,80 +4,156 @@ function createPlot(width=null, height=null){
 
 	params.plotReady = false;
 
-	var margin = {};
-	var padding = {};
-	var keys = Object.keys(params.SVGmargin);
-	for (var i=0; i<keys.length; i++) margin[keys[i]] = params.SVGmargin[keys[i]]*params.sizeScaler;
-	var keys = Object.keys(params.SVGpadding);
-	for (var i=0; i<keys.length; i++) padding[keys[i]] = params.SVGpadding[keys[i]]*params.sizeScaler;
-
 	if (!width) width = window.innerWidth; 
 	if (!height) height = window.innerHeight;
 
-	params.SVGwidth = width - margin.left*params.sizeScaler - margin.right; 
-	params.SVGheight = height - margin.top - margin.bottom; 
+	params.SVGwidth = width - params.SVGmargin.left - params.SVGmargin.right; 
+	params.SVGheight = height - params.SVGmargin.top - params.SVGmargin.bottom; 
 
 	//define the SVG element that will contain the plot
-	params.SVG = d3.select('body').append('svg')
-		.attr('id','svg')
+	params.SVG = d3.select('#plotSVG')
 		.style('height',params.SVGheight)
 		.style('width',params.SVGwidth)
 		.style('background-color',params.SVGbackground)
+		.style('transform', 'translate(' + (params.SVGmargin.left + params.controlsX/2) + 'px,' + params.SVGmargin.top + 'px)scaleX(' + params.SVGscale + ')')
 
-	var credits = params.SVG.append("text")
+	var annotations = addPlotAnnotations();
+
+
+	if (params.viewType == 'default'){
+		d3.select('#plotSVG').select('#mainPlot').remove();
+
+		var top = annotations.title.node().getBoundingClientRect().height + annotations.legend.node().getBoundingClientRect().height + params.SVGpadding.top;
+
+		params.mainPlot = params.SVG.append("g")
+				.attr('id','mainPlot')
+				.attr("transform", "translate(" + params.SVGpadding.left + "," + top + ")");
+
+		//define the radius scaling
+		params.radiusScale = d3.scaleLinear().range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]).domain(d3.extent(params.data, function(d){ return +d.final_mass_source; }));
+
+		//define the axes
+		params.xAxisScale = d3.scaleLinear().range([0, params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right]);
+		params.yAxisScale = d3.scaleLog().range([params.SVGheight - top - params.SVGpadding.bottom, 1]);
+
+		params.xAxisScale.domain([0, params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right]); //pixels on screen
+		//params.yAxisScale.domain(d3.extent(params.data, function(d){if (d.final_mass_source != null) return +d.final_mass_source; })); //masses
+		params.yAxisScale.domain(d3.extent([1, 200])); //masses
+
+		params.yAxis = d3.axisLeft(params.yAxisScale)
+			.scale(params.yAxisScale)
+			.tickSize(-(params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right))
+			.tickFormat(d3.format("d"))
+			.tickValues([1,2,5,10,20,50,100,200]);
+
+		params.mainPlot.append("g")
+			.attr("class", "axis yaxis")
+			.style('font-size', 0.015*params.SVGwidth)
+			.call(params.yAxis);
+
+		params.mainPlot.selectAll('.axis').selectAll('line')
+			.style('stroke-width','2px')
+		params.mainPlot.select('.yaxis').selectAll('.domain').remove();
+
+		var axisLabel = params.mainPlot.append("text")
+			.attr("class", "axis axisLabel yaxis")
+			.attr("transform", "rotate(-90)")
+			.attr("x", 0)
+			.attr("y", 0)
+			.style("text-anchor", "end")
+			.style('font-size',0.025*params.SVGwidth)
+			.text("Solar Masses")
+		axisLabel.attr('dy','-'+1.1*axisLabel.node().getBoundingClientRect().width/params.SVGscale+'px')
+
+
+		//mass Gap
+		params.mainPlot.append('rect')
+			.attr('class','rect massGap')
+			.attr('x',params.xAxisScale(0))
+			.attr('y',params.yAxisScale(params.massGap[1]))
+			.attr('width',params.xAxisScale(params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right))
+			.attr('height',params.yAxisScale(params.massGap[0]) - params.yAxisScale(params.massGap[1]))
+			.attr('fill','#303030')
+			.style('opacity',0)
+
+		params.mainPlot.append('text')
+			.attr('class','text massGap')
+			.attr("x", params.SVGwidth/2. + 'px')
+			.attr("y", (params.yAxisScale(params.massGap[0]) + params.yAxisScale(params.massGap[1]))/2. + 'px')
+			.attr("dx", -0.025*params.SVGwidth*2. + "px")
+			.attr("dy", (params.yAxisScale(params.massGap[0]) - params.yAxisScale(params.massGap[1]))/2. - 0.025*params.SVGwidth/2. + 'px')
+			.style("text-anchor", "middle")
+			.style('font-size', 0.025*params.SVGwidth)
+			.style('font-weight', 'bold')
+			.style('color','black')
+			.style('opacity',0)
+			.text('Mass Gap?')
+
+		populatePlot();
+	}
+
+}
+
+function addPlotAnnotations(){
+	d3.select('#plotSVG').select('#annotations').remove();
+
+	var annotations = params.SVG.append('g').attr('id','annotations');
+	
+	var credits = annotations.append("text")
 		.attr("class", "credits")
 		.attr("x", params.SVGwidth/2. + 'px')
 		.attr("y", params.SVGheight + 'px')
-		.attr("dx", padding.left/2. + "px")
+		.attr("dx", params.SVGpadding.left/2. + "px")
 		.attr("dy", "-10px")
 		.style('font-size', 0.02*params.SVGwidth)
 		.text("LIGO-Virgo | Aaron Geller | Northwestern");
 
-	var title = params.SVG.append("text")
+	var title = annotations.append("text")
 		.attr("class", "title plotTitle")
 		.attr("x", params.SVGwidth/2. + 'px')
 		.attr("y", '0px')
-		.attr("dx", padding.left/2. + "px")
+		.attr("dx", params.SVGpadding.left/2. + "px")
 		.style('font-size', 0.05*params.SVGwidth)
 		.text("Masses in the Stellar Graveyard");
 	var titleBbox = title.node().getBoundingClientRect();
 	title.attr("dy", titleBbox.height*0.8)
 
-	var legend = params.SVG.append('g').attr('id','legend').attr('class','plotLegend')
+	var legend = annotations.append('g').attr('id','legend').attr('class','plotLegend')
 
+	var x0 = params.SVGpadding.left*params.SVGscale;
 	var GWBH = legend.append("text")
 		.attr("class", "legendText GW BH")
-		.attr("x", padding.left + 'px')
+		.attr("x", x0 + 'px')
 		.attr("y", '0px')
 		.attr("dx", '0px')
 		.attr("dy", "0px")
 		.style('fill',params.colors.GWBH)
 		.style('font-size', 0.015*params.SVGwidth)
 		.text("LIGO-Virgo Black Holes");
-	var offset = GWBH.node().getBoundingClientRect().width + 0.01*params.SVGwidth;
+	var offset = (GWBH.node().getBoundingClientRect().width + 0.01*params.SVGwidth)/params.SVGscale;
 	var GWNS = legend.append("text")
 		.attr("class", "legendText GW NS")
-		.attr("x", padding.left + offset + 'px')
+		.attr("x", x0 + offset + 'px')
 		.attr("y", '0px')
 		.attr("dx", '0px')
 		.attr("dy", "0px")
 		.style('fill',params.colors.GWNS)
 		.style('font-size', 0.015*params.SVGwidth)
 		.text("LIGO-Virgo Neutron Stars");
-	offset += GWNS.node().getBoundingClientRect().width + 0.01*params.SVGwidth;
+	offset += (GWNS.node().getBoundingClientRect().width + 0.01*params.SVGwidth)/params.SVGscale;
 	var EMBH = legend.append("text")
 		.attr("class", "legendText EM BH")
-		.attr("x", padding.left + offset + 'px')
+		.attr("x", x0 + offset + 'px')
 		.attr("y", '0px')
 		.attr("dx", '0px')
 		.attr("dy", "0px")
 		.style('fill',params.colors.EMBH)
 		.style('font-size', 0.015*params.SVGwidth)
 		.text("EM Black Holes");
-	offset += EMBH.node().getBoundingClientRect().width + 0.01*params.SVGwidth;
+	offset += (EMBH.node().getBoundingClientRect().width + 0.01*params.SVGwidth)/params.SVGscale;
 	var EMNS = legend.append("text")
 		.attr("class", "legendText EM NS")
-		.attr("x", padding.left + offset + 'px')
+		.attr("x", x0 + offset + 'px')
 		.attr("y", '0px')
 		.attr("dx", '0px')
 		.attr("dy", "0px")
@@ -87,81 +163,11 @@ function createPlot(width=null, height=null){
 
 	var legendBbox = legend.node().getBoundingClientRect();
 	var legendY = legendBbox.height + titleBbox.height;
-	var legendX = (params.SVGwidth - padding.left - legendBbox.width)/2.
+	var legendX = (params.SVGwidth - params.SVGpadding.left - legendBbox.width)/2.*params.SVGscale
 	legend.attr('transform','translate(' +legendX + ',' + legendY + ')')
 
-	var top = title.node().getBoundingClientRect().height + legend.node().getBoundingClientRect().height + padding.top;
-
-	params.mainPlot = params.SVG.append("g")
-			.attr('id','mainPlot')
-			.attr("transform", "translate(" + padding.left + "," + top + ")");
-
-	//define the radius scaling
-	params.radiusScale = d3.scaleLinear().range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]).domain(d3.extent(params.data, function(d){ return +d.final_mass_source; }));
-
-	//define the axes
-	params.xAxisScale = d3.scaleLinear().range([0, params.SVGwidth - padding.left - padding.right]);
-	params.yAxisScale = d3.scaleLog().range([params.SVGheight - top - padding.bottom, 1]);
-
-	params.xAxisScale.domain([0, params.SVGwidth - padding.left - padding.right]); //pixels on screen
-	//params.yAxisScale.domain(d3.extent(params.data, function(d){if (d.final_mass_source != null) return +d.final_mass_source; })); //masses
-	params.yAxisScale.domain(d3.extent([1, 200])); //masses
-
-	params.yAxis = d3.axisLeft(params.yAxisScale)
-		.scale(params.yAxisScale)
-		.tickSize(-(params.SVGwidth - padding.left - padding.right))
-		.tickFormat(d3.format("d"))
-		.tickValues([1,2,5,10,20,50,100,200]);
-
-	params.mainPlot.append("g")
-		.attr("class", "axis yaxis")
-		.style('font-size', 0.015*params.SVGwidth)
-		.call(params.yAxis);
-
-	params.mainPlot.selectAll('.axis').selectAll('line')
-		.style('stroke-width','2px')
-	params.mainPlot.select('.yaxis').selectAll('.domain').remove();
-
-	var axisLabel = params.mainPlot.append("text")
-		.attr("class", "axis axisLabel yaxis")
-		.attr("transform", "rotate(-90)")
-		.attr("x", 0)
-		.attr("y", 0)
-		.style("text-anchor", "end")
-		.style('font-size',0.03*params.SVGwidth)
-		.text("Solar Masses")
-	axisLabel.attr('dy','-'+axisLabel.node().getBoundingClientRect().width+'px')
-
-	params.SVG.style('transform', 'translate(' + (margin.left + params.controlsX/2) + 'px,' + margin.top + 'px)scaleX(' + params.SVGscale + ')')
-
-
-	//mass Gap
-	params.mainPlot.append('rect')
-		.attr('class','rect massGap')
-		.attr('x',params.xAxisScale(0))
-		.attr('y',params.yAxisScale(params.massGap[1]))
-		.attr('width',params.xAxisScale(params.SVGwidth - padding.left - padding.right))
-		.attr('height',params.yAxisScale(params.massGap[0]) - params.yAxisScale(params.massGap[1]))
-		.attr('fill','#303030')
-		.style('opacity',0)
-
-	params.mainPlot.append('text')
-		.attr('class','text massGap')
-		.attr("x", params.SVGwidth/2. + 'px')
-		.attr("y", (params.yAxisScale(params.massGap[0]) + params.yAxisScale(params.massGap[1]))/2. + 'px')
-		.attr("dx", -0.025*params.SVGwidth*2. + "px")
-		.attr("dy", (params.yAxisScale(params.massGap[0]) - params.yAxisScale(params.massGap[1]))/2. - 0.025*params.SVGwidth/2. + 'px')
-		.style("text-anchor", "middle")
-		.style('font-size', 0.025*params.SVGwidth)
-		.style('font-weight', 'bold')
-		.style('color','black')
-		.style('opacity',0)
-		.text('Mass Gap?')
-
-	populatePlot();
-
+	return {'title':title, 'legend':legend,'credits':credits};
 }
-
 
 //https://stackoverflow.com/questions/64423115/d3-js-multiple-relationship-visual-linkhorizontal-tangled-tree
 //http://using-d3js.com/05_01_paths.html
@@ -466,6 +472,7 @@ function resizePlot(){
 	//resize the plot when the user resizes the window
 	//for now I'll just redraw
 	params.sizeScaler = window.innerWidth/params.targetWidth;
+	if (params.viewType == 'packing') params.sizeScaler *= 2;
 	if (!params.renderXchanged) params.renderX = window.innerWidth;
 	if (!params.renderYchanged) params.renderY = window.innerHeight;
 
@@ -474,8 +481,8 @@ function resizePlot(){
 	d3.select('#renderX').attr('placeholder',params.renderX);
 	d3.select('#renderY').attr('placeholder',params.renderY);
 
-	d3.select('#svg').remove();
 	createPlot();
+
 }
 
 // What happens when a circle is dragged

@@ -20,7 +20,7 @@ function toggleControls(){
 
 
 	params.SVGscale = 1. - Math.abs(params.controlsX/window.innerWidth);
-	d3.select('#svg').transition().duration(params.controlsTransitionDuration)
+	d3.select('#plotSVG').transition().duration(params.controlsTransitionDuration)
 		.style('transform', 'translate(' + (margin.left + params.controlsX/2) + 'px,' + margin.top + 'px)scaleX(' + params.SVGscale + ')')
 
 
@@ -125,6 +125,8 @@ function changeView(){
 		d3.select('#sortEMDropdown').classed('disabled', false);
 		d3.select('#sortEMDropdown').select('.navi').classed('disabled', false);
 		d3.select('#sortEMDropdown').selectAll('input').attr('disabled', false);
+		d3.select('.massGaptoggle').classed('disabled', false);
+		d3.select('.massGaptoggle').select('input').attr('disabled', false);
 
 		//turn on the axes
 		d3.selectAll('.axis').transition().duration(params.fadeTransitionDuration).style("opacity",1);
@@ -164,16 +166,19 @@ function changeView(){
 	//circle packing
 	if (classes.includes('packing')){
 		//need to fix radius changes and fix arrow sizes
-		//do better job of calculating the center
 		//can I make the start smoother -- have the circles come to overlap while they are under the force?
 		//make a separate plotData within compileData, with the index of the associated data.  then the plotting function can be simplified and each circle will have a data associated with it.  
 		//force simulation to attract the 3 GW masses together (without collision)
 		//could maintain the GW masses as separate circles with links
-		//disable sorting dropdowns when in packing
 		//deal with resizes (maybe size the circles somehow based on the size of the SVG)
 
-
 		params.viewType = 'packing';
+
+		//get the size of the area and offset for the center
+		var width = params.SVGwidth - params.SVGpadding.right - params.SVGpadding.left;
+		var height = params.SVGheight - params.SVGpadding.top - params.SVGpadding.bottom - 125; //for legend and credits
+		var offsetX = 0;
+		var offsetY = 50;
 
 		//gray out and disable the sorting
 		d3.select('#sortGWDropdown').classed('disabled', true);
@@ -182,6 +187,8 @@ function changeView(){
 		d3.select('#sortEMDropdown').classed('disabled', true);
 		d3.select('#sortEMDropdown').select('.navi').classed('disabled', true);
 		d3.select('#sortEMDropdown').selectAll('input').attr('disabled', true);
+		d3.select('.massGaptoggle').classed('disabled', true);
+		d3.select('.massGaptoggle').select('input').attr('disabled', true);
 
 		//increase the radius scaling
 		params.sizeScaler = params.sizeScalerOrg*2.
@@ -211,7 +218,7 @@ function changeView(){
 				.iterations(2)
 
 			params.simulation = d3.forceSimulation()
-				.force('center', d3.forceCenter().x((params.SVGwidth - 150)/2).y((params.SVGheight - 175)/2).strength(0.02)) // Attraction to the center of the svg area
+				.force('center', d3.forceCenter().x(offsetX + width/2).y(offsetY + height/2).strength(0.02)) // Attraction to the center of the svg area
 				.force('charge', d3.forceManyBody().strength(20)) // Nodes are attracted one each other of value is > 0
 				.force('collide', params.collide) // Force that avoids circle overlapping
 
@@ -222,8 +229,8 @@ function changeView(){
 				.on('tick', function(){
 
 					d3.selectAll('.dot').each(function(d){
-						d.x = clamp(d.x,0,params.SVGwidth - 150);
-						d.y = clamp(d.y,0,params.SVGheight - 175);
+						d.x = clamp(d.x,offsetX,width + offsetX);
+						d.y = clamp(d.y,offsetY,height + offsetY);
 
 						//move the dots
 						d3.select(this)
@@ -373,7 +380,6 @@ function renderToImage(){
 		params.controlsX = 0.;
 
 		params.plotReady = false;
-		d3.select('#svg').remove();
 		createPlot(params.renderX, params.renderY);
 
 		//wait until drawing in is complete
