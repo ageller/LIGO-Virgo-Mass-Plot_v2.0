@@ -29,7 +29,7 @@ function indexOfMax(arr){
 
 function cleanString (s){
 	//return s.replace(/sub\>/g,'').replace(/\s/g,'').replace(/[^a-zA-Z ]/g, "").toLowerCase();
-	return s.replace(/[\W]+/g,"");
+	return s.replace(/[\W]+/g,'');
 }
 
 function onlyUnique(value, index, self) {
@@ -72,7 +72,7 @@ function shuffle(array) {
 
 Number.prototype.countDecimals = function () {
     if(Math.floor(this.valueOf()) === this.valueOf()) return 0;
-    return this.toString().split(".")[1].length || 0; 
+    return this.toString().split('.')[1].length || 0; 
 }
 
 // returns true if the element or one of its parents has the class classname

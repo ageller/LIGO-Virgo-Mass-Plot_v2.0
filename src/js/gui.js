@@ -29,7 +29,7 @@ function toggleControls(){
 //handle the dropdown menus
 function dropdown(){
 	var doDrop = true;
-	if (params.viewType == 'packing' && this.id.includes('sort')) doDrop = false;
+	if (params.viewType != 'default' && this.id.includes('sort')) doDrop = false;
 
 	//expand the dropdown (is there a way to do this purely in css with unknown height?)
 	var dropdown = d3.select('#'+this.id+'Dropdown').select('.dropdown-content')
@@ -38,20 +38,20 @@ function dropdown(){
 	if (doDrop || shown){
 		//rotate the triangle
 		var navi = d3.select(this).select('.navi');
-		navi.classed("rotate180", !navi.classed("rotate180")); 
+		navi.classed('rotate180', !navi.classed('rotate180')); 
 
 		if (shown){
 			dropdown
 				.style('visibility','hidden')
 				.style('opacity',0)
 				.style('height',0)
-				.classed("show-dropdown", false)
+				.classed('show-dropdown', false)
 		} else {
 			dropdown
 				.style('visibility','visible')
 				.style('opacity',1)
 				.style('height',params.dropdownHeights[this.parentNode.id] + 'px')
-				.classed("show-dropdown", true)
+				.classed('show-dropdown', true)
 		}
 	}
 
@@ -72,14 +72,14 @@ function moveData(messenger,sortKey, reset=false, dur=params.sortTransitionDurat
 	params[messenger+'sortKey'] = sortKey;
 
 	d3.selectAll('.dot.'+messenger).transition().ease(ease).duration(dur)
-		.attr("cx", function(d) {return defineXpos(d,d3.select(this).attr('class'),reset);})
-		.attr("cy", function(d) {return defineYpos(d,d3.select(this).attr('class'),reset);})
-		.attr("r", function(d) {return defineRadius(d,d3.select(this).attr('class'),reset);})
+		.attr('cx', function(d) {return defineXpos(d,d3.select(this).attr('class'),reset);})
+		.attr('cy', function(d) {return defineYpos(d,d3.select(this).attr('class'),reset);})
+		.attr('r', function(d) {return defineRadius(d,d3.select(this).attr('class'),reset);})
 
 	d3.selectAll('.text.qmark.'+messenger).transition().ease(ease).duration(dur)
-		.attr("x", function(d) {return defineXpos(d,d3.select(this).attr('class'),reset);})
-		.attr("y", function(d) {return defineYpos(d,d3.select(this).attr('class'),reset) + 0.5*defineRadius(d,d3.select(this).attr('class'),reset);})
-		.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'),reset)+"px";})
+		.attr('x', function(d) {return defineXpos(d,d3.select(this).attr('class'),reset);})
+		.attr('y', function(d) {return defineYpos(d,d3.select(this).attr('class'),reset) + 0.5*defineRadius(d,d3.select(this).attr('class'),reset);})
+		.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'),reset)+'px';})
 
 	if (messenger == 'GW' && params.viewType == 'default'){
 		d3.selectAll('.arrow.GW').transition().ease(ease).duration(dur)
@@ -113,26 +113,33 @@ function sortPlot(){
 function changeView(){
 	var classes = d3.select(this).attr('class');
 
+	//stop the simulation if running
+	if (params.parentSimulation) params.parentSimulation.stop();
+
+	//remove any extra nodes from the plotData
+	params.plotData = params.plotData.filter(function(d){return !('extraNode' in d)});
+
+	//remove the links and the extra nodes
+	d3.select('.links').selectAll('line').remove();
+	d3.selectAll('.extraNode').remove();
+
 	//default
 	if (classes.includes('default')){
-		params.parentSimulation.stop();
-		// params.childSimulations.forEach(function(d){d.stop()});
-		params.childSimulations.forEach(function(d){clearInterval(d)});
-
 		params.viewType = 'default';
 
+
 		//enable the sorting
-		d3.select('#sortGWDropdown').classed('disabled', false);
-		d3.select('#sortGWDropdown').select('.navi').classed('disabled', false);
-		d3.select('#sortGWDropdown').selectAll('input').attr('disabled', false);
-		d3.select('#sortEMDropdown').classed('disabled', false);
-		d3.select('#sortEMDropdown').select('.navi').classed('disabled', false);
-		d3.select('#sortEMDropdown').selectAll('input').attr('disabled', false);
-		d3.select('.massGaptoggle').classed('disabled', false);
-		d3.select('.massGaptoggle').select('input').attr('disabled', false);
+		d3.select('#sortGWDropdown').classed('disabled', null);
+		d3.select('#sortGWDropdown').select('.navi').classed('disabled', null);
+		d3.select('#sortGWDropdown').selectAll('input').attr('disabled', null);
+		d3.select('#sortEMDropdown').classed('disabled', null);
+		d3.select('#sortEMDropdown').select('.navi').classed('disabled', null);
+		d3.select('#sortEMDropdown').selectAll('input').attr('disabled', null);
+		d3.select('.massGaptoggle').classed('disabled', null);
+		d3.select('.massGaptoggle').select('input').attr('disabled', null);
 
 		//turn on the axes
-		d3.selectAll('.axis').transition().duration(params.fadeTransitionDuration).style("opacity",1);
+		d3.selectAll('.axis').transition().duration(params.fadeTransitionDuration).style('opacity',1);
 
 		//reset the radius scaling
 		params.sizeScaler = params.sizeScalerOrg;
@@ -160,9 +167,9 @@ function changeView(){
 	}
 
 	//circle packing
-	if (classes.includes('packing')){
-		params.viewType = 'packing';
-
+	if (classes.includes('packing') || classes.includes('nodes')){
+		if (classes.includes('packing')) params.viewType = 'packing';
+		if (classes.includes('nodes')) params.viewType = 'nodes';
 
 		//gray out and disable the sorting
 		d3.select('#sortGWDropdown').classed('disabled', true);
@@ -179,9 +186,15 @@ function changeView(){
 		params.radiusScale.range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]);
 
 		//turn off the axes and arrows
-		d3.selectAll('.axis').transition().duration(params.fadeTransitionDuration).style("opacity",0);
-		d3.selectAll('.arrow').transition().duration(params.fadeTransitionDuration).style("opacity",0);
-		d3.selectAll('.massGap').transition().duration(params.fadeTransitionDuration).style("opacity",0);
+		d3.selectAll('.axis').transition().duration(params.fadeTransitionDuration).style('opacity',0);
+		d3.selectAll('.arrow').transition().duration(params.fadeTransitionDuration).style('opacity',0);
+		d3.selectAll('.massGap').transition().duration(params.fadeTransitionDuration).style('opacity',0);
+
+		//get the size of the area and offset for the center
+		var offsetX = 0;
+		var offsetY = d3.select('#legend').node().getBoundingClientRect().height;
+		var width = params.SVGwidth - params.SVGpadding.right - params.SVGpadding.left - params.radiusScale.invert(params.maxRadius) + 40;
+		var height = params.SVGheight - params.SVGpadding.top - params.SVGpadding.bottom - params.radiusScale.invert(params.maxRadius) - 10; 
 
 		//determine the links
 		var links = [];
@@ -193,41 +206,131 @@ function changeView(){
 				})
 			}
 		})
+
+		//force strength
+		var mbStrength = 10;
+		var coStrength = 0.75;
+		var ceStrength = 0.02;
+		var liStrength = 2;
+
+		var extraNodes = [];
+		var extraLinks = [];
+		if (params.viewType == 'nodes'){
+			mbStrength = -1;
+			ceStrength = 0.015;
+			coStrength = 0.1;
+			liStrength = 0.25;
+
+			var ln = parseInt(params.plotData.length);
+			//add the nodes links for the GW, EM, BH and NS nodes
+			extraNodes = [{'x':width/2.,'y':height/4,'r':height/5.,'mass':1,'idx':ln,    'extraNode':'GW', 'classString':'GW extraNode','commonName':'','qmark':false,'parent':false},
+							  {'x':width/2.,'y':3*height/4,'r':height/5.,'mass':1,'idx':ln + 1,'extraNode':'EM', 'classString':'EM extraNode','commonName':'','qmark':false,'parent':false}]
+							  // {'x':500,'y':100,'r':100,'mass':1,'idx':ln + 2,'extraNode':'BH', 'classString':'','commonName':'','qmark':false,'parent':false},
+							  // {'x':700,'y':100,'r':100,'mass':1,'idx':ln + 3,'extraNode':'NS', 'classString':'','commonName':'','qmark':false,'parent':false}];
+
+			params.plotData.filter(function(d){return d.classString.includes('GW') && d.parent}).forEach(function(d){
+				extraLinks.push({'source':parseInt(ln),'target':parseInt(d.idx)});
+			});
+			params.plotData.filter(function(d){return d.classString.includes('EM') && d.parent}).forEach(function(d){
+				extraLinks.push({'source':parseInt(ln + 1),'target':parseInt(d.idx)});
+			});
+			// params.plotData.filter(function(d){return d.classString.includes('BH')}).forEach(function(child){
+			// 	extraLinks.push({'source':parseInt(ln + 2),'target':parseInt(child.idx)});
+			// });
+			// params.plotData.filter(function(d){return d.classString.includes('NS')}).forEach(function(child){
+			// 	extraLinks.push({'source':parseInt(ln + 3),'target':parseInt(child.idx)});
+			// });
+
+
+			extraNodes.forEach(function(d){
+				params.plotData.push(d)
+				//add in the extra dots for these nodes
+				params.mainPlot.selectAll('.extraNode').data(extraNodes).enter()
+					.append('circle')
+						.attr('class', function(d){return d.classString;})
+						.attr('r', function(d){return d.r/5.})
+						.attr('cx', function(d){return d.x})
+						.attr('cy', function(d){return d.y})
+						.style('fill', 'black')
+						.style('fill-opacity',1)
+						.style('stroke', 'silver')
+						.style('stroke-opacity', 1)
+						.style('stroke-width', 2*params.sizeScaler)
+						.style('cursor', 'pointer')
+						.call(d3.drag() // call specific function when circle is dragged
+							.on('start', dragstarted)
+							.on('drag', dragged)
+							.on('end', dragended));
+				params.mainPlot.selectAll('.extraNode.label').data(extraNodes).enter()
+					.append('text')
+						.attr('class', function(d){return d.classString + ' label';})
+						.attr('x', function(d){return d.x})
+						.attr('y', function(d){return d.y + d.r/15.})
+						.style('fill','silver')
+						.style('font-size',function(d){return d.r/5.+'px';})
+						.style('text-anchor', 'middle')
+						.style('cursor', 'pointer')
+						.text(function(d){return d.extraNode})
+						.call(d3.drag() // call specific function when circle is dragged
+							.on('start', dragstarted)
+							.on('drag', dragged)
+							.on('end', dragended));
+						});
+			extraLinks.forEach(function(d){links.push(d)});
+
+
+		}		
+
 		//create the lines
-		d3.select('.links').selectAll('line').remove()
 		d3.select('.links').selectAll('line').data(links).enter()
 			.append('line')
-				.attr('class',function(d){return params.plotData[d.source].classString})
+				.attr('class',function(d){return params.plotData[d.target].classString})
+				.attr('stroke-linecap', 'round')
+				.style('stroke',function(d){
+					var cls = params.plotData[d.target].classString;
+					//if (('extraNode' in params.plotData[d.source])) return 'white';
+					if (cls.includes('GW') && cls.includes('BH')) return params.colors.GWBH;
+					if (cls.includes('GW') && cls.includes('NS')) return params.colors.GWNS;
+					if (cls.includes('EM') && cls.includes('BH')) return params.colors.EMBH;
+					if (cls.includes('EM') && cls.includes('NS')) return params.colors.EMNS;
+					return 'white';
+				})
+				.style('stroke-width',function(d){
+					if (('extraNode' in params.plotData[d.source])) return '1px';
+					return '3px'
+				})
+				.style('opacity',function(d){
+					if (('extraNode' in params.plotData[d.source])) return 0.5;
+					return 0.75
+				})
 
 
 		setTimeout(function(){
 		//resize the circles and question marks
 			d3.selectAll('.dot').transition().duration(params.fadeTransitionDuration)
-				.attr("r", function(d) {return defineRadius(d,d3.select(this).attr('class'));})
+				.attr('r', function(d) {return defineRadius(d,d3.select(this).attr('class'));})
 
 			d3.selectAll('.text.qmark').transition().duration(params.fadeTransitionDuration)
-				.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'))+"px";})
+				.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'))+'px';})
 
-
-			//get the size of the area and offset for the center
-			var offsetX = 0;
-			var offsetY = d3.select('#legend').node().getBoundingClientRect().height + d3.select('#credits').node().getBoundingClientRect().height; //don't fully understand this measurement
-			var width = params.SVGwidth - params.SVGpadding.right - params.SVGpadding.left - params.radiusScale.invert(params.maxRadius);
-			var height = params.SVGheight - params.SVGpadding.top - params.SVGpadding.bottom - offsetY - 2.*params.radiusScale.invert(params.maxRadius); 
 
 			// define the collision force
 			params.forceCollide = d3.forceCollide()
-				.strength(0.75)
-				.radius(function(d){return params.radiusScale(+d.mass) + 2;})
-				.iterations(2)
+				.radius(function(d){
+					if ('extraNode' in d) return d.r;
+					return params.radiusScale(+d.mass) + 2;
+				})
+				.strength(coStrength)
+				.iterations(1)
 
 
 			//define the link force
 			params.forceLink = d3.forceLink()
 				.distance(function(d){
-					return Math.abs(params.yAxisScale(d.target.mass) - params.yAxisScale(d.source.mass)); //reversed because 0 is up
+					if (!('extraNode' in d.target)) return Math.abs(params.yAxisScale(d.target.mass) - params.yAxisScale(d.source.mass)); //reversed because 0 is up
+					return d.target.r;
 				})
-				.strength(2)
+				.strength(liStrength)
 
 			//modify the nodes and links during the simulation
 			params.ticker = function(){
@@ -237,59 +340,58 @@ function changeView(){
 					d.x = clamp(d.x,offsetX,width + offsetX);
 					d.y = clamp(d.y,offsetY,height + offsetY);
 
-					//move the dots
-					d3.select(this)
-						.attr('cx', d.x)
-						.attr('cy', d.y);
+					if (d.x && d.y){
+						//move the dots
+						d3.select(this)
+							.attr('cx', d.x)
+							.attr('cy', d.y);
 
-					//move the question marks
-					var cls = '.'+d3.select(this).attr('class').replace('dot','').replaceAll(' ','.').replaceAll('..','.');
-					d3.selectAll(cls)
-						.attr('x', d.x)
-						.attr('y', d.y + 0.5*d.r);
-
+						//move the question marks
+						var cls = '.'+d3.select(this).attr('class').replace('dot','').replaceAll(' ','.').replaceAll('..','.');
+						d3.selectAll(cls)
+							.attr('x', d.x)
+							.attr('y', d.y + 0.5*d.r);
+					}
 				});
 
-				//update the links (where do these offsets come from??! I just added them by eye)
-				d3.select('.links').selectAll('line')
-					.attr('x1', function(d) {return d.source.x + params.SVGpadding.left;})
-					.attr('y1', function(d) {return d.source.y + 110;})
-					.attr('x2', function(d) {return d.target.x + params.SVGpadding.left;})
-					.attr('y2', function(d) {return d.target.y + 110;})
+				d3.selectAll('.extraNode').each(function(d){
+					d.x = clamp(d.x,offsetX,width + offsetX);
+					d.y = clamp(d.y,offsetY,height + offsetY);
+
+					if (d.x && d.y){
+						//move the dots and text (and attempt to center the text)
+						d3.select(this)
+							.attr('x', d.x)
+							.attr('y', d.y + parseFloat(this.style.fontSize)/3.)
+							.attr('cx', d.x)
+							.attr('cy', d.y);
+					}
+				});
+
+				//update the links (not sure I fully understand these offsets)
+				d3.select('.links').selectAll('line').each(function(d){
+					if (d.source.x && d.source.y && d.target.x && d.target.y){
+						d3.select(this)
+							.attr('x1', d.source.x + params.SVGpadding.left)
+							.attr('y1', d.source.y + params.sizeScaler*params.SVGpadding.bottom + offsetY)
+							.attr('x2', d.target.x + params.SVGpadding.left)
+							.attr('y2', d.target.y + params.sizeScaler*params.SVGpadding.bottom + offsetY)
+					}
+				});
+
+
 
 			}
 
 			//start the simulation
 			// Once the force algorithm is happy with positions ('alpha' value is low enough), simulations will stop.
-			// parent simulation
 			params.parentSimulation = d3.forceSimulation()
 				.nodes(params.plotData)// Apply these forces to the nodes and update their positions.
-				.force('center', d3.forceCenter().x(offsetX + width/2).y(offsetY + height/2).strength(0.02)) // Attraction to the center of the svg area
-				.force('charge', d3.forceManyBody().strength(10)) // Nodes are attracted one each other of value is > 0
+				.force('center', d3.forceCenter().x(offsetX + width/2).y(offsetY + height/2).strength(ceStrength)) // Attraction to the center of the svg area
+				.force('charge', d3.forceManyBody().strength(mbStrength)) // Nodes are attracted one each other of value is > 0
 				.force('collide', params.forceCollide) // Force that avoids circle overlapping
 				.force('link', params.forceLink.links(links))
-				//.nodes(params.plotData.filter(function(d){return d.parent}))// Apply these forces to the nodes and update their positions.
 				.on('tick', params.ticker);
-
-			// child simulations
-			params.childSimulations = [];
-			// params.plotData.filter(function(d){return d.parent}).forEach(function(parent){
-			// 	var children = params.plotData.filter(function(d){return d.commonName == parent.commonName && !d.parent});
-			// 	if (children.length > 0){
-			// 		// var sim = d3.forceSimulation()
-			// 		// 	.force('center', d3.forceCenter().x(parent.x).y(parent.y).strength(0.02)) 
-			// 		// 	.force('charge', d3.forceManyBody().strength(20)) 
-			// 		// 	.nodes(children)
-			// 		// 	.on('tick', params.ticker);
-			// 		var sim = setInterval(function(){
-			// 			children.forEach(function(d){
-			// 				d.x -= (d.x - parent.x)/100.;
-			// 				d.y -= (d.y - parent.y)/100.;;
-			// 			})
-			// 		}, 10)
-			// 		params.childSimulations.push(sim);
-			// 	}
-			// })
 
 		}, params.fadeTransitionDuration);
 
@@ -304,21 +406,21 @@ function changeView(){
 function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration){
 	//normal opacities
 	if (off){
-		if (params.viewType == 'default') d3.selectAll(cls+'.arrow').transition().duration(dur).style("opacity",0).on('end',function(){d3.selectAll(cls+'.arrow').style('display','none')});
+		if (params.viewType == 'default') d3.selectAll(cls+'.arrow').transition().duration(dur).style('opacity',0).on('end',function(){d3.selectAll(cls+'.arrow').style('display','none')});
 		d3.selectAll(cls+'.dot').transition().duration(dur)
-			.style("fill-opacity",0)
-			.style("stroke-opacity",0)
+			.style('fill-opacity',0)
+			.style('stroke-opacity',0)
 			.on('end',function(){d3.selectAll(cls+'.dot').style('display','none')})
-		d3.selectAll(cls+'.text').transition().duration(dur).style("opacity",0).on('end',function(){d3.selectAll(cls+'.text').style('display','none')});
-		d3.selectAll(cls+'.legendText').transition().duration(dur).style("opacity",0).on('end',function(){d3.selectAll(cls+'.legendText').style('display','none')});
+		d3.selectAll(cls+'.text').transition().duration(dur).style('opacity',0).on('end',function(){d3.selectAll(cls+'.text').style('display','none')});
+		d3.selectAll(cls+'.legendText').transition().duration(dur).style('opacity',0).on('end',function(){d3.selectAll(cls+'.legendText').style('display','none')});
 	} else {
-		if (params.viewType == 'default') d3.selectAll(cls+'.arrow').transition().duration(dur).style("opacity",params.opArrow).on('start',function(){d3.selectAll(cls+'.arrow').style('display','block')})
+		if (params.viewType == 'default') d3.selectAll(cls+'.arrow').transition().duration(dur).style('opacity',params.opArrow).on('start',function(){d3.selectAll(cls+'.arrow').style('display','block')})
 		d3.selectAll(cls+'.dot').transition().duration(dur)
-			.style("fill-opacity",params.opMass)
-			.style("stroke-opacity",1)
+			.style('fill-opacity',params.opMass)
+			.style('stroke-opacity',1)
 			.on('start',function(){d3.selectAll(cls+'.dot').style('display','block')})
-		d3.selectAll(cls+'.text').transition().duration(dur).style("opacity",1).on('start',function(){d3.selectAll(cls+'.text').style('display','block')})
-		d3.selectAll(cls+'.legendText').transition().duration(dur).style("opacity",1).on('start',function(){d3.selectAll(cls+'.legendText').style('display','block')});
+		d3.selectAll(cls+'.text').transition().duration(dur).style('opacity',1).on('start',function(){d3.selectAll(cls+'.text').style('display','block')})
+		d3.selectAll(cls+'.legendText').transition().duration(dur).style('opacity',1).on('start',function(){d3.selectAll(cls+'.legendText').style('display','block')});
 	}
 }
 
@@ -330,7 +432,7 @@ function togglePlot(){
 	var tog = classes[j+1].replace('toggle','');;
 
 	var doToggle = true;
-	if (tog == 'massGap' && params.viewType == 'packing') doToggle = false;
+	if (tog == 'massGap' && params.viewType != 'default') doToggle = false;
 
 	if (doToggle){
 		params.hidden[tog] = !params.hidden[tog];
@@ -344,7 +446,7 @@ function togglePlot(){
 					resetOpacities('.'+keys[i], false, params.fadeTransitionDuration);
 				} else {
 					d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
-						.style("opacity",1)
+						.style('opacity',1)
 						//.on('start',function(){d3.selectAll('.'+keys[i]).style('display','block')});
 				}
 			}
@@ -357,7 +459,7 @@ function togglePlot(){
 					resetOpacities('.'+keys[i], true, params.fadeTransitionDuration);
 				} else {
 					d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
-						.style("opacity",0)
+						.style('opacity',0)
 						//.on('end',function(){d3.selectAll('.'+keys[i]).style('display','none')});
 				}
 			}
@@ -375,20 +477,19 @@ function changePointSizes(){
 	params.radiusScale.range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]);
 
 
-	params.mainPlot.selectAll('.dot').attr("r", function(d){ 
+	params.mainPlot.selectAll('.dot').attr('r', function(d){ 
 		d.r = defineRadius(d,d3.select(this).attr('class'))
 		return d.r
 	});
 
-	if (params.viewType == 'packing') {
-		params.forceCollide.initialize(params.parentSimulation.nodes());
-		params.parentSimulation.alphaTarget(.01).restart();
-		// params.childSimulations.forEach(function(d){d.alphaTarget(.01).restart()});
+	if (params.viewType == 'packing' || params.viewType == 'nodes') {
+		if (params.forceCollide) params.forceCollide.initialize(params.parentSimulation.nodes());
+		if (params.parentSimulation) params.parentSimulation.alphaTarget(.01).restart();
 	}
 
-	params.mainPlot.selectAll(".text.qmark")
-		.attr("y", function(d) {return defineYpos(d,d3.select(this).attr('class')) + 0.5*defineRadius(d,d3.select(this).attr('class'));})
-		.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'))+"px";})
+	params.mainPlot.selectAll('.text.qmark')
+		.attr('y', function(d) {return defineYpos(d,d3.select(this).attr('class')) + 0.5*defineRadius(d,d3.select(this).attr('class'));})
+		.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'))+'px';})
 
 	changeArrowSizes();
 }
@@ -396,7 +497,7 @@ function changePointSizes(){
 function changeArrowSizes(){
 	params.arrowScale = +d3.select('#arrowWidth').node().value*0.1; //scale goes between 1 and 20, but I want 0.1 - 2
 
-	params.mainPlot.selectAll('.arrow.GW').attr("d", function(d){return createArrow(d)})
+	params.mainPlot.selectAll('.arrow.GW').attr('d', function(d){return createArrow(d)})
 
 }
 
@@ -490,7 +591,7 @@ function getSVGString( svgNode ) {
 					selectorTextArr.push( '.'+parentElement.classList[c] );
 
 		// Add Children element Ids and Classes to the list
-		var nodes = parentElement.getElementsByTagName("*");
+		var nodes = parentElement.getElementsByTagName('*');
 		for (var i = 0; i < nodes.length; i++) {
 			var id = nodes[i].id;
 			if ( !contains('#'+id, selectorTextArr) )
@@ -503,7 +604,7 @@ function getSVGString( svgNode ) {
 		}
 
 		// Extract CSS Rules
-		var extractedCSSText = "";
+		var extractedCSSText = '';
 		for (var i = 0; i < document.styleSheets.length; i++) {
 			var s = document.styleSheets[i];
 			
@@ -531,8 +632,8 @@ function getSVGString( svgNode ) {
 	}
 
 	function appendCSS( cssText, element ) {
-		var styleElement = document.createElement("style");
-		styleElement.setAttribute("type","text/css"); 
+		var styleElement = document.createElement('style');
+		styleElement.setAttribute('type','text/css'); 
 		styleElement.innerHTML = cssText;
 		var refNode = element.hasChildNodes() ? element.children[0] : null;
 		element.insertBefore( styleElement, refNode );
@@ -545,8 +646,8 @@ function svgString2Image( svgString, width, height, format, callback ) {
 
 	var imgsrc = 'data:image/svg+xml;base64,'+ btoa( unescape( encodeURIComponent( svgString ) ) ); // Convert SVG string to data URL
 
-	var canvas = document.createElement("canvas");
-	var context = canvas.getContext("2d");
+	var canvas = document.createElement('canvas');
+	var context = canvas.getContext('2d');
 
 	canvas.width = width;
 	canvas.height = height;

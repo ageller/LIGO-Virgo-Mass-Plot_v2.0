@@ -83,10 +83,9 @@ var params = new function() {
 	//for changing the view 
 	this.viewType = 'default';
 	//for the circle packing
-	this.parentSimulation = d3.forceSimulation();
-	this.childSimulations = [];
-	this.forceCollide = d3.forceCollide();
-	this.forceLink = d3.forceLink();
+	this.parentSimulation = null;
+	this.forceCollide = null;
+	this.forceLink = null;
 	this.ticker;
 
 };

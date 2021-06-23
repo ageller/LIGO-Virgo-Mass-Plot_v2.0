@@ -46,7 +46,7 @@ params.sizeScalerOrg = params.sizeScaler;
 //read in the data and reformat
 
 //first, read in the data file
-d3.json("src/data/GWOSCdata.json").then(function(data){ 
+d3.json('src/data/GWOSCdata.json').then(function(data){ 
 	params.inputGWdata = data;
 	compileData(); //this will compile the data and then create the plot
 });
@@ -123,7 +123,6 @@ function compileData(){
 			dat.GWindex = num;
 			num += 1;
 			if (params.inputGWdata.events[e].final_mass_source == null || params.inputGWdata.events[e].final_mass_source_upper == null){
-				console.log("check",params.inputGWdata.events[e]);
 				if (params.inputGWdata.events[e].total_mass_source) dat.mass = params.inputGWdata.events[e].total_mass_source;
 			} 
 			params.data.push(dat);

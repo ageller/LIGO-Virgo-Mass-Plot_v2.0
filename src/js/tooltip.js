@@ -3,22 +3,22 @@ function showTooltip(){
 
 	//lighten everything
 	d3.selectAll('.dot').transition().duration(params.tooltipTransitionDuration)
-		.style("fill-opacity",0.1)
-		.style("stroke-opacity",0.2)
-	if (params.viewType == 'default') d3.selectAll('.arrow').transition().duration(params.tooltipTransitionDuration).style("opacity",0.1)
-	d3.selectAll('.text').transition().duration(params.tooltipTransitionDuration).style("opacity",0.2)
+		.style('fill-opacity',0.1)
+		.style('stroke-opacity',0.2)
+	if (params.viewType == 'default') d3.selectAll('.arrow').transition().duration(params.tooltipTransitionDuration).style('opacity',0.1)
+	d3.selectAll('.text').transition().duration(params.tooltipTransitionDuration).style('opacity',0.2)
 
 	//darken the selected object
-	var cls = d3.select(this).attr('class').split(" ")[0];
-	if (params.viewType == 'default') d3.select('.arrow.GW.'+cls).transition().duration(params.tooltipTransitionDuration).style("opacity",1)
-	d3.selectAll('.dot.'+cls).transition().duration(params.tooltipTransitionDuration).style("fill-opacity",1)
-	d3.selectAll('.text.'+cls).transition().duration(params.tooltipTransitionDuration).style("opacity",1)
-	d3.selectAll('.'+cls).classed("inFront",true);
+	var cls = d3.select(this).attr('class').split(' ')[0];
+	if (params.viewType == 'default') d3.select('.arrow.GW.'+cls).transition().duration(params.tooltipTransitionDuration).style('opacity',1)
+	d3.selectAll('.dot.'+cls).transition().duration(params.tooltipTransitionDuration).style('fill-opacity',1)
+	d3.selectAll('.text.'+cls).transition().duration(params.tooltipTransitionDuration).style('opacity',1)
+	d3.selectAll('.'+cls).classed('inFront',true);
 
 
 	//display the tooltip
 	formatTooltip(d3.select(this).attr('data-name'));
-	d3.select('#tooltip').transition().duration(params.tooltipTransitionDuration).style("opacity",1);
+	d3.select('#tooltip').transition().duration(params.tooltipTransitionDuration).style('opacity',1);
 
 	//move the tooltip into position
 	var bbox = d3.select('.dot.mf.'+cls).node().getBoundingClientRect();
@@ -44,13 +44,13 @@ function hideTooltip(){
 
 			//back to normal ordering
 			if (params.selectedElement){
-				var cls = d3.select(params.selectedElement).attr('class').split(" ")[0];
-				d3.selectAll('.'+cls).classed("inFront",false);
+				var cls = d3.select(params.selectedElement).attr('class').split(' ')[0];
+				d3.selectAll('.'+cls).classed('inFront',false);
 			}
 
 			//remove tooltip
-			d3.select('#tooltip').transition().duration(params.tooltipTransitionDuration).style("opacity",0)
-				.on("end", function(){
+			d3.select('#tooltip').transition().duration(params.tooltipTransitionDuration).style('opacity',0)
+				.on('end', function(){
 					d3.select('#tooltip').style('left','-500px')});
 		}
 	}
@@ -107,7 +107,7 @@ function formatTooltip(name){
 	if (d.GPS != null) str += '<b>GPS : </b>' + d.GPS + '<br/>';
 	if (d.network_matched_filter_snr != null) str += '<b>SNR : </b>' + d.network_matched_filter_snr.toFixed(2) + '<br/>';
 	ref = d.reference;
-	if (ref == '/GWTC-2/') ref = "https://www.gw-openscience.org/GWTC-2/"
+	if (ref == '/GWTC-2/') ref = 'https://www.gw-openscience.org/GWTC-2/'
 	if (d.reference != null) str += '<b>Reference : </b><a target="_blank" href="' + ref + '">' + ref + '</a><br/>';
 
 	d3.select('#tooltip')
