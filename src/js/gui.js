@@ -191,10 +191,10 @@ function changeView(){
 		d3.selectAll('.massGap').transition().duration(params.fadeTransitionDuration).style('opacity',0);
 
 		//get the size of the area and offset for the center
-		var offsetX = 0;
+		var offsetX = -(params.SVGpadding.left - 0.5*params.radiusScale.invert(params.maxRadius));
 		var offsetY = d3.select('#legend').node().getBoundingClientRect().height;
-		var width = params.SVGwidth - params.SVGpadding.right - params.SVGpadding.left - params.radiusScale.invert(params.maxRadius) + 40;
-		var height = params.SVGheight - params.SVGpadding.top - params.SVGpadding.bottom - params.radiusScale.invert(params.maxRadius) - 10; 
+		var width = params.SVGwidth - params.SVGpadding.right - params.radiusScale.invert(params.maxRadius);
+		var height = params.SVGheight - params.SVGpadding.top - params.SVGpadding.bottom - d3.select('#credits').node().getBoundingClientRect().height - d3.select('#legend').node().getBoundingClientRect().height - params.radiusScale.invert(params.maxRadius); 
 
 		//determine the links
 		var links = [];
@@ -368,14 +368,13 @@ function changeView(){
 					}
 				});
 
-				//update the links (not sure I fully understand these offsets)
 				d3.select('.links').selectAll('line').each(function(d){
 					if (d.source.x && d.source.y && d.target.x && d.target.y){
 						d3.select(this)
-							.attr('x1', d.source.x + params.SVGpadding.left)
-							.attr('y1', d.source.y + params.sizeScaler*params.SVGpadding.bottom + offsetY)
-							.attr('x2', d.target.x + params.SVGpadding.left)
-							.attr('y2', d.target.y + params.sizeScaler*params.SVGpadding.bottom + offsetY)
+							.attr('x1', d.source.x)
+							.attr('y1', d.source.y)
+							.attr('x2', d.target.x)
+							.attr('y2', d.target.y)
 					}
 				});
 

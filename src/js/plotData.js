@@ -18,17 +18,20 @@ function createPlot(width=null, height=null){
 		.style('transform', 'translate(' + (params.SVGmargin.left + params.controlsX/2) + 'px,' + params.SVGmargin.top + 'px)scaleX(' + params.SVGscale + ')')
 
 	var annotations = addPlotAnnotations();
-	params.SVG.append('g').attr('class','links'); //will hold the links for the circle packing
+
+
+	var top = annotations.title.node().getBoundingClientRect().height + annotations.legend.node().getBoundingClientRect().height + params.SVGpadding.top;
+
+	d3.select('#plotSVG').select('#mainPlot').remove();
+	params.mainPlot = params.SVG.append('g')
+			.attr('id','mainPlot')
+			.attr('transform', 'translate(' + params.SVGpadding.left + ',' + top + ')');
+
+	params.mainPlot.append('g').attr('class','links'); //will hold the links for the circle packing
 
 
 	if (params.viewType == 'default'){
-		d3.select('#plotSVG').select('#mainPlot').remove();
 
-		var top = annotations.title.node().getBoundingClientRect().height + annotations.legend.node().getBoundingClientRect().height + params.SVGpadding.top;
-
-		params.mainPlot = params.SVG.append('g')
-				.attr('id','mainPlot')
-				.attr('transform', 'translate(' + params.SVGpadding.left + ',' + top + ')');
 
 		//define the radius scaling
 		params.radiusScale = d3.scaleLinear().range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]).domain(d3.extent(params.data, function(d){ return +d.final_mass_source; }));
@@ -62,9 +65,9 @@ function createPlot(width=null, height=null){
 			.attr('x', 0)
 			.attr('y', 0)
 			.style('text-anchor', 'end')
-			.style('font-size',0.025*params.SVGwidth)
+			.style('font-size',0.022*params.SVGwidth)
 			.text('Solar Masses')
-		axisLabel.attr('dy','-'+1.1*axisLabel.node().getBoundingClientRect().width/params.SVGscale+'px')
+		axisLabel.attr('dy','-'+(axisLabel.node().getBoundingClientRect().width/params.SVGscale + 10)+'px')
 
 
 		//mass Gap
