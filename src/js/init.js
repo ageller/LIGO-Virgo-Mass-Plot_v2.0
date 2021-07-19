@@ -73,7 +73,7 @@ function compileData(){
 	for (var i =0; i<EMevents.length; i+=1){
 		params.EMdata.push(params.inputEMdata[EMevents[i]])
 	}
-	
+
 	var events = Object.keys(params.inputGWdata.events)
 	var useEvents = {'name':[],'id':[],'version':[]}
 	//take only those with masses
@@ -180,71 +180,63 @@ function compileData(){
 	var sortedGWChi = sortWithIndices(GWchi);
 	var sortedGWSNR = sortWithIndices(GWSNR);
 
-	var GWside = 1;
-	var GWside2 = 1;
-	var flipped = false;
-	var j;
+	var GWside = 1.;
+	var j = 0;
 	var GWindices = [];
-	//can this be simplified??
+	var GWdx = params.data.length/(GWmasses.length + 1); //+1 so that it doesn't reach all the way to the edges
+	var GWusedx = 0;
 	for (var i =0; i<sortedGWMasses.length; i+=1){
-		var j = (i+1)*params.data.length/GWmasses.length;
-		var k = sortedGWMasses.sortIndices[i]
-		params.data[k].valleyIndex = params.data.length/2. + GWside*j/2.;
-		if (GWside > 0){
-			params.data[k].peakIndex = j/2.;
-		} else {
-			params.data[k].peakIndex = params.data.length - j/2.;
+		if ((i+1) % 2 == 0) GWusedx += GWdx;
+		
+		var k1 = sortedGWMasses.sortIndices[i];
+		params.data[k1].valleyIndex = params.data.length/2. + GWside*GWusedx;
+
+		var k2 = sortedGWMasses.sortIndices[sortedGWMasses.length-1 - i];
+		params.data[k2].peakIndex = params.data.length/2. + GWside*GWusedx;
+
+		if (i < sortedGWMasses.length/2){
+			params.data[k1].diamondIndex = params.data.length/2. + 2.*GWside*GWusedx + 0.5*GWdx; 
+			params.data[k2].diamondIndex = params.data.length/2. + 2.*GWside*GWusedx - 0.5*GWdx; 
 		}
+
 		GWside = -GWside;
 
-
-		params.data[k].diamondIndex = params.data.length/2. - GWside2*j*0.9; //can I improve this to center it better?
-		if (flipped) {
-			if (GWside > 0){
-				params.data[k].diamondIndex = j - params.data.length/2.;
-			} else {
-				params.data[k].diamondIndex = 3*params.data.length/2. - j;
-			}
-		}
-		GWside2 = -GWside2;
-		if (i > sortedGWMasses.length/2 && !flipped) {
-			flipped = true;
-		}
-		GWindices.push(j);
+		GWindices.push((i + 1)*params.data.length/GWmasses.length);
+	}
+	//quick check
+	for (var i =0; i<sortedGWMasses.length; i+=1){
+		var k1 = sortedGWMasses.sortIndices[i];
+		if (!('diamondIndex' in params.data[k1])) console.log('!!!WARNING: GW diamondIndex not set', k1, params.data[k1])
 	}
 
 	var sortedEMMasses = sortWithIndices(EMmasses);
 	var EMside = 1;
-	var EMside2 = 1;
-	var flipped = false;
 	var EMindices = [];
+	var EMdx = params.data.length/(EMmasses.length + 1); //+1 so that it doesn't reach all the way to the edges
+	var EMusedx = 0;
 	for (var i =0; i<sortedEMMasses.length; i+=1){
-		var j = (i+1)*params.data.length/EMmasses.length;
-		var k = sortedEMMasses.sortIndices[i] + GWmasses.length;
-		if (EMside > 0){
-			params.data[k].peakIndex = j/2.;
-			params.data[k].valleyIndex = params.data.length/2. - j/2.;
-		} else {
-			params.data[k].peakIndex = params.data.length - j/2.;
-			params.data[k].valleyIndex = params.data.length/2. + j/2.;
+		if ((i+1) % 2 == 0) EMusedx += EMdx;
+		
+		var k1 = sortedEMMasses.sortIndices[i] + GWmasses.length;
+		params.data[k1].valleyIndex = params.data.length/2. + EMside*EMusedx;
+
+		var k2 = sortedEMMasses.sortIndices[sortedEMMasses.length-1 - i] + GWmasses.length;
+		params.data[k2].peakIndex = params.data.length/2. + EMside*EMusedx;
+
+		if (i < sortedEMMasses.length/2){
+			params.data[k1].diamondIndex = params.data.length/2. + 2.*EMside*EMusedx + 0.5*EMdx; 
+			params.data[k2].diamondIndex = params.data.length/2. + 2.*EMside*EMusedx - 0.5*EMdx; 
 		}
+
 		EMside = -EMside;
 
-		params.data[k].diamondIndex = params.data.length/2. - EMside2*j*0.9; //can I improve this to center it better?
-		if (flipped) {
-			if (EMside > 0){
-				params.data[k].diamondIndex = j - params.data.length/2.;
-			} else {
-				params.data[k].diamondIndex = 3*params.data.length/2. - j;
-			}
-		}
-		EMside2 = -EMside2;
-		if (i > sortedEMMasses.length/2 && !flipped) {
-			flipped = true;
-		}
-		EMindices.push(j);
+		EMindices.push((i + 1)*params.data.length/EMmasses.length);
 	}
-
+	//quick check
+	for (var i =0; i<sortedEMMasses.length; i+=1){
+		var k1 = sortedEMMasses.sortIndices[i];
+		if (!('diamondIndex' in params.data[k1])) console.log('!!!WARNING: EM diamondIndex not set', k1, params.data[k1])
+	}
 	GWindices = shuffle(GWindices);
 	EMindices = shuffle(EMindices);
 	for (var i=0; i<params.data.length; i+=1){
