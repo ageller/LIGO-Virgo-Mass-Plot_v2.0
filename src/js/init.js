@@ -46,10 +46,15 @@ params.sizeScalerOrg = params.sizeScaler;
 //read in the data and reformat
 
 //first, read in the data file
-d3.json('src/data/GWOSCdata.json').then(function(data){ 
-	params.inputGWdata = data;
+Promise.all([
+	d3.json('src/data/GWOSCdata.json'),
+	d3.json('src/data/EMdata.json')
+]).then(function(data) {
+	console.log('data',data)
+	params.inputGWdata = data[0];
+	params.inputEMdata = data[1];
 	compileData(); //this will compile the data and then create the plot
-});
+})
 
 
 function getRem(mass){
@@ -62,6 +67,13 @@ function compileData(){
 	params.data = [];
 	params.plotData = [];
 
+	//compile the EMdata
+	var EMevents = Object.keys(params.inputEMdata);
+	params.EMdata = [];
+	for (var i =0; i<EMevents.length; i+=1){
+		params.EMdata.push(params.inputEMdata[EMevents[i]])
+	}
+	
 	var events = Object.keys(params.inputGWdata.events)
 	var useEvents = {'name':[],'id':[],'version':[]}
 	//take only those with masses

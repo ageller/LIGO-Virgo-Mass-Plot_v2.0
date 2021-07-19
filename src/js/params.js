@@ -4,6 +4,8 @@ var params = new function() {
 
 	//holds the data from GWOSC
 	this.inputGWdata;
+	this.inputEMdata;
+	this.EMdata;
 	this.data = []; //this will hold the data as read in from GWOSC (3 BHs per entry) and our EM database
 	this.plotData = []; //this will hold reformatted data for the plot where each of the GW sources have 3 entries (and point back to this.data)
 	this.commonNames = [];
