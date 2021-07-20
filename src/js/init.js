@@ -120,6 +120,7 @@ function compileData(){
 
 	//now only take those for the final data product
 	GWmasses = [];
+	GWmasses2 = [];
 	GWdates = [];
 	GWdistances = [];
 	GWchirp = [];
@@ -140,6 +141,7 @@ function compileData(){
 			params.data.push(dat);
 			params.commonNames.push(dat.commonName)
 			GWmasses.push(dat.mass);
+			GWmasses2.push(dat.mass_2_source);
 			GWdates.push(dat.GPS);
 			GWdistances.push(dat.luminosity_distance);
 			GWchirp.push(dat.chirp_mass_source);
@@ -174,6 +176,7 @@ function compileData(){
 	//valleyIndex will sort with most massive in the middle
 	//
 	var sortedGWMasses = sortWithIndices(GWmasses);
+	var sortedGWMasses2 = sortWithIndices(GWmasses2);
 	var sortedGWDates = sortWithIndices(GWdates);
 	var sortedGWDistances = sortWithIndices(GWdistances);
 	var sortedGWChirp = sortWithIndices(GWchirp);
@@ -181,10 +184,26 @@ function compileData(){
 	var sortedGWSNR = sortWithIndices(GWSNR);
 
 	var GWside = 1.;
-	var j = 0;
 	var GWindices = [];
 	var GWdx = params.data.length/(GWmasses.length + 1); //+1 so that it doesn't reach all the way to the edges
 	var GWusedx = 0;
+	var diamondBottomIndex = 5; //index to start choosing random values for the bottom half of the diamond
+	//generate random indices for the bottom half of diamond
+	var diamondRandom = [];
+	var ii = 0;
+	for (var i =0; i<sortedGWMasses.length; i+=1){
+		if ((ii+1) % 2 == 0) GWusedx += GWdx;
+		if (i < sortedGWMasses.length/2 && i > diamondBottomIndex) {
+			diamondRandom.push(params.data.length/2. + 2.*GWside*GWusedx + GWdx);
+			ii += 1
+		}
+		GWside = -GWside;
+	}
+	diamondRandom = shuffle(diamondRandom);
+	var j = 0;
+	GWusedx = 0;
+	GWside = 1.;
+	var usedDiamondIndices = []
 	for (var i =0; i<sortedGWMasses.length; i+=1){
 		if ((i+1) % 2 == 0) GWusedx += GWdx;
 		
@@ -194,20 +213,56 @@ function compileData(){
 		var k2 = sortedGWMasses.sortIndices[sortedGWMasses.length-1 - i];
 		params.data[k2].peakIndex = params.data.length/2. + GWside*GWusedx;
 
+		//top of the diamond
 		if (i < sortedGWMasses.length/2){
-			params.data[k1].diamondIndex = params.data.length/2. + 2.*GWside*GWusedx + 0.5*GWdx; 
-			params.data[k2].diamondIndex = params.data.length/2. + 2.*GWside*GWusedx - 0.5*GWdx; 
+			params.data[k2].diamondIndex = params.data.length/2. + 2.*GWside*GWusedx;// - GWdx;		
+			params.data[k2].diamondRandIndex = params.data.length/2. + 2.*GWside*GWusedx; 
+			usedDiamondIndices.push(k2)
 		}
 
 		GWside = -GWside;
 
 		GWindices.push((i + 1)*params.data.length/GWmasses.length);
 	}
+	//bottom of the diamond
+	var GWusedx2 = 0;
+	var GWside2 = 1.;
+	var ii2 = 0;
+	for (var i =0; i<sortedGWMasses2.length; i+=1){
+		var k1 = sortedGWMasses2.sortIndices[i];
+
+		if (!(usedDiamondIndices.includes(k1))){
+			if ((ii2+1) % 2 == 0) GWusedx2 += GWdx;
+
+			params.data[k1].diamondIndex = params.data.length/2. + 2.*GWside2*GWusedx2 + GWdx; 
+
+			if (i <= diamondBottomIndex){
+				params.data[k1].diamondRandIndex = params.data.length/2. + 2.*GWside2*GWusedx2; 
+			} else {
+				params.data[k1].diamondRandIndex = diamondRandom[j];
+				j += 1;
+			}	
+			ii2 += 1;
+			GWside2 = -GWside2;
+		}
+	}
 	//quick check
+	var minD = params.data.length;
+	var maxD = 0;
 	for (var i =0; i<sortedGWMasses.length; i+=1){
 		var k1 = sortedGWMasses.sortIndices[i];
-		if (!('diamondIndex' in params.data[k1])) console.log('!!!WARNING: GW diamondIndex not set', k1, params.data[k1])
+		if ('diamondIndex' in params.data[k1]) {
+			if (params.data[k1].diamondIndex < 0 || params.data[k1].diamondIndex > params.data.length){
+				console.log('!!!WARNING: bad GW diamondIndex', k1, params.data[k1].diamondIndex)
+			} else {
+				minD = Math.min(minD, params.data[k1].diamondIndex);
+				maxD = Math.max(maxD, params.data[k1].diamondIndex);
+			}
+		} else {
+			console.log('!!!WARNING: GW diamondIndex not set', k1, params.data[k1])
+		}
 	}
+	console.log('min, max GW diamondIndex', minD, maxD);
 
 	var sortedEMMasses = sortWithIndices(EMmasses);
 	var EMside = 1;

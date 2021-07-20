@@ -27,7 +27,7 @@ var params = new function() {
 	this.sizeScalerOrg = 1;
 
 	//sorting
-	this.GWsortKey = 'diamondIndex';
+	this.GWsortKey = 'diamondRandIndex';
 	this.EMsortKey = 'valleyIndex';
 
 	//SVG setup
