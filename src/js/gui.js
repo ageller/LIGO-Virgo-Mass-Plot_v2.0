@@ -105,13 +105,17 @@ function sortPlot(){
 
 		if (messenger){
 			srt = classes[classes.length-1];
+			params[messenger + 'sortKey'] = srt+'Index';
 			moveData(messenger,srt+'Index');
 		}
 	}
 }
 
-function changeView(){
-	var classes = d3.select(this).attr('class');
+function changeView(event, classes=null){
+	params.plotReady = false;
+	console.log("check",event, classes)
+	if (event) classes = d3.select(event.target).attr('class');
+	console.log("check2", classes)
 
 	//stop the simulation if running
 	if (params.parentSimulation) params.parentSimulation.stop();
@@ -151,15 +155,15 @@ function changeView(){
 			var cls = d3.select(this).attr('class').split(' ');
 			if (this.checked == 'checked') srtGW = cls[cls.length - 1];
 		});
-		srtEM= 'valley'
+		srtEM = 'valley'
 		d3.selectAll('.radioLabl.sort.EM').each(function(d){
 			var cls = d3.select(this).attr('class').split(' ');
 			if (this.checked == 'checked') srtEM = cls[cls.length - 1];
 		});
 
 		//move and resize the data
-		moveData('GW',srtGW+'Index');
-		moveData('EM',srtEM+'Index');
+		moveData('GW',params.GWsortKey);
+		moveData('EM',params.EMsortKey);
 
 		//reset the opacities (which will also turn on the arrows)
 		setTimeout(resetOpacities,1.1*params.sortTransitionDuration);
@@ -167,8 +171,9 @@ function changeView(){
 	}
 
 	//circle packing
-	if (classes.includes('packing') || classes.includes('nodes')){
+	if (classes.includes('packing') || classes.includes('linkedPacking') || classes.includes('nodes') ){
 		if (classes.includes('packing')) params.viewType = 'packing';
+		if (classes.includes('linkedPacking')) params.viewType = 'linkedPacking';
 		if (classes.includes('nodes')) params.viewType = 'nodes';
 
 		//gray out and disable the sorting
@@ -198,14 +203,16 @@ function changeView(){
 
 		//determine the links
 		var links = [];
-		params.plotData.filter(function(d){return d.parent}).forEach(function(parent){
-			var children = params.plotData.filter(function(d){return d.commonName == parent.commonName && !d.parent});
-			if (children.length > 0){
-				children.forEach(function(child){
-					links.push({'source':parseInt(parent.idx),'target':parseInt(child.idx)})
-				})
-			}
-		})
+		if (params.viewType == 'nodes' || params.viewType == 'linkedPacking'){
+			params.plotData.filter(function(d){return d.parent}).forEach(function(parent){
+				var children = params.plotData.filter(function(d){return d.commonName == parent.commonName && !d.parent});
+				if (children.length > 0){
+					children.forEach(function(child){
+						links.push({'source':parseInt(parent.idx),'target':parseInt(child.idx)})
+					})
+				}
+			})
+		}
 
 		//force strength
 		var mbStrength = 10;
@@ -399,6 +406,10 @@ function changeView(){
 	}
 
 	console.log('view', params.viewType)
+	setTimeout(function(){
+		params.plotReady = true; //not sure if this is going to fire at the right time
+	},2.*(params.sortTransitionDuration + params.fadeTransitionDuration));
+
 
 }
 
@@ -481,7 +492,7 @@ function changePointSizes(){
 		return d.r
 	});
 
-	if (params.viewType == 'packing' || params.viewType == 'nodes') {
+	if (params.viewType == 'packing' || params.viewType == 'linkedPacking' || params.viewType == 'nodes') {
 		if (params.forceCollide) params.forceCollide.initialize(params.parentSimulation.nodes());
 		if (params.parentSimulation) params.parentSimulation.alphaTarget(.01).restart();
 	}

@@ -1,4 +1,4 @@
-function createPlot(width=null, height=null){
+function createPlot(width=null, height=null, resizing=false){
 //set up the plot axes, etc.
 	//console.log('creating plot object ...');
 
@@ -30,7 +30,7 @@ function createPlot(width=null, height=null){
 	params.mainPlot.append('g').attr('class','links'); //will hold the links for the circle packing
 
 
-	if (params.viewType == 'default'){
+	if (params.viewType == 'default' || resizing){
 
 
 		//define the radius scaling
@@ -395,32 +395,53 @@ function defineColor(d, classStr){
 
 function resizePlot(){
 	//resize the plot when the user resizes the window
-	//for now I'll just redraw
-	params.sizeScaler = window.innerWidth/params.targetWidth;
-	params.sizeScalerOrg = params.sizeScaler;
-	if (params.viewType == 'packing' || params.viewType == 'nodes') params.sizeScaler *= 2;
-	if (!params.renderXchanged) params.renderX = window.innerWidth;
-	if (!params.renderYchanged) params.renderY = window.innerHeight;
+	//for now I'll just redraw in the default mode
+	params.plotReady = true;
+	var saveView = params.viewType;
+	if (params.viewType == 'packing'|| params.viewType == 'linkedPacking' || params.viewType == 'nodes') {
+		//reset to default
+		params.plotReady = false;
+		d3.selectAll('.view').select('input').node().checked = false;
+		d3.select('.view.default').select('input').node().checked = true;
+		changeView(null, ['default']);
+	}
+	var readyCheck = setInterval(function(){ 
+		if (params.plotReady){
+			clearInterval(readyCheck);
+			params.sizeScaler = window.innerWidth/params.targetWidth;
+			params.sizeScalerOrg = params.sizeScaler;
+			if (!params.renderXchanged) params.renderX = window.innerWidth;
+			if (!params.renderYchanged) params.renderY = window.innerHeight;
 
-	params.renderY = Math.round(params.renderAspect*params.renderX);
+			params.renderY = Math.round(params.renderAspect*params.renderX);
 
-	d3.select('#renderX').attr('placeholder',params.renderX);
-	d3.select('#renderY').attr('placeholder',params.renderY);
+			d3.select('#renderX').attr('placeholder',params.renderX);
+			d3.select('#renderY').attr('placeholder',params.renderY);
 
-	createPlot();
+			createPlot(null, null, true);
+			// var readyCheck2 = setInterval(function(){ 
+			// 	if (params.plotReady){
+			// 		clearInterval(readyCheck2);
+			// 		params.viewType = saveView;
+			// 		changeView(null, [saveView]);
+			// 	} 
+			// }, 100);
+		} 
+	}, 100);
+
 
 }
 
 // What happens when a circle is dragged
 function dragstarted(event, d) {
-	if (params.viewType == 'packing' || params.viewType == 'nodes'){
+	if (params.viewType == 'packing' || params.viewType == 'linkedPacking' || params.viewType == 'nodes'){
 		if (!event.active && d.parent && params.parentSimulation) params.parentSimulation.alphaTarget(.01).restart();
 		d.fx = d.x;
 		d.fy = d.y;
 	}
 }
 function dragged(event, d) {
-	if (params.viewType == 'packing' || params.viewType == 'nodes'){
+	if (params.viewType == 'packing' || params.viewType == 'linkedPacking' || params.viewType == 'nodes'){
 		d.fx = event.x;
 		d.fy = event.y;
 		if (!d.parent){
@@ -430,7 +451,7 @@ function dragged(event, d) {
 	}
 }
 function dragended(event, d) {
-	if (params.viewType == 'packing' || params.viewType == 'nodes'){
+	if (params.viewType == 'packing' || params.viewType == 'linkedPacking' || params.viewType == 'nodes'){
 		if (!event.active && d.parent && params.parentSimulation) params.parentSimulation.alphaTarget(.01);
 		d.fx = null;
 		d.fy = null;
