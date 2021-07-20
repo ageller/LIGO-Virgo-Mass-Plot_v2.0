@@ -10,6 +10,8 @@ function createPlot(width=null, height=null, resizing=false){
 	params.SVGwidth = width - params.SVGmargin.left - params.SVGmargin.right; 
 	params.SVGheight = height - params.SVGmargin.top - params.SVGmargin.bottom; 
 
+	params.SVGpadding = {'top': 10, 'bottom':0.07*params.SVGheight,'left': 0.05*params.SVGwidth,'right':10};
+
 	//define the SVG element that will contain the plot
 	params.SVG = d3.select('#plotSVG')
 		.style('height',params.SVGheight)
