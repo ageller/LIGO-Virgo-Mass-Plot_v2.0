@@ -113,9 +113,7 @@ function sortPlot(){
 
 function changeView(event, classes=null){
 	params.plotReady = false;
-	console.log("check",event, classes)
 	if (event) classes = d3.select(event.target).attr('class');
-	console.log("check2", classes)
 
 	//stop the simulation if running
 	if (params.parentSimulation) params.parentSimulation.stop();
@@ -166,7 +164,8 @@ function changeView(event, classes=null){
 		moveData('EM',params.EMsortKey);
 
 		//reset the opacities (which will also turn on the arrows)
-		setTimeout(resetOpacities,1.1*params.sortTransitionDuration);
+		//now handled below
+		//setTimeout(togglePlot,1.1*params.sortTransitionDuration);
 
 	}
 
@@ -291,7 +290,11 @@ function changeView(event, classes=null){
 		//create the lines
 		d3.select('.links').selectAll('line').data(links).enter()
 			.append('line')
-				.attr('class',function(d){return params.plotData[d.target].classString})
+				.attr('class',function(d){
+					var addOn = '';
+					if (('extraNode' in params.plotData[d.source])) addOn = ' extraNode';
+					return params.plotData[d.target].classString.replace('dot','link') + addOn;
+				})
 				.attr('stroke-linecap', 'round')
 				.style('stroke',function(d){
 					var cls = params.plotData[d.target].classString;
@@ -310,6 +313,7 @@ function changeView(event, classes=null){
 					if (('extraNode' in params.plotData[d.source])) return 0.5;
 					return 0.75
 				})
+				.style('display','none') //will be reset with togglePlot
 
 
 		setTimeout(function(){
@@ -399,6 +403,7 @@ function changeView(event, classes=null){
 				.force('link', params.forceLink.links(links))
 				.on('tick', params.ticker);
 
+
 		}, params.fadeTransitionDuration);
 
 
@@ -408,12 +413,13 @@ function changeView(event, classes=null){
 	console.log('view', params.viewType)
 	setTimeout(function(){
 		params.plotReady = true; //not sure if this is going to fire at the right time
-	},2.*(params.sortTransitionDuration + params.fadeTransitionDuration));
+		togglePlot();
+	},(params.sortTransitionDuration + params.fadeTransitionDuration));
 
 
 }
 
-function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration){
+function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration, toHide=[]){
 	//normal opacities
 	if (off){
 		if (params.viewType == 'default') d3.selectAll(cls+'.arrow').transition().duration(dur).style('opacity',0).on('end',function(){d3.selectAll(cls+'.arrow').style('display','none')});
@@ -423,6 +429,9 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration)
 			.on('end',function(){d3.selectAll(cls+'.dot').style('display','none')})
 		d3.selectAll(cls+'.text').transition().duration(dur).style('opacity',0).on('end',function(){d3.selectAll(cls+'.text').style('display','none')});
 		d3.selectAll(cls+'.legendText').transition().duration(dur).style('opacity',0).on('end',function(){d3.selectAll(cls+'.legendText').style('display','none')});
+		d3.selectAll(cls+'.link').transition().duration(dur)
+			.style('opacity',0)
+			.on('end',function(){d3.selectAll(cls+'.link').style('display','none')})
 	} else {
 		if (params.viewType == 'default') d3.selectAll(cls+'.arrow').transition().duration(dur).style('opacity',params.opArrow).on('start',function(){d3.selectAll(cls+'.arrow').style('display','block')})
 		d3.selectAll(cls+'.dot').transition().duration(dur)
@@ -431,29 +440,65 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration)
 			.on('start',function(){d3.selectAll(cls+'.dot').style('display','block')})
 		d3.selectAll(cls+'.text').transition().duration(dur).style('opacity',1).on('start',function(){d3.selectAll(cls+'.text').style('display','block')})
 		d3.selectAll(cls+'.legendText').transition().duration(dur).style('opacity',1).on('start',function(){d3.selectAll(cls+'.legendText').style('display','block')});
+
+		//the links appear to need some extra handling or else they blink
+		d3.selectAll(cls+'.link').filter(function(){
+			var show = true;
+			for (var i=0; i<toHide.length;i+=1) if (this.classList.contains(toHide[i])) show = false;
+			return show;
+		}).transition().duration(dur)
+			.style('opacity',function(d){
+				if (d3.select(this).attr('class').includes('extraNode')) return 0.5;
+				return 0.75
+			})
+			.on('start',function(){
+				d3.selectAll(cls+'.link').filter(function(){
+					var show = true;
+					for (var i=0; i<toHide.length;i+=1) if (this.classList.contains(toHide[i])) show = false;
+					return show;
+				}).style('display','block')
+			})
 	}
 }
 
-function togglePlot(){
-	var classes = d3.select(this).attr('class').split(' ');
+function togglePlot(event, classes=null){
+	//console.log('check', event, this, this.nodeName)
+	params.plotReady = false;
+	if (this){
+		if (this.nodeName) classes = d3.select(this).attr('class').split(' ');
+	} else {
+		if (event) {
+			var elem = event.target;
+			if (elem.nodeName != 'label') elem = event.target.parentNode; 
+			classes = d3.select(elem).attr('class').split(' ');
+		}
+	}
 
 	//get the toggle
-	var j = classes.indexOf('toggle');
-	var tog = classes[j+1].replace('toggle','');;
+	var tog = null;
+	if (classes){
+		var j = classes.indexOf('toggle');
+		tog = classes[j+1].replace('toggle','');;
+	}
 
 	var doToggle = true;
 	if (tog == 'massGap' && params.viewType != 'default') doToggle = false;
 
 	if (doToggle){
-		params.hidden[tog] = !params.hidden[tog];
+		if (tog) params.hidden[tog] = !params.hidden[tog];
 
 		var keys = Object.keys(params.hidden);
+		//first get a list of the hidden keys
+		var toHide = [];
+		for (var i=0; i<keys.length; i+=1){
+			if (params.hidden[keys[i]]) toHide.push(keys[i]);
+		}
 
 		//show the items first
 		for (var i=0; i<keys.length; i+=1){
 			if (!params.hidden[keys[i]]) {
-				if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM' || keys[i].includes('GWTC')){
-					resetOpacities('.'+keys[i], false, params.fadeTransitionDuration);
+				if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM' || keys[i].includes('GWTC') || keys[i].includes('O3')){
+					resetOpacities('.'+keys[i], false, params.fadeTransitionDuration, toHide);
 				} else {
 					d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
 						.style('opacity',1)
@@ -465,7 +510,7 @@ function togglePlot(){
 		//then hide the items
 		for (var i=0; i<keys.length; i+=1){
 			if (params.hidden[keys[i]]){
-				if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM'|| keys[i].includes('GWTC')){
+				if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM'|| keys[i].includes('GWTC') || keys[i].includes('O3')){
 					resetOpacities('.'+keys[i], true, params.fadeTransitionDuration);
 				} else {
 					d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)

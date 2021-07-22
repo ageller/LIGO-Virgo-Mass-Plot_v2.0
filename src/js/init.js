@@ -361,14 +361,14 @@ function compileData(){
 
 
 	//Add toggle buttons for the different catalogs
-	var ucat = cats.filter(onlyUnique);
+	var ucat = cats.filter(onlyUnique).sort();
 	console.log('unique catalogs', ucat)
 	var tog = d3.select('#toggleDropdown').select('.checkboxButtons.dropdown-content');
 
 	ucat.forEach(function(c){
 		var lab = tog.append('label')
 			.attr('class','checkboxLabel toggle '+c+'toggle')
-			.text(c.replace('-','.'))
+			.text(c.replace('2-1','2.1').replaceAll('_',' '))
 		lab.append('input')
 			.attr('type','checkbox')
 			.attr('checked',true)
