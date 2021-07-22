@@ -107,7 +107,7 @@ function formatTooltip(name){
 	if (d.GPS != null) str += '<b>GPS : </b>' + d.GPS + '<br/>';
 	if (d.network_matched_filter_snr != null) str += '<b>SNR : </b>' + d.network_matched_filter_snr.toFixed(2) + '<br/>';
 	ref = d.reference;
-	if (ref == '/GWTC-2/') ref = 'https://www.gw-openscience.org/GWTC-2/'
+	if (ref.substring(0,1) == '/') ref = 'https://www.gw-openscience.org'+ref;
 	if (d.reference != null) str += '<b>Reference : </b><a target="_blank" href="' + ref + '">' + ref + '</a><br/>';
 
 	d3.select('#tooltip')
