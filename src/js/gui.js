@@ -452,7 +452,7 @@ function togglePlot(){
 		//show the items first
 		for (var i=0; i<keys.length; i+=1){
 			if (!params.hidden[keys[i]]) {
-				if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM'){
+				if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM' || keys[i].includes('GWTC')){
 					resetOpacities('.'+keys[i], false, params.fadeTransitionDuration);
 				} else {
 					d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
@@ -465,7 +465,7 @@ function togglePlot(){
 		//then hide the items
 		for (var i=0; i<keys.length; i+=1){
 			if (params.hidden[keys[i]]){
-				if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM'){
+				if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM'|| keys[i].includes('GWTC')){
 					resetOpacities('.'+keys[i], true, params.fadeTransitionDuration);
 				} else {
 					d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)

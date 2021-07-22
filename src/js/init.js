@@ -8,39 +8,43 @@ window.addEventListener('resize', resizePlot);
 //window.addEventListener('mousemove', moveTooltip);
 d3.select('body').on('click',hideTooltip);
 
-//attach the controls
-d3.select('#hamburger').on('mousedown',toggleControls);
-d3.selectAll('.controlsTitle').on('mousedown',dropdown);
-
-d3.selectAll('.radioLabel.sort').on('mousedown', sortPlot);
-d3.selectAll('.checkboxLabel.toggle').on('mousedown', togglePlot);
-d3.selectAll('.radioLabel.view').on('mousedown', changeView);
-
-d3.select('#maxPointSize').on('input',changePointSizes);
-d3.select('#minPointSize').on('input',changePointSizes);
-
-d3.select('#arrowWidth').on('input',changeArrowSizes);
-
-d3.selectAll('.textInput').on('keyup',function(){ 
-	params[this.id] = this.value; 
-	params[this.id+'changed'] = true;
-});
-d3.select('#renderButton').on('click',renderToImage);
-
-//get the heights for all the dropdown menus first, then hide them
-d3.selectAll('.dropdown-content').each(function(d) {
-	params.dropdownHeights[this.parentNode.id] = this.getBoundingClientRect().height;
-	d3.select(this)
-		.style('height',0)
-		.style('visibility','hidden');
-});
-
-d3.select('#renderX').attr('placeholder',params.renderX);
-d3.select('#renderY').attr('placeholder',params.renderY);
-d3.selectAll('.radioLabel.aspect').on('mousedown', changeAspect);
-
 params.sizeScaler = window.innerWidth/params.targetWidth;
 params.sizeScalerOrg = params.sizeScaler;
+
+//attach the controls
+function attachControls(){
+	d3.select('#hamburger').on('mousedown',toggleControls);
+	d3.selectAll('.controlsTitle').on('mousedown',dropdown);
+
+	d3.selectAll('.radioLabel.sort').on('mousedown', sortPlot);
+	d3.selectAll('.checkboxLabel.toggle').on('mousedown', togglePlot);
+	d3.selectAll('.radioLabel.view').on('mousedown', changeView);
+
+	d3.select('#maxPointSize').on('input',changePointSizes);
+	d3.select('#minPointSize').on('input',changePointSizes);
+
+	d3.select('#arrowWidth').on('input',changeArrowSizes);
+
+	d3.selectAll('.textInput').on('keyup',function(){ 
+		params[this.id] = this.value; 
+		params[this.id+'changed'] = true;
+	});
+	d3.select('#renderButton').on('click',renderToImage);
+
+	//get the heights for all the dropdown menus first, then hide them
+	d3.selectAll('.dropdown-content').each(function(d) {
+		params.dropdownHeights[this.parentNode.id] = this.getBoundingClientRect().height;
+		d3.select(this)
+			.style('height',0)
+			.style('visibility','hidden');
+	});
+
+	d3.select('#renderX').attr('placeholder',params.renderX);
+	d3.select('#renderY').attr('placeholder',params.renderY);
+	d3.selectAll('.radioLabel.aspect').on('mousedown', changeAspect);
+}
+
+
 
 //////////////////////////////
 //read in the data and reformat
@@ -334,20 +338,46 @@ function compileData(){
 			var qmark = false
 			if (d.final_mass_source != null && d.final_mass_source_upper == null) qmark = true;
 
+			var cat = d['catalog.shortName'].replace('-confident','').replace('.','-');
+
 			//normal sources
-			if (d.final_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.final_mass_source, 'classString':'name-'+cleanString(d.commonName) + ' ' + getRem(d.final_mass_source) + ' dot mf GW clickable','qmark':qmark,'parent':true,'commonName':d.commonName});
-			if (d.mass_1_source != null) params.plotData.push({'dataIndex':i, 'mass':d.mass_1_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass_1_source) + ' dot m1 GW clickable','qmark':false,'parent':false,'commonName':d.commonName});
-			if (d.mass_2_source != null) params.plotData.push({'dataIndex':i, 'mass':d.mass_2_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass_2_source) + ' dot m2 GW clickable','qmark':false,'parent':false,'commonName':d.commonName});
+			if (d.final_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.final_mass_source, 'classString':'name-'+cleanString(d.commonName) + ' ' + getRem(d.final_mass_source) + ' '+ cat +' dot mf GW clickable','qmark':qmark,'parent':true,'commonName':d.commonName,'catalog':cat});
+			if (d.mass_1_source != null) params.plotData.push({'dataIndex':i, 'mass':d.mass_1_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass_1_source) + ' '+ cat + ' dot m1 GW clickable','qmark':false,'parent':false,'commonName':d.commonName, 'catalog':cat});
+			if (d.mass_2_source != null) params.plotData.push({'dataIndex':i, 'mass':d.mass_2_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass_2_source) + ' '+ cat + ' dot m2 GW clickable','qmark':false,'parent':false,'commonName':d.commonName, 'catalog':cat});
 
 			//add any without final masses
-			if (d.final_mass_source == null && d.total_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.total_mass_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.total_mass_source) + ' dot mf no_final_mass GW clickable','qmark':true,'parent':true,'commonName':d.commonName});
+			if (d.final_mass_source == null && d.total_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.total_mass_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.total_mass_source) + ' '+ cat + ' dot mf no_final_mass GW clickable','qmark':true,'parent':true,'commonName':d.commonName, 'catalog':cat});
 		}
-		if (d.messenger == 'EM' && d.mass != null) params.plotData.push({'dataIndex':i, 'mass':d.mass, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass) + ' dot mf EM clickable', 'qmark':(d.special==2),'parent':true,'commonName':d.commonName});
+		if (d.messenger == 'EM' && d.mass != null) params.plotData.push({'dataIndex':i, 'mass':d.mass, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass) + ' dot mf EM clickable', 'qmark':(d.special==2),'parent':true,'commonName':d.commonName, });
 		
 
 	}
 	//give everything a key for the index for easy searching later
-	params.plotData.forEach(function(d,i){d.idx = i});
+	var cats = [];
+	params.plotData.forEach(function(d,i){
+		d.idx = i;
+		if ('catalog' in d) cats.push(d.catalog)
+	});
+
+
+	//Add toggle buttons for the different catalogs
+	var ucat = cats.filter(onlyUnique);
+	console.log('unique catalogs', ucat)
+	var tog = d3.select('#toggleDropdown').select('.checkboxButtons.dropdown-content');
+
+	ucat.forEach(function(c){
+		var lab = tog.append('label')
+			.attr('class','checkboxLabel toggle '+c+'toggle')
+			.text(c.replace('-','.'))
+		lab.append('input')
+			.attr('type','checkbox')
+			.attr('checked',true)
+		lab.append('span')
+			.attr('class','checkboxCheckmark')
+	})
+
+	//attach the controls
+	attachControls();
 
 	//create the plot
 	createPlot(); //this also calls populate plot

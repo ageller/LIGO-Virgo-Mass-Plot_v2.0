@@ -79,7 +79,7 @@ function createPlot(width=null, height=null, resizing=false){
 			.attr('y',params.yAxisScale(params.massGap[1]))
 			.attr('width',params.xAxisScale(params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right))
 			.attr('height',params.yAxisScale(params.massGap[0]) - params.yAxisScale(params.massGap[1]))
-			.attr('fill','#303030')
+			.attr('fill','#404040')
 			.style('opacity',0)
 
 		params.mainPlot.append('text')
@@ -270,7 +270,7 @@ function plotDefaultData(){
 				var urem = rem.filter(onlyUnique);
 				var crem = '';
 				for (var i=0; i<urem.length; i+=1) crem += urem[i];
-				return 'name-'+cleanString(d.commonName) + ' ' + crem + ' arrow GW clickable'
+				return 'name-'+cleanString(d.commonName) + ' ' + crem + ' ' + d['catalog.shortName'].replace('-confident','').replace('.','-') + ' arrow GW clickable'
 			})
 			.attr('data-name', function(d){return d.commonName})
 			.attr('stroke', 'none')
