@@ -572,9 +572,9 @@ function changeAspect(){
 		if (!params.renderXchanged) params.renderX = window.innerWidth;
 		if (!params.renderYchanged) params.renderY = window.innerHeight;
 		params.renderAspect = params.renderY/params.renderX;
+		params.fixedAspect = false;
 	}
 
-	params.fixedAspect = false;
 	if (classes.indexOf('four_three') != -1) {
 		params.renderAspect = 3./4.;
 		params.fixedAspect = true;
