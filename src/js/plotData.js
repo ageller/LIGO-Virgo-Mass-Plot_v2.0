@@ -31,6 +31,11 @@ function createPlot(width=null, height=null, resizing=false){
 
 	params.mainPlot.append('g').attr('class','links'); //will hold the links for the circle packing
 
+	if (params.newData.length > 0) {
+		console.log('have newData')
+		d3.select('body').style('background-color','rgba(0,0,0,0)')
+		d3.select('#plotSVG').style('background-color','rgba(0,0,0,0)')
+	}
 
 	if (params.viewType == 'default' || resizing){
 
@@ -270,7 +275,11 @@ function plotDefaultData(){
 				var urem = rem.filter(onlyUnique);
 				var crem = '';
 				for (var i=0; i<urem.length; i+=1) crem += urem[i];
-				return 'name-'+cleanString(d.commonName) + ' ' + crem + ' ' + d['catalog.shortName'].replace('-confident','').replace('.','-') + ' arrow GW clickable'
+
+				//check if this is a new source
+				var clsAddOn = '';
+				if (params.newData.includes(d.commonName)) clsAddOn = ' newData ';
+				return 'name-'+cleanString(d.commonName) + ' ' + crem + ' ' + d['catalog.shortName'].replace('-confident','').replace('.','-') + ' arrow GW clickable' + clsAddOn;
 			})
 			.attr('data-name', function(d){return d.commonName})
 			.attr('stroke', 'none')
@@ -412,22 +421,28 @@ function resizePlot(){
 			clearInterval(readyCheck);
 			params.sizeScaler = window.innerWidth/params.targetWidth;
 			params.sizeScalerOrg = params.sizeScaler;
+			console.log('checking render settings 0', params.renderX, params.renderY, params.renderXchanged, params.renderYchanged)
+
 			if (!params.renderXchanged) params.renderX = window.innerWidth;
 			if (!params.renderYchanged) params.renderY = window.innerHeight;
 
-			params.renderY = Math.round(params.renderAspect*params.renderX);
+			//not sure if it is correct to set it here.
+			if (params.fixedAspect) params.renderY = Math.round(params.renderAspect*params.renderX);
 
 			d3.select('#renderX').attr('placeholder',params.renderX);
 			d3.select('#renderY').attr('placeholder',params.renderY);
+			console.log('checking render settings 1', params.renderX, params.renderY)
 
 			createPlot(null, null, true);
-			// var readyCheck2 = setInterval(function(){ 
-			// 	if (params.plotReady){
-			// 		clearInterval(readyCheck2);
-			// 		params.viewType = saveView;
-			// 		changeView(null, [saveView]);
-			// 	} 
-			// }, 100);
+			var readyCheck2 = setInterval(function(){ 
+				if (params.plotReady){
+					clearInterval(readyCheck2);
+					togglePlot();
+					console.log('checking render settings 2', params.renderX, params.renderY)
+					// params.viewType = saveView;
+					// changeView(null, [saveView]);
+				} 
+			}, 100);
 		} 
 	}, 100);
 

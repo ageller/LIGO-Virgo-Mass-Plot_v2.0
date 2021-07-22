@@ -90,6 +90,9 @@ var params = new function() {
 	this.forceLink = null;
 	this.ticker;
 
+	//build in a hook to show only the new data, for highlighting in Photoshop
+	this.newData = [];
+
 };
 
 

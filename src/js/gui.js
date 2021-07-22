@@ -425,6 +425,7 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration,
 		if (params.viewType == 'default') d3.selectAll(cls+'.arrow').transition().duration(dur).style('opacity',0).on('end',function(){d3.selectAll(cls+'.arrow').style('display','none')});
 		d3.selectAll(cls+'.dot').transition().duration(dur)
 			.style('fill-opacity',0)
+			.style('opacity',0)
 			.style('stroke-opacity',0)
 			.on('end',function(){d3.selectAll(cls+'.dot').style('display','none')})
 		d3.selectAll(cls+'.text').transition().duration(dur).style('opacity',0).on('end',function(){d3.selectAll(cls+'.text').style('display','none')});
@@ -433,15 +434,17 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration,
 			.style('opacity',0)
 			.on('end',function(){d3.selectAll(cls+'.link').style('display','none')})
 	} else {
+		console.log('turning on', cls)
 		if (params.viewType == 'default') d3.selectAll(cls+'.arrow').transition().duration(dur).style('opacity',params.opArrow).on('start',function(){d3.selectAll(cls+'.arrow').style('display','block')})
 		d3.selectAll(cls+'.dot').transition().duration(dur)
 			.style('fill-opacity',params.opMass)
+			.style('opacity',1)
 			.style('stroke-opacity',1)
 			.on('start',function(){d3.selectAll(cls+'.dot').style('display','block')})
 		d3.selectAll(cls+'.text').transition().duration(dur).style('opacity',1).on('start',function(){d3.selectAll(cls+'.text').style('display','block')})
 		d3.selectAll(cls+'.legendText').transition().duration(dur).style('opacity',1).on('start',function(){d3.selectAll(cls+'.legendText').style('display','block')});
 
-		//the links appear to need some extra handling or else they blink
+		//the links appear to need some extra handling or else they blink at the start
 		d3.selectAll(cls+'.link').filter(function(){
 			var show = true;
 			for (var i=0; i<toHide.length;i+=1) if (this.classList.contains(toHide[i])) show = false;
@@ -462,7 +465,7 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration,
 }
 
 function togglePlot(event, classes=null){
-	//console.log('check', event, this, this.nodeName)
+	console.log('toggle check', event, this, this.nodeName, params.hidden)
 	params.plotReady = false;
 	if (this){
 		if (this.nodeName) classes = d3.select(this).attr('class').split(' ');
@@ -523,6 +526,12 @@ function togglePlot(event, classes=null){
 		//fix the arrows for combined NS BH
 		if (params.hidden['BH'] && params.hidden['NS']) resetOpacities('.BHNS', true, params.fadeTransitionDuration);
 	}
+
+	//specially handling for new data
+	if (tog == 'newData' || !params.hidden['newData']){
+		console.log('toggling newData')
+		resetOpacities('.newData', params.hidden['newData'], params.fadeTransitionDuration);
+	}
 }
 
 function changePointSizes(){
@@ -565,8 +574,15 @@ function changeAspect(){
 		params.renderAspect = params.renderY/params.renderX;
 	}
 
-	if (classes.indexOf('four_three') != -1) params.renderAspect = 3./4.;
-	if (classes.indexOf('sixteen_nine') != -1) params.renderAspect = 9./16.;
+	params.fixedAspect = false;
+	if (classes.indexOf('four_three') != -1) {
+		params.renderAspect = 3./4.;
+		params.fixedAspect = true;
+	}
+	if (classes.indexOf('sixteen_nine') != -1) {
+		params.renderAspect = 9./16.;
+		params.fixedAspect = true;
+	}
 
 	params.renderY = Math.round(params.renderAspect*params.renderX);
 
@@ -595,11 +611,16 @@ function renderToImage(){
 			if (params.plotReady){
 				console.log('plot is ready')
 				clearInterval(imgCheck);
-				saveImage();
-				params.SVGscale = saveSVGscale;
-				params.controlsX = saveControlsX;
-				params.sizeScaler = params.sizeScalerOrg;
-				resizePlot();
+				togglePlot();
+				setTimeout(function(){
+					saveImage();
+					params.SVGscale = saveSVGscale;
+					params.controlsX = saveControlsX;
+					params.sizeScaler = params.sizeScalerOrg;
+					setTimeout(function(){
+						resizePlot();
+					},1000)
+				}, (params.sortTransitionDuration + params.fadeTransitionDuration));
 			} 
 		}, 100);
 

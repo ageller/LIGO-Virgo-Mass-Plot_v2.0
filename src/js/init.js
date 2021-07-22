@@ -330,6 +330,8 @@ function compileData(){
 		params.data[i].SNRIndex = jSNR;	
 
 
+
+
 		//add to the plotData
 		var dat = {};
 		var d = params.data[i];
@@ -340,13 +342,17 @@ function compileData(){
 
 			var cat = d['catalog.shortName'].replace('-confident','').replace('.','-');
 
+			//check if this is a new source
+			var clsAddOn = '';
+			if (params.newData.includes(d.commonName)) clsAddOn = ' newData ';
+
 			//normal sources
-			if (d.final_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.final_mass_source, 'classString':'name-'+cleanString(d.commonName) + ' ' + getRem(d.final_mass_source) + ' '+ cat +' dot mf GW clickable','qmark':qmark,'parent':true,'commonName':d.commonName,'catalog':cat});
-			if (d.mass_1_source != null) params.plotData.push({'dataIndex':i, 'mass':d.mass_1_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass_1_source) + ' '+ cat + ' dot m1 GW clickable','qmark':false,'parent':false,'commonName':d.commonName, 'catalog':cat});
-			if (d.mass_2_source != null) params.plotData.push({'dataIndex':i, 'mass':d.mass_2_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass_2_source) + ' '+ cat + ' dot m2 GW clickable','qmark':false,'parent':false,'commonName':d.commonName, 'catalog':cat});
+			if (d.final_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.final_mass_source, 'classString':'name-'+cleanString(d.commonName) + ' ' + getRem(d.final_mass_source) + ' '+ cat +' dot mf GW clickable' + clsAddOn,'qmark':qmark,'parent':true,'commonName':d.commonName,'catalog':cat});
+			if (d.mass_1_source != null) params.plotData.push({'dataIndex':i, 'mass':d.mass_1_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass_1_source) + ' '+ cat + ' dot m1 GW clickable' + clsAddOn,'qmark':false,'parent':false,'commonName':d.commonName, 'catalog':cat});
+			if (d.mass_2_source != null) params.plotData.push({'dataIndex':i, 'mass':d.mass_2_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass_2_source) + ' '+ cat + ' dot m2 GW clickable' + clsAddOn,'qmark':false,'parent':false,'commonName':d.commonName, 'catalog':cat});
 
 			//add any without final masses
-			if (d.final_mass_source == null && d.total_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.total_mass_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.total_mass_source) + ' '+ cat + ' dot mf no_final_mass GW clickable','qmark':true,'parent':true,'commonName':d.commonName, 'catalog':cat});
+			if (d.final_mass_source == null && d.total_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.total_mass_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.total_mass_source) + ' '+ cat + ' dot mf no_final_mass GW clickable' + clsAddOn,'qmark':true,'parent':true,'commonName':d.commonName, 'catalog':cat});
 		}
 		if (d.messenger == 'EM' && d.mass != null) params.plotData.push({'dataIndex':i, 'mass':d.mass, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass) + ' dot mf EM clickable', 'qmark':(d.special==2),'parent':true,'commonName':d.commonName, });
 		
@@ -362,6 +368,8 @@ function compileData(){
 
 	//Add toggle buttons for the different catalogs
 	var ucat = cats.filter(onlyUnique).sort();
+	//for newData
+	if (params.newData.length > 0) ucat.push('newData');
 	console.log('unique catalogs', ucat)
 	var tog = d3.select('#toggleDropdown').select('.checkboxButtons.dropdown-content');
 
