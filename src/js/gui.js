@@ -264,7 +264,7 @@ function changeView(event, classes=null){
 						.style('fill-opacity',1)
 						.style('stroke', 'silver')
 						.style('stroke-opacity', 1)
-						.style('stroke-width', 2*params.sizeScaler)
+						.style('stroke-width', 2*params.sizeScaler + 'px')
 						.style('cursor', 'pointer')
 						.call(d3.drag() // call specific function when circle is dragged
 							.on('start', dragstarted)

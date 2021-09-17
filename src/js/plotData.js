@@ -14,8 +14,8 @@ function createPlot(width=null, height=null, resizing=false){
 
 	//define the SVG element that will contain the plot
 	params.SVG = d3.select('#plotSVG')
-		.style('height',params.SVGheight)
-		.style('width',params.SVGwidth)
+		.style('height',params.SVGheight + 'px')
+		.style('width',params.SVGwidth + 'px')
 		.style('background-color',params.SVGbackground)
 		.style('transform', 'translate(' + (params.SVGmargin.left + params.controlsX/2) + 'px,' + params.SVGmargin.top + 'px)scaleX(' + params.SVGscale + ')')
 
@@ -59,7 +59,7 @@ function createPlot(width=null, height=null, resizing=false){
 
 		params.mainPlot.append('g')
 			.attr('class', 'axis yaxis toggledOn')
-			.style('font-size', 0.015*params.SVGwidth)
+			.style('font-size', 0.015*params.SVGwidth + 'px')
 			.call(params.yAxis);
 
 		params.mainPlot.selectAll('.axis').selectAll('line')
@@ -72,7 +72,7 @@ function createPlot(width=null, height=null, resizing=false){
 			.attr('x', 0)
 			.attr('y', 0)
 			.style('text-anchor', 'end')
-			.style('font-size',0.022*params.SVGwidth)
+			.style('font-size',0.022*params.SVGwidth + 'px')
 			.text('Solar Masses')
 		axisLabel.attr('dy','-'+(axisLabel.node().getBoundingClientRect().width/params.SVGscale + 10)+'px')
 
@@ -82,8 +82,8 @@ function createPlot(width=null, height=null, resizing=false){
 			.attr('class','massGap toggledOff')
 			.attr('x',params.xAxisScale(0))
 			.attr('y',params.yAxisScale(params.massGap[1]))
-			.attr('width',params.xAxisScale(params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right))
-			.attr('height',params.yAxisScale(params.massGap[0]) - params.yAxisScale(params.massGap[1]))
+			.attr('width',(params.xAxisScale(params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right)) + 'px')
+			.attr('height',(params.yAxisScale(params.massGap[0]) - params.yAxisScale(params.massGap[1])) + 'px')
 			.attr('fill','#404040')
 			.style('opacity',0)
 
@@ -119,7 +119,7 @@ function addPlotAnnotations(){
 		.attr('y', params.SVGheight + 'px')
 		.attr('dx', params.SVGpadding.left/2. + 'px')
 		.attr('dy', '-10px')
-		.style('font-size', 0.02*params.SVGwidth)
+		.style('font-size', 0.02*params.SVGwidth + 'px')
 		.text('LIGO-Virgo | Aaron Geller | Northwestern');
 
 	var title = annotations.append('text')
@@ -128,7 +128,7 @@ function addPlotAnnotations(){
 		.attr('x', params.SVGwidth/2. + 'px')
 		.attr('y', '0px')
 		.attr('dx', params.SVGpadding.left/2. + 'px')
-		.style('font-size', 0.05*params.SVGwidth)
+		.style('font-size', 0.05*params.SVGwidth + 'px')
 		.text('Masses in the Stellar Graveyard');
 	var titleBbox = title.node().getBoundingClientRect();
 	title.attr('dy', titleBbox.height*0.8)
@@ -143,7 +143,7 @@ function addPlotAnnotations(){
 		.attr('dx', '0px')
 		.attr('dy', '0px')
 		.style('fill',params.colors.GWBH)
-		.style('font-size', 0.015*params.SVGwidth)
+		.style('font-size', 0.015*params.SVGwidth + 'px')
 		.text('LIGO-Virgo Black Holes');
 	var offset = (GWBH.node().getBoundingClientRect().width + 0.01*params.SVGwidth)/params.SVGscale;
 	var GWNS = legend.append('text')
@@ -153,7 +153,7 @@ function addPlotAnnotations(){
 		.attr('dx', '0px')
 		.attr('dy', '0px')
 		.style('fill',params.colors.GWNS)
-		.style('font-size', 0.015*params.SVGwidth)
+		.style('font-size', 0.015*params.SVGwidth + 'px')
 		.text('LIGO-Virgo Neutron Stars');
 	offset += (GWNS.node().getBoundingClientRect().width + 0.01*params.SVGwidth)/params.SVGscale;
 	var EMBH = legend.append('text')
@@ -163,7 +163,7 @@ function addPlotAnnotations(){
 		.attr('dx', '0px')
 		.attr('dy', '0px')
 		.style('fill',params.colors.EMBH)
-		.style('font-size', 0.015*params.SVGwidth)
+		.style('font-size', 0.015*params.SVGwidth + 'px')
 		.text('EM Black Holes');
 	offset += (EMBH.node().getBoundingClientRect().width + 0.01*params.SVGwidth)/params.SVGscale;
 	var EMNS = legend.append('text')
@@ -173,7 +173,7 @@ function addPlotAnnotations(){
 		.attr('dx', '0px')
 		.attr('dy', '0px')
 		.style('fill',params.colors.EMNS)
-		.style('font-size', 0.015*params.SVGwidth)
+		.style('font-size', 0.015*params.SVGwidth + 'px')
 		.text('EM Neutron Stars');
 
 	var legendBbox = legend.node().getBoundingClientRect();
@@ -320,7 +320,7 @@ function plotDefaultData(){
 			.style('fill-opacity',params.opMass)
 			.style('stroke', defineColor(d,d3.select(this).attr('class')))
 			.style('stroke-opacity', 1)
-			.style('stroke-width', 2*params.sizeScaler)
+			.style('stroke-width', 2*params.sizeScaler + 'px')
 			.style('cursor', 'pointer')
 			//.on('mouseover',mouseOver)
 			//.on('mouseout',mouseOut);
