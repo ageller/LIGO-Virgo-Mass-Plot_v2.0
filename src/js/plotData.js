@@ -29,7 +29,7 @@ function createPlot(width=null, height=null, resizing=false){
 			.attr('id','mainPlot')
 			.attr('transform', 'translate(' + params.SVGpadding.left + ',' + top + ')');
 
-	params.mainPlot.append('g').attr('class','links'); //will hold the links for the circle packing
+	params.mainPlot.append('g').attr('class','links toggledOn'); //will hold the links for the circle packing
 
 	if (params.newData.length > 0) {
 		console.log('have newData')
@@ -58,7 +58,7 @@ function createPlot(width=null, height=null, resizing=false){
 			.tickValues([1,2,5,10,20,50,100,200]);
 
 		params.mainPlot.append('g')
-			.attr('class', 'axis yaxis')
+			.attr('class', 'axis yaxis toggledOn')
 			.style('font-size', 0.015*params.SVGwidth)
 			.call(params.yAxis);
 
@@ -67,7 +67,7 @@ function createPlot(width=null, height=null, resizing=false){
 		params.mainPlot.select('.yaxis').selectAll('.domain').remove();
 
 		var axisLabel = params.mainPlot.append('text')
-			.attr('class', 'axis axisLabel yaxis')
+			.attr('class', 'axis axisLabel yaxis toggledOn')
 			.attr('transform', 'rotate(-90)')
 			.attr('x', 0)
 			.attr('y', 0)
@@ -79,7 +79,7 @@ function createPlot(width=null, height=null, resizing=false){
 
 		//mass Gap
 		params.mainPlot.append('rect')
-			.attr('class','massGap')
+			.attr('class','massGap toggledOff')
 			.attr('x',params.xAxisScale(0))
 			.attr('y',params.yAxisScale(params.massGap[1]))
 			.attr('width',params.xAxisScale(params.SVGwidth - params.SVGpadding.left - params.SVGpadding.right))
@@ -88,7 +88,7 @@ function createPlot(width=null, height=null, resizing=false){
 			.style('opacity',0)
 
 		params.mainPlot.append('text')
-			.attr('class','massGap')
+			.attr('class','massGap  toggledOff')
 			.attr('x', params.SVGwidth/2. + 'px')
 			.attr('y', (params.yAxisScale(params.massGap[0]) + params.yAxisScale(params.massGap[1]))/2. + 'px')
 			.attr('dx', -0.025*params.SVGwidth*2. + 'px')
@@ -124,7 +124,7 @@ function addPlotAnnotations(){
 
 	var title = annotations.append('text')
 		.attr('id', 'title')
-		.attr('class', 'title plotTitle')
+		.attr('class', 'title plotTitle toggledOn')
 		.attr('x', params.SVGwidth/2. + 'px')
 		.attr('y', '0px')
 		.attr('dx', params.SVGpadding.left/2. + 'px')
@@ -133,11 +133,11 @@ function addPlotAnnotations(){
 	var titleBbox = title.node().getBoundingClientRect();
 	title.attr('dy', titleBbox.height*0.8)
 
-	var legend = annotations.append('g').attr('id','legend').attr('class','plotLegend')
+	var legend = annotations.append('g').attr('id','legend').attr('class','plotLegend toggledOn')
 
 	var x0 = params.SVGpadding.left*params.SVGscale;
 	var GWBH = legend.append('text')
-		.attr('class', 'legendText GW BH')
+		.attr('class', 'legendText GW BH toggledOn')
 		.attr('x', x0 + 'px')
 		.attr('y', '0px')
 		.attr('dx', '0px')
@@ -147,7 +147,7 @@ function addPlotAnnotations(){
 		.text('LIGO-Virgo Black Holes');
 	var offset = (GWBH.node().getBoundingClientRect().width + 0.01*params.SVGwidth)/params.SVGscale;
 	var GWNS = legend.append('text')
-		.attr('class', 'legendText GW NS')
+		.attr('class', 'legendText GW NS toggledOn')
 		.attr('x', x0 + offset + 'px')
 		.attr('y', '0px')
 		.attr('dx', '0px')
@@ -157,7 +157,7 @@ function addPlotAnnotations(){
 		.text('LIGO-Virgo Neutron Stars');
 	offset += (GWNS.node().getBoundingClientRect().width + 0.01*params.SVGwidth)/params.SVGscale;
 	var EMBH = legend.append('text')
-		.attr('class', 'legendText EM BH')
+		.attr('class', 'legendText EM BH toggledOn')
 		.attr('x', x0 + offset + 'px')
 		.attr('y', '0px')
 		.attr('dx', '0px')
@@ -167,7 +167,7 @@ function addPlotAnnotations(){
 		.text('EM Black Holes');
 	offset += (EMBH.node().getBoundingClientRect().width + 0.01*params.SVGwidth)/params.SVGscale;
 	var EMNS = legend.append('text')
-		.attr('class', 'legendText EM NS')
+		.attr('class', 'legendText EM NS toggledOn')
 		.attr('x', x0 + offset + 'px')
 		.attr('y', '0px')
 		.attr('dx', '0px')
@@ -279,7 +279,7 @@ function plotDefaultData(){
 				//check if this is a new source
 				var clsAddOn = '';
 				if (params.newData.includes(d.commonName)) clsAddOn = ' newData ';
-				return 'name-'+cleanString(d.commonName) + ' ' + crem + ' ' + d['catalog.shortName'].replace('-confident','').replace('.','-') + ' arrow GW clickable' + clsAddOn;
+				return 'name-'+cleanString(d.commonName) + ' ' + crem + ' ' + d['catalog.shortName'].replace('-confident','').replace('.','-') + ' arrow GW clickable toggledOn' + clsAddOn;
 			})
 			.attr('data-name', function(d){return d.commonName})
 			.attr('stroke', 'none')
@@ -301,12 +301,12 @@ function plotDefaultData(){
 	//create elements for all the circles
 	params.mainPlot.selectAll('.dot').data(params.plotData).enter()
 		.append('circle')
-			.attr('class', function(d){return d.classString;});
+			.attr('class', function(d){return d.classString+' toggledOn';});
 
 	//create elements for the question marks
 	params.mainPlot.selectAll('.qmark').data(params.plotData).enter().filter(function(d){return d.qmark;})
 		.append('text')
-			.attr('class', function(d){return d.classString.replace('dot','text') + ' qmark';})
+			.attr('class', function(d){return d.classString.replace('dot','text') + ' qmark toggledOn';})
 
 
 	//now add all the circles
@@ -409,6 +409,10 @@ function resizePlot(){
 	//for now I'll just redraw in the default mode
 	params.plotReady = true;
 	var saveView = params.viewType;
+	//remove the tooltip
+	d3.select('#tooltip').style('opacity',0).style('left','-500px');
+	params.selectedElement = null;
+	
 	if (params.viewType == 'packing'|| params.viewType == 'linkedPacking' || params.viewType == 'nodes') {
 		//reset to default
 		params.plotReady = false;

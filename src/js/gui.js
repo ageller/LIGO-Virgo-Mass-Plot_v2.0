@@ -114,6 +114,7 @@ function sortPlot(){
 function changeView(event, classes=null){
 	params.plotReady = false;
 	if (event) classes = d3.select(event.target).attr('class');
+	if (classes.includes('radioCheckmark')) classes = d3.select(event.target.parentNode).attr('class');
 
 	//stop the simulation if running
 	if (params.parentSimulation) params.parentSimulation.stop();
@@ -124,6 +125,8 @@ function changeView(event, classes=null){
 	//remove the links and the extra nodes
 	d3.select('.links').selectAll('line').remove();
 	d3.selectAll('.extraNode').remove();
+
+	console.log('!!!Changing view', classes)
 
 	//default
 	if (classes.includes('default')){
@@ -190,9 +193,9 @@ function changeView(event, classes=null){
 		params.radiusScale.range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]);
 
 		//turn off the axes and arrows
-		d3.selectAll('.axis').transition().duration(params.fadeTransitionDuration).style('opacity',0);
-		d3.selectAll('.arrow').transition().duration(params.fadeTransitionDuration).style('opacity',0);
-		d3.selectAll('.massGap').transition().duration(params.fadeTransitionDuration).style('opacity',0);
+		d3.selectAll('.axis').classed('toggledOff',true).transition().duration(params.fadeTransitionDuration).style('opacity',0);
+		d3.selectAll('.arrow').classed('toggledOff',true).transition().duration(params.fadeTransitionDuration).style('opacity',0);
+		d3.selectAll('.massGap').classed('toggledOff',true).transition().duration(params.fadeTransitionDuration).style('opacity',0);
 
 		//get the size of the area and offset for the center
 		var offsetX = -(params.SVGpadding.left - 0.5*params.radiusScale.invert(params.maxRadius));
@@ -316,6 +319,8 @@ function changeView(event, classes=null){
 				.style('display','none') //will be reset with togglePlot
 
 
+
+
 		setTimeout(function(){
 		//resize the circles and question marks
 			d3.selectAll('.dot').transition().duration(params.fadeTransitionDuration)
@@ -323,6 +328,8 @@ function changeView(event, classes=null){
 
 			d3.selectAll('.text.qmark').transition().duration(params.fadeTransitionDuration)
 				.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'))+'px';})
+
+
 
 
 			// define the collision force
@@ -406,7 +413,12 @@ function changeView(event, classes=null){
 
 		}, params.fadeTransitionDuration);
 
-
+		setTimeout(function(){
+			// if a tooltip is active, reset the opacities (for the links, since they are removed and redrawn each time)
+			if (params.selectedElement) {
+				showTooltip(params.selectedElement);
+			}
+		}, 2.2*params.fadeTransitionDuration);
 
 	}
 
@@ -422,27 +434,115 @@ function changeView(event, classes=null){
 function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration, toHide=[]){
 	//normal opacities
 	if (off){
-		if (params.viewType == 'default') d3.selectAll(cls+'.arrow').transition().duration(dur).style('opacity',0).on('end',function(){d3.selectAll(cls+'.arrow').style('display','none')});
-		d3.selectAll(cls+'.dot').transition().duration(dur)
-			.style('fill-opacity',0)
-			.style('opacity',0)
-			.style('stroke-opacity',0)
-			.on('end',function(){d3.selectAll(cls+'.dot').style('display','none')})
-		d3.selectAll(cls+'.text').transition().duration(dur).style('opacity',0).on('end',function(){d3.selectAll(cls+'.text').style('display','none')});
-		d3.selectAll(cls+'.legendText').transition().duration(dur).style('opacity',0).on('end',function(){d3.selectAll(cls+'.legendText').style('display','none')});
-		d3.selectAll(cls+'.link').transition().duration(dur)
-			.style('opacity',0)
-			.on('end',function(){d3.selectAll(cls+'.link').style('display','none')})
+		console.log('turnog off',cls)
+		if (params.viewType == 'default') {
+			d3.selectAll(cls+'.arrow.toggledOn')
+				.classed('toggledOn',false).classed('toggledOff',true)
+				.transition().duration(dur)
+					.style('opacity',0)
+					.on('end',function(){
+						d3.selectAll(cls+'.arrow').style('display','none');
+					});
+		}
+		d3.selectAll(cls+'.dot.toggledOn')
+			.classed('toggledOn',false).classed('toggledOff',true)
+			.transition().duration(dur)
+				.style('fill-opacity',0)
+				.style('opacity',0)
+				.style('stroke-opacity',0)
+				.on('end',function(){
+					d3.selectAll(cls+'.dot').style('display','none');
+				});
+		d3.selectAll(cls+'.text.toggledOn')
+			.classed('toggledOn',false).classed('toggledOff',true)
+			.transition().duration(dur)
+				.style('opacity',0)
+				.on('end',function(){
+					d3.selectAll(cls+'.text').style('display','none');
+				});
+		d3.selectAll(cls+'.legendText.toggledOn')
+			.classed('toggledOn',false).classed('toggledOff',true)
+			.transition().duration(dur)
+				.style('opacity',0)
+				.on('end',function(){
+					d3.selectAll(cls+'.legendText').style('display','none');
+				});
+		d3.selectAll(cls+'.link.toggledOn')
+			.classed('toggledOn',false).classed('toggledOff',true)
+			.transition().duration(dur)
+				.style('opacity',0)
+				.on('end',function(){
+					d3.selectAll(cls+'.link').style('display','none');
+				});
 	} else {
 		console.log('turning on', cls)
-		if (params.viewType == 'default') d3.selectAll(cls+'.arrow').transition().duration(dur).style('opacity',params.opArrow).on('start',function(){d3.selectAll(cls+'.arrow').style('display','block')})
-		d3.selectAll(cls+'.dot').transition().duration(dur)
-			.style('fill-opacity',params.opMass)
-			.style('opacity',1)
-			.style('stroke-opacity',1)
-			.on('start',function(){d3.selectAll(cls+'.dot').style('display','block')})
-		d3.selectAll(cls+'.text').transition().duration(dur).style('opacity',1).on('start',function(){d3.selectAll(cls+'.text').style('display','block')})
-		d3.selectAll(cls+'.legendText').transition().duration(dur).style('opacity',1).on('start',function(){d3.selectAll(cls+'.legendText').style('display','block')});
+		if (params.viewType == 'default') {
+			d3.selectAll(cls+'.arrow.toggledOff')
+				.classed('toggledOn',true)
+				.classed('toggledOff',function(){
+					if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded') return true;
+					if (this.classList.contains('tooltipShowing') && cls != '.tooltipShowing') return true;
+					return false;
+				})
+				.transition().duration(dur)
+					.style('opacity',function(){
+						if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded'  && params.selectedElement) return 0.2;
+						if (this.classList.contains('tooltipShowing') && cls != '.tooltipShowing' && params.selectedElement) return 1;
+						return params.opArrow;
+					})
+					.on('start',function(){
+						d3.selectAll(cls+'.arrow').style('display','block');
+					});
+		}
+		d3.selectAll(cls+'.dot.toggledOff')
+			.classed('toggledOn',true)
+			.classed('toggledOff',function(){
+				if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded') return true;
+				if (this.classList.contains('tooltipShowing') && cls != '.tooltipShowing') return true;
+				return false;
+			})
+			.transition().duration(dur)
+				.style('opacity',1)
+				.style('fill-opacity',function(){
+					if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded' && params.selectedElement) return 0.1;
+					if (this.classList.contains('tooltipShowing') && cls != '.tooltipShowing' && params.selectedElement) return 1;
+					return params.opMass;
+				})
+				.style('stroke-opacity',function(){
+					if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded' && params.selectedElement) return 0.2;
+					if (this.classList.contains('tooltipShowing') && cls != '.tooltipShowing' && params.selectedElement) return 1;
+					return 1;
+				})
+				.on('start',function(){
+					d3.selectAll(cls+'.dot').style('display','block');
+				});
+		d3.selectAll(cls+'.text.toggledOff')
+			.classed('toggledOn',true)
+			.classed('toggledOff',function(){
+				if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded') return true;
+				if (this.classList.contains('tooltipShowing') && cls != '.tooltipShowing') return true;
+				return false;
+			})
+			.transition().duration(dur)
+				.style('opacity',function(){
+					if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded' && params.selectedElement) return 0.2;
+					return 1;
+				})
+				.on('start',function(){
+					d3.selectAll(cls+'.text').style('display','block');
+				});
+		d3.selectAll(cls+'.legendText.toggledOff')
+			.classed('toggledOn',true)
+			.classed('toggledOff',function(){
+				if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded') return true;
+				if (this.classList.contains('tooltipShowing') && cls != '.tooltipShowing') return true;
+				return false;
+			})
+			.transition().duration(dur)
+				.style('opacity',1)
+				.on('start',function(){
+					d3.selectAll(cls+'.legendText').style('display','block');
+				});
 
 		//the links appear to need some extra handling or else they blink at the start
 		d3.selectAll(cls+'.link').filter(function(){
@@ -452,6 +552,8 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration,
 		}).transition().duration(dur)
 			.style('opacity',function(d){
 				if (d3.select(this).attr('class').includes('extraNode')) return 0.5;
+				if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded' && params.selectedElement) return 0.2;
+				if (this.classList.contains('tooltipShowing') && cls != '.tooltipShowing' && params.selectedElement) return 1;
 				return 0.75
 			})
 			.on('start',function(){
@@ -465,7 +567,7 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration,
 }
 
 function togglePlot(event, classes=null){
-	console.log('toggle check', event, this, this.nodeName, params.hidden)
+	//console.log('toggle check', event, this, this.nodeName, params.hidden);
 	params.plotReady = false;
 	if (this){
 		if (this.nodeName) classes = d3.select(this).attr('class').split(' ');

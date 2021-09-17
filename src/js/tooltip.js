@@ -1,23 +1,56 @@
-function showTooltip(){
-	params.selectedElement = this;
+function showTooltip(elem = null){
+	if (isNode(this)){
+		params.selectedElement = this;
+	} else {
+		if (elem){
+			params.selectedElement = elem;
+		}
+	}
+	console.log('showing tooltip',params.selectedElement)
 
-	//lighten everything
-	d3.selectAll('.dot').transition().duration(params.tooltipTransitionDuration)
-		.style('fill-opacity',0.1)
-		.style('stroke-opacity',0.2)
-	if (params.viewType == 'default') d3.selectAll('.arrow').transition().duration(params.tooltipTransitionDuration).style('opacity',0.1)
-	d3.selectAll('.text').transition().duration(params.tooltipTransitionDuration).style('opacity',0.2)
+	//fade everything
+	d3.selectAll('.dot').classed('tooltipFaded', true).classed('toggledOff', true)
+		.transition().duration(params.tooltipTransitionDuration)
+			.style('fill-opacity',0.1)
+			.style('stroke-opacity',0.2);
+		
+	d3.selectAll('.arrow').classed('tooltipFaded', true).classed('toggledOff', true)
+	if (params.viewType == 'default') {
+		d3.selectAll('.arrow').transition().duration(params.tooltipTransitionDuration).style('opacity',0.1);
+	}
+	d3.selectAll('.text').classed('tooltipFaded', true).classed('toggledOff', true)
+		.transition().duration(params.tooltipTransitionDuration)
+			.style('opacity',0.2);
 
-	//darken the selected object
-	var cls = d3.select(this).attr('class').split(' ')[0];
-	if (params.viewType == 'default') d3.select('.arrow.GW.'+cls).transition().duration(params.tooltipTransitionDuration).style('opacity',1)
-	d3.selectAll('.dot.'+cls).transition().duration(params.tooltipTransitionDuration).style('fill-opacity',1)
-	d3.selectAll('.text.'+cls).transition().duration(params.tooltipTransitionDuration).style('opacity',1)
-	d3.selectAll('.'+cls).classed('inFront',true);
+	console.log('checking link', d3.selectAll('.link'))
+	d3.selectAll('.link').classed('tooltipFaded', true).classed('toggledOff', true)
+		.transition().duration(params.tooltipTransitionDuration)
+			.style('opacity',0.2);
+		
+	//brighten selected object
+	var cls = d3.select(params.selectedElement).attr('class').split(' ')[0];
+	d3.select('.arrow.GW.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
+	if (params.viewType == 'default') {
+		d3.select('.arrow.GW.'+cls).transition().duration(params.tooltipTransitionDuration).style('opacity',1);	
+	}
+	d3.selectAll('.dot.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
+		.transition().duration(params.tooltipTransitionDuration)
+			.style('fill-opacity',1);
+		
+	d3.selectAll('.text.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
+		.transition().duration(params.tooltipTransitionDuration)
+			.style('opacity',1);
+	d3.selectAll('.link.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
+		.transition().duration(params.tooltipTransitionDuration)
+			.style('opacity',1);
+
+	d3.selectAll('.'+cls)
+		.classed('inFront',true)
+		.classed('tooltipFaded', false);
 
 
 	//display the tooltip
-	formatTooltip(d3.select(this).attr('data-name'));
+	formatTooltip(d3.select(params.selectedElement).attr('data-name'));
 	d3.select('#tooltip').transition().duration(params.tooltipTransitionDuration).style('opacity',1);
 
 	//move the tooltip into position
@@ -39,8 +72,8 @@ function hideTooltip(){
 	var y = event.clientY;
 	var elementMouseIsOver = document.elementFromPoint(x, y);
 	if (elementMouseIsOver){
-		if (!elementMouseIsOver.classList.contains('clickable') && elementMouseIsOver.id != 'tooltip' && elementMouseIsOver.parentNode.id != 'tooltip' && !hasSomeParentWithClass(elementMouseIsOver,'#controls')){
-			resetOpacities();
+		if (!elementMouseIsOver.classList.contains('clickable') && elementMouseIsOver.id != 'tooltip' && elementMouseIsOver.parentNode.id != 'tooltip' && !hasSomeParentWithClass(elementMouseIsOver,'#controls') && !elementMouseIsOver.classList.contains('tooltipShowing') ){
+			console.log('hiding tooltip');
 
 			//back to normal ordering
 			if (params.selectedElement){
@@ -52,6 +85,16 @@ function hideTooltip(){
 			d3.select('#tooltip').transition().duration(params.tooltipTransitionDuration).style('opacity',0)
 				.on('end', function(){
 					d3.select('#tooltip').style('left','-500px')});
+
+			params.selectedElement = null;
+
+			//reset the opacities
+			resetOpacities('.tooltipFaded');
+			resetOpacities('.tooltipShowing');
+			d3.selectAll('.tooltipFaded').classed('tooltipFaded', false);
+			d3.selectAll('.tooltipShowing').classed('tooltipShowing', false);
+			//in case there is a complicated set of previous clicks, this should reset all the classes and opacities as needed
+			togglePlot();
 		}
 	}
 
