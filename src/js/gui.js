@@ -71,18 +71,18 @@ function moveData(messenger,sortKey, reset=false, dur=params.sortTransitionDurat
 
 	params[messenger+'sortKey'] = sortKey;
 
-	d3.selectAll('.dot.'+messenger).transition().ease(ease).duration(dur)
-		.attr('cx', function(d) {return defineXpos(d,d3.select(this).attr('class'),reset);})
-		.attr('cy', function(d) {return defineYpos(d,d3.select(this).attr('class'),reset);})
-		.attr('r', function(d) {return defineRadius(d,d3.select(this).attr('class'),reset);})
+	params.mainPlot.selectAll('.dot.'+messenger).transition().ease(ease).duration(dur)
+		.attr('cx', function(d) {return defineXpos(d,d3.select(this).attr('class'),null,reset);})
+		.attr('cy', function(d) {return defineYpos(d,null,reset);})
+		.attr('r', function(d) {return defineRadius(d);})
 
-	d3.selectAll('.text.qmark.'+messenger).transition().ease(ease).duration(dur)
-		.attr('x', function(d) {return defineXpos(d,d3.select(this).attr('class'),reset);})
-		.attr('y', function(d) {return defineYpos(d,d3.select(this).attr('class'),reset) + 0.5*defineRadius(d,d3.select(this).attr('class'),reset);})
-		.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'),reset)+'px';})
+	params.mainPlot.selectAll('.text.qmark.'+messenger).transition().ease(ease).duration(dur)
+		.attr('x', function(d) {return defineXpos(d,d3.select(this).attr('class'),null,reset);})
+		.attr('y', function(d) {return defineYpos(d,null,reset) + 0.5*defineRadius(d);})
+		.style('font-size',function(d) {return 1.5*defineRadius(d)+'px';})
 
 	if (messenger == 'GW' && params.viewType == 'default'){
-		d3.selectAll('.arrow.GW').transition().ease(ease).duration(dur)
+		params.mainPlot.selectAll('.arrow.GW').transition().ease(ease).duration(dur)
 			.attr('transform',function(d){
 				var x = params.xAxisScale(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);
 				var y = 0;
@@ -123,8 +123,8 @@ function changeView(event, classes=null){
 	params.plotData = params.plotData.filter(function(d){return !('extraNode' in d)});
 
 	//remove the links and the extra nodes
-	d3.select('.links').selectAll('line').remove();
-	d3.selectAll('.extraNode').remove();
+	params.mainPlot.select('.links').selectAll('line').remove();
+	params.mainPlot.selectAll('.extraNode').remove();
 
 	console.log('!!!Changing view', classes)
 
@@ -144,7 +144,7 @@ function changeView(event, classes=null){
 		d3.select('.massGaptoggle').select('input').attr('disabled', null);
 
 		//turn on the axes
-		d3.selectAll('.axis').transition().duration(params.fadeTransitionDuration).style('opacity',1);
+		params.mainPlot.selectAll('.axis').transition().duration(params.fadeTransitionDuration).style('opacity',1);
 
 		//reset the radius scaling
 		params.sizeScaler = params.sizeScalerOrg;
@@ -193,9 +193,9 @@ function changeView(event, classes=null){
 		params.radiusScale.range([params.sizeScaler*params.minRadius, params.sizeScaler*params.maxRadius]);
 
 		//turn off the axes and arrows
-		d3.selectAll('.axis').classed('toggledOff',true).transition().duration(params.fadeTransitionDuration).style('opacity',0);
-		d3.selectAll('.arrow').classed('toggledOff',true).transition().duration(params.fadeTransitionDuration).style('opacity',0);
-		d3.selectAll('.massGap').classed('toggledOff',true).transition().duration(params.fadeTransitionDuration).style('opacity',0);
+		params.mainPlot.selectAll('.axis').classed('toggledOff',true).transition().duration(params.fadeTransitionDuration).style('opacity',0);
+		params.mainPlot.selectAll('.arrow').classed('toggledOff',true).transition().duration(params.fadeTransitionDuration).style('opacity',0);
+		params.mainPlot.selectAll('.massGap').classed('toggledOff',true).transition().duration(params.fadeTransitionDuration).style('opacity',0);
 
 		//get the size of the area and offset for the center
 		var offsetX = -(params.SVGpadding.left - 0.5*params.radiusScale.invert(params.maxRadius));
@@ -323,11 +323,11 @@ function changeView(event, classes=null){
 
 		setTimeout(function(){
 		//resize the circles and question marks
-			d3.selectAll('.dot').transition().duration(params.fadeTransitionDuration)
-				.attr('r', function(d) {return defineRadius(d,d3.select(this).attr('class'));})
+			params.mainPlot.selectAll('.dot').transition().duration(params.fadeTransitionDuration)
+				.attr('r', function(d) {return defineRadius(d);})
 
-			d3.selectAll('.text.qmark').transition().duration(params.fadeTransitionDuration)
-				.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'))+'px';})
+			params.mainPlot.selectAll('.text.qmark').transition().duration(params.fadeTransitionDuration)
+				.style('font-size',function(d) {return 1.5*defineRadius(d)+'px';})
 
 
 
@@ -354,7 +354,7 @@ function changeView(event, classes=null){
 			params.ticker = function(){
 
 				//update the nodes
-				d3.selectAll('.dot').each(function(d){
+				params.mainPlot.selectAll('.dot').each(function(d){
 					d.x = clamp(d.x,offsetX,width + offsetX);
 					d.y = clamp(d.y,offsetY,height + offsetY);
 
@@ -372,7 +372,7 @@ function changeView(event, classes=null){
 					}
 				});
 
-				d3.selectAll('.extraNode').each(function(d){
+				params.mainPlot.selectAll('.extraNode').each(function(d){
 					d.x = clamp(d.x,offsetX,width + offsetX);
 					d.y = clamp(d.y,offsetY,height + offsetY);
 
@@ -644,7 +644,7 @@ function changePointSizes(){
 
 
 	params.mainPlot.selectAll('.dot').attr('r', function(d){ 
-		d.r = defineRadius(d,d3.select(this).attr('class'))
+		d.r = defineRadius(d);
 		return d.r
 	});
 
@@ -654,8 +654,8 @@ function changePointSizes(){
 	}
 
 	params.mainPlot.selectAll('.text.qmark')
-		.attr('y', function(d) {return defineYpos(d,d3.select(this).attr('class')) + 0.5*defineRadius(d,d3.select(this).attr('class'));})
-		.style('font-size',function(d) {return 1.5*defineRadius(d,d3.select(this).attr('class'))+'px';})
+		.attr('y', function(d) {return defineYpos(d) + 0.5*defineRadius(d);})
+		.style('font-size',function(d) {return 1.5*defineRadius(d)+'px';})
 
 	changeArrowSizes();
 }
@@ -696,25 +696,7 @@ function changeAspect(){
 //see also here: https://spin.atomicobject.com/2014/01/21/convert-svg-to-png/
 function renderToImage(){
 	
-	//if the aspect ratio changes, this method will result in non-circular "circles"
-	//set the scale for the render
-	// var scaleX = 1;
-	// var scaleY = 1;
-	// var width = parseFloat(params.SVG.style('width'));
-	// var height = parseFloat(params.SVG.style('height'))
-	// if (!isNaN(params.renderX)) {
-	// 	width = parseFloat(params.renderX);
-	// 	scaleX = parseFloat(params.renderX)/parseFloat(params.SVG.style('width'));
-	// }
-	// if (!isNaN(params.renderY)) {
-	// 	height = parseFloat(params.renderY);
-	// 	scaleY = parseFloat(params.renderY)/parseFloat(params.SVG.style('height'));
-	// }
-	// trans = 'translate(0,0)scale(' + scaleX + ',' + scaleY + ')';
-	// saveSvgAsPng(params.SVG.node(), params.filename, {'width':width, 'height':height, 'transform':trans});
-
-
-	//so I need to redraw, unfortunately
+	//so I need to redraw, in case there is a new aspect ratio.  But I will do this in a separate SVG
 	var saveSVGscale = params.SVGscale;
 	var saveControlsX = params.controlsX;
 
@@ -724,22 +706,31 @@ function renderToImage(){
 		params.controlsX = 0.;
 
 		params.plotReady = false;
-		createPlot(params.renderX, params.renderY);
+		//make another SVG to contain the plot so that the user doesn't see it?
+		var svgNode = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+		document.body.appendChild(svgNode)
+		createPlot(d3.select(svgNode), params.renderX, params.renderY, false, false);
 
 		//wait until drawing in is complete
 		var imgCheck = setInterval(function(){ 
 			if (params.plotReady){
 				console.log('plot is ready')
 				clearInterval(imgCheck);
-				togglePlot();
 				setTimeout(function(){
-					saveSvgAsPng(params.SVG.node(), params.filename, {'width':params.renderX, 'height':params.renderY, 'transform':'none'});
+					console.log(params.renderX, params.renderY)
+					saveSvgAsPng(svgNode, params.filename, {'width':params.renderX, 'height':params.renderY, 'transform':'none'});
 
 					params.SVGscale = saveSVGscale;
 					params.controlsX = saveControlsX;
 					params.sizeScaler = params.sizeScalerOrg;
 					setTimeout(function(){
-						resizePlot();
+						d3.select(svgNode).remove();
+						params.mainPlot = d3.select('#plotSVG').select('#mainPlot');
+						//for some reason it is necessary to "move" the data back to position in case the user wants to change the view
+						//otherwise, the starting positions are incorrect.  
+						//I suppose somewhere these positions are being reset with the new svgNode I created here, but I can't find where that might be.
+						moveData('GW',params.GWsortKey);
+						moveData('EM',params.EMsortKey);
 					},1000)
 				}, (params.sortTransitionDuration + params.fadeTransitionDuration));
 			} 

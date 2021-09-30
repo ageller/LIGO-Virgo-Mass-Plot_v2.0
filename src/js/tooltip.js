@@ -9,38 +9,38 @@ function showTooltip(elem = null){
 	console.log('showing tooltip',params.selectedElement)
 
 	//fade everything
-	d3.selectAll('.dot').classed('tooltipFaded', true).classed('toggledOff', true)
+	params.mainPlot.selectAll('.dot').classed('tooltipFaded', true).classed('toggledOff', true)
 		.transition().duration(params.tooltipTransitionDuration)
 			.style('fill-opacity',0.1)
 			.style('stroke-opacity',0.2);
 		
-	d3.selectAll('.arrow').classed('tooltipFaded', true).classed('toggledOff', true)
+	params.mainPlot.selectAll('.arrow').classed('tooltipFaded', true).classed('toggledOff', true)
 	if (params.viewType == 'default') {
-		d3.selectAll('.arrow').transition().duration(params.tooltipTransitionDuration).style('opacity',0.1);
+		params.mainPlot.selectAll('.arrow').transition().duration(params.tooltipTransitionDuration).style('opacity',0.1);
 	}
-	d3.selectAll('.text').classed('tooltipFaded', true).classed('toggledOff', true)
+	params.mainPlot.selectAll('.text').classed('tooltipFaded', true).classed('toggledOff', true)
 		.transition().duration(params.tooltipTransitionDuration)
 			.style('opacity',0.2);
 
-	console.log('checking link', d3.selectAll('.link'))
-	d3.selectAll('.link').classed('tooltipFaded', true).classed('toggledOff', true)
+	console.log('checking link', params.mainPlot.selectAll('.link'))
+	params.mainPlot.selectAll('.link').classed('tooltipFaded', true).classed('toggledOff', true)
 		.transition().duration(params.tooltipTransitionDuration)
 			.style('opacity',0.2);
 		
 	//brighten selected object
 	var cls = d3.select(params.selectedElement).attr('class').split(' ')[0];
-	d3.select('.arrow.GW.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
+	params.mainPlot.select('.arrow.GW.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
 	if (params.viewType == 'default') {
-		d3.select('.arrow.GW.'+cls).transition().duration(params.tooltipTransitionDuration).style('opacity',1);	
+		params.mainPlot.select('.arrow.GW.'+cls).transition().duration(params.tooltipTransitionDuration).style('opacity',1);	
 	}
-	d3.selectAll('.dot.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
+	params.mainPlot.selectAll('.dot.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
 		.transition().duration(params.tooltipTransitionDuration)
 			.style('fill-opacity',1);
 		
-	d3.selectAll('.text.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
+	params.mainPlot.selectAll('.text.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
 		.transition().duration(params.tooltipTransitionDuration)
 			.style('opacity',1);
-	d3.selectAll('.link.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
+	params.mainPlot.selectAll('.link.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
 		.transition().duration(params.tooltipTransitionDuration)
 			.style('opacity',1);
 

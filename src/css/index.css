@@ -10,10 +10,6 @@ html,body {
 	height:100%;
 }
 
-#plotSVG{
-	font-family: sans-serif;
-}
-
 .axisLabel{
 	fill:#808080;
 }

@@ -388,6 +388,6 @@ function compileData(){
 	attachControls();
 
 	//create the plot
-	createPlot(); //this also calls populate plot
+	createPlot(d3.select('#plotSVG')); //this also calls populate plot
 
 }

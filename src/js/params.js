@@ -31,7 +31,6 @@ var params = new function() {
 	this.EMsortKey = 'valleyIndex';
 
 	//SVG setup
-	this.SVG;
 	this.mainPlot;
 	this.SVGbackground = 'black';
 	this.SVGmargin = {'top': 10,'bottom':10,'left': 10,'right':10};
