@@ -696,14 +696,58 @@ function changeAspect(){
 //see also here: https://spin.atomicobject.com/2014/01/21/convert-svg-to-png/
 function renderToImage(){
 	
+	//if the aspect ratio changes, this method will result in non-circular "circles"
 	//set the scale for the render
-	var scaleX = 1;
-	var scaleY = 1;
-	if (!isNaN(params.renderX)) scaleX = parseFloat(params.renderX)/parseFloat(params.SVG.style('width'));
-	if (!isNaN(params.renderY)) scaleY = parseFloat(params.renderY)/parseFloat(params.SVG.style('height'));
+	// var scaleX = 1;
+	// var scaleY = 1;
+	// var width = parseFloat(params.SVG.style('width'));
+	// var height = parseFloat(params.SVG.style('height'))
+	// if (!isNaN(params.renderX)) {
+	// 	width = parseFloat(params.renderX);
+	// 	scaleX = parseFloat(params.renderX)/parseFloat(params.SVG.style('width'));
+	// }
+	// if (!isNaN(params.renderY)) {
+	// 	height = parseFloat(params.renderY);
+	// 	scaleY = parseFloat(params.renderY)/parseFloat(params.SVG.style('height'));
+	// }
+	// trans = 'translate(0,0)scale(' + scaleX + ',' + scaleY + ')';
+	// saveSvgAsPng(params.SVG.node(), params.filename, {'width':width, 'height':height, 'transform':trans});
 
-	trans = 'translate(0,0)scale(' + scaleX + ',' + scaleY + ')';
 
-	saveSvgAsPng(params.SVG.node(), params.filename, {'width':width, 'height':height, 'transform':trans});
+	//so I need to redraw, unfortunately
+	var saveSVGscale = params.SVGscale;
+	var saveControlsX = params.controlsX;
+
+	if (!isNaN(params.renderX) && !isNaN(params.renderY)){	
+		params.sizeScaler = params.renderX/params.targetWidth;
+		params.SVGscale = 1.;
+		params.controlsX = 0.;
+
+		params.plotReady = false;
+		createPlot(params.renderX, params.renderY);
+
+		//wait until drawing in is complete
+		var imgCheck = setInterval(function(){ 
+			if (params.plotReady){
+				console.log('plot is ready')
+				clearInterval(imgCheck);
+				togglePlot();
+				setTimeout(function(){
+					saveSvgAsPng(params.SVG.node(), params.filename, {'width':params.renderX, 'height':params.renderY, 'transform':'none'});
+
+					params.SVGscale = saveSVGscale;
+					params.controlsX = saveControlsX;
+					params.sizeScaler = params.sizeScalerOrg;
+					setTimeout(function(){
+						resizePlot();
+					},1000)
+				}, (params.sortTransitionDuration + params.fadeTransitionDuration));
+			} 
+		}, 100);
+
+	} else {
+		console.log('bad image size ', params.renderX, params.renderY);
+	}
+
 
 }

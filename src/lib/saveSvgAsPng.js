@@ -279,10 +279,8 @@
 
       //AMG for transform
       if (transform) {
-        console.log('checking transform', transform, clone);
         clone.style.transform = transform;
         clone.style.transformOrigin = "0 0";
-        console.log(clone);
       }
 
       Array.from(clone.querySelectorAll('foreignObject > *')).forEach(foreignObject => {
