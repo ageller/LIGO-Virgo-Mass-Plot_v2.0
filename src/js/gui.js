@@ -355,34 +355,38 @@ function changeView(event, classes=null){
 
 				//update the nodes
 				params.mainPlot.selectAll('.dot').each(function(d){
-					d.x = clamp(d.x,offsetX,width + offsetX);
-					d.y = clamp(d.y,offsetY,height + offsetY);
+					if (d){
+						d.x = clamp(d.x,offsetX,width + offsetX);
+						d.y = clamp(d.y,offsetY,height + offsetY);
 
-					if (d.x && d.y){
-						//move the dots
-						d3.select(this)
-							.attr('cx', d.x)
-							.attr('cy', d.y);
+						if (d.x && d.y){
+							//move the dots
+							d3.select(this)
+								.attr('cx', d.x)
+								.attr('cy', d.y);
 
-						//move the question marks
-						var cls = '.'+d3.select(this).attr('class').replace('dot','').replaceAll(' ','.').replaceAll('..','.');
-						d3.selectAll(cls)
-							.attr('x', d.x)
-							.attr('y', d.y + 0.5*d.r);
+							//move the question marks
+							var cls = '.'+d3.select(this).attr('class').replace('dot','').replaceAll(' ','.').replaceAll('..','.');
+							d3.selectAll(cls)
+								.attr('x', d.x)
+								.attr('y', d.y + 0.5*d.r);
+						}
 					}
 				});
 
 				params.mainPlot.selectAll('.extraNode').each(function(d){
-					d.x = clamp(d.x,offsetX,width + offsetX);
-					d.y = clamp(d.y,offsetY,height + offsetY);
+					if (d){
+						d.x = clamp(d.x,offsetX,width + offsetX);
+						d.y = clamp(d.y,offsetY,height + offsetY);
 
-					if (d.x && d.y){
-						//move the dots and text (and attempt to center the text)
-						d3.select(this)
-							.attr('x', d.x)
-							.attr('y', d.y + parseFloat(this.style.fontSize)/3.)
-							.attr('cx', d.x)
-							.attr('cy', d.y);
+						if (d.x && d.y){
+							//move the dots and text (and attempt to center the text)
+							d3.select(this)
+								.attr('x', d.x)
+								.attr('y', d.y + parseFloat(this.style.fontSize)/3.)
+								.attr('cx', d.x)
+								.attr('cy', d.y);
+						}
 					}
 				});
 
@@ -712,10 +716,11 @@ function renderToImage(){
 		createPlot(d3.select(svgNode), params.renderX, params.renderY, false, false);
 
 		//wait until drawing in is complete
-		var imgCheck = setInterval(function(){ 
+		clearInterval(params.readyCheck);
+		params.readyCheck = setInterval(function(){ 
 			if (params.plotReady){
 				console.log('plot is ready')
-				clearInterval(imgCheck);
+				clearInterval(params.readyCheck);
 				setTimeout(function(){
 					console.log(params.renderX, params.renderY)
 					saveSvgAsPng(svgNode, params.filename, {'width':params.renderX, 'height':params.renderY, 'transform':'none'});
@@ -729,8 +734,11 @@ function renderToImage(){
 						//for some reason it is necessary to "move" the data back to position in case the user wants to change the view
 						//otherwise, the starting positions are incorrect.  
 						//I suppose somewhere these positions are being reset with the new svgNode I created here, but I can't find where that might be.
-						moveData('GW',params.GWsortKey);
-						moveData('EM',params.EMsortKey);
+						if (params.viewType == 'default'){
+							moveData('GW',params.GWsortKey);
+							moveData('EM',params.EMsortKey);
+						}
+						//resizePlot();
 					},1000)
 				}, (params.sortTransitionDuration + params.fadeTransitionDuration));
 			} 

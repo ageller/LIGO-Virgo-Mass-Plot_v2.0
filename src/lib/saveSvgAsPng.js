@@ -280,7 +280,7 @@
       //AMG for transform
       if (transform) {
         clone.style.transform = transform;
-        clone.style.transformOrigin = "0 0";
+        clone.style.transformOrigin = "0px 0px";
       }
 
       Array.from(clone.querySelectorAll('foreignObject > *')).forEach(foreignObject => {

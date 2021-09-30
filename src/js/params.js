@@ -93,6 +93,8 @@ var params = new function() {
 	//build in a hook to show only the new data, for highlighting in Photoshop
 	this.newData = [];//['GW190403_051519','GW190426_190642','GW190725_174728','GW190805_211137','GW190916_200658','GW190917_114630','GW190925_232845','GW190926_050336'];
 
+	//holder for intervals
+	this.readyCheck;
 };
 
 

@@ -25,6 +25,9 @@ function createPlot(svg, width=null, height=null, resizing=false, saveSizes=true
 
 	var top = annotations.title.node().getBoundingClientRect().height + annotations.legend.node().getBoundingClientRect().height + SVGpadding.top;
 
+	//in case I need this for rendering
+	var saveMainPlot = params.mainPlot;
+
 	svg.select('#mainPlot').remove();
 	params.mainPlot = svg.append('g')
 			.attr('id','mainPlot')
@@ -116,6 +119,19 @@ function createPlot(svg, width=null, height=null, resizing=false, saveSizes=true
 		}
 	} else {
 		params.plotReady = true;
+
+		//add in the circles 
+		if (saveMainPlot){
+			var scaleX =  width/window.innerWidth;
+			var scaleY = height/window.innerHeight;
+
+			saveMainPlot.selectAll('.dot,.link,.extraNode,.text').each(function(){
+				var clone = this.cloneNode(true);
+				clone.style.transform = 'scale(' + scaleX + ',' + scaleY + ')';
+        		clone.style.transformOrigin = "0px 0px";
+				params.mainPlot.node().appendChild(clone);
+			})
+		}
 	}
 
 }
@@ -442,9 +458,11 @@ function resizePlot(){
 		d3.select('.view.default').select('input').node().checked = true;
 		changeView(null, ['default']);
 	}
-	var readyCheck = setInterval(function(){ 
+
+	clearInterval(params.readyCheck);
+	params.readyCheck = setInterval(function(){ 
 		if (params.plotReady){
-			clearInterval(readyCheck);
+			clearInterval(params.readyCheck);
 			params.sizeScaler = window.innerWidth/params.targetWidth;
 			params.sizeScalerOrg = params.sizeScaler;
 			console.log('checking render settings 0', params.renderX, params.renderY, params.renderXchanged, params.renderYchanged)
@@ -460,9 +478,9 @@ function resizePlot(){
 			console.log('checking render settings 1', params.renderX, params.renderY)
 
 			createPlot(d3.select('#plotSVG'), null, null, true);
-			var readyCheck2 = setInterval(function(){ 
+			params.readyCheck = setInterval(function(){ 
 				if (params.plotReady){
-					clearInterval(readyCheck2);
+					clearInterval(params.readyCheck);
 					togglePlot();
 					console.log('checking render settings 2', params.renderX, params.renderY)
 					// params.viewType = saveView;
