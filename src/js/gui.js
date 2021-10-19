@@ -718,7 +718,8 @@ function renderToImage(){
 		if (params.whiteRenderBackground){
 			d3.select(svgNode).style('background-color','white');
 			d3.select(svgNode).select('#title').style('fill','black');
-			d3.select(svgNode).selectAll('.arrow').attr('fill','gray');
+			d3.select(svgNode).selectAll('.arrow').attr('fill','#36454F');
+			d3.select(svgNode).selectAll('.qmark').style('fill','black').style('font-weight','bold');
 		}
 		//wait until drawing in is complete
 		clearInterval(params.readyCheck);
