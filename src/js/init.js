@@ -42,6 +42,8 @@ function attachControls(){
 	d3.select('#renderX').attr('placeholder',params.renderX);
 	d3.select('#renderY').attr('placeholder',params.renderY);
 	d3.selectAll('.radioLabel.aspect').on('mousedown', changeAspect);
+
+	d3.selectAll('.checkboxLabel.whiteBackground').on('mousedown', changeBackground);
 }
 
 

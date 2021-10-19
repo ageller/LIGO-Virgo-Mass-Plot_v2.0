@@ -95,6 +95,8 @@ var params = new function() {
 
 	//holder for intervals
 	this.readyCheck;
+
+	this.whiteRenderBackground = false;
 };
 
 

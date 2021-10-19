@@ -715,6 +715,11 @@ function renderToImage(){
 		document.body.appendChild(svgNode)
 		createPlot(d3.select(svgNode), params.renderX, params.renderY, false, false);
 
+		if (params.whiteRenderBackground){
+			d3.select(svgNode).style('background-color','white');
+			d3.select(svgNode).select('#title').style('fill','black');
+			d3.select(svgNode).selectAll('.arrow').attr('fill','gray');
+		}
 		//wait until drawing in is complete
 		clearInterval(params.readyCheck);
 		params.readyCheck = setInterval(function(){ 
@@ -749,4 +754,8 @@ function renderToImage(){
 	}
 
 
+}
+
+function changeBackground(){
+	params.whiteRenderBackground = !params.whiteRenderBackground;
 }
