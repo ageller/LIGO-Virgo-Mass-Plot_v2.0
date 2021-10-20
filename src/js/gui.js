@@ -435,53 +435,53 @@ function changeView(event, classes=null){
 
 }
 
-function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration, toHide=[]){
+function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration, toHide=[], svgElem=params.SVG){
 	//normal opacities
 	if (off){
 		console.log('turnog off',cls)
 		if (params.viewType == 'default') {
-			d3.selectAll(cls+'.arrow.toggledOn')
+			svgElem.selectAll(cls+'.arrow.toggledOn')
 				.classed('toggledOn',false).classed('toggledOff',true)
 				.transition().duration(dur)
 					.style('opacity',0)
 					.on('end',function(){
-						d3.selectAll(cls+'.arrow').style('display','none');
+						svgElem.selectAll(cls+'.arrow').style('display','none');
 					});
 		}
-		d3.selectAll(cls+'.dot.toggledOn')
+		svgElem.selectAll(cls+'.dot.toggledOn')
 			.classed('toggledOn',false).classed('toggledOff',true)
 			.transition().duration(dur)
 				.style('fill-opacity',0)
 				.style('opacity',0)
 				.style('stroke-opacity',0)
 				.on('end',function(){
-					d3.selectAll(cls+'.dot').style('display','none');
+					svgElem.selectAll(cls+'.dot').style('display','none');
 				});
-		d3.selectAll(cls+'.text.toggledOn')
+		svgElem.selectAll(cls+'.text.toggledOn')
 			.classed('toggledOn',false).classed('toggledOff',true)
 			.transition().duration(dur)
 				.style('opacity',0)
 				.on('end',function(){
-					d3.selectAll(cls+'.text').style('display','none');
+					svgElem.selectAll(cls+'.text').style('display','none');
 				});
-		d3.selectAll(cls+'.legendText.toggledOn')
+		svgElem.selectAll(cls+'.legendText.toggledOn')
 			.classed('toggledOn',false).classed('toggledOff',true)
 			.transition().duration(dur)
 				.style('opacity',0)
 				.on('end',function(){
-					d3.selectAll(cls+'.legendText').style('display','none');
+					svgElem.selectAll(cls+'.legendText').style('display','none');
 				});
-		d3.selectAll(cls+'.link.toggledOn')
+		svgElem.selectAll(cls+'.link.toggledOn')
 			.classed('toggledOn',false).classed('toggledOff',true)
 			.transition().duration(dur)
 				.style('opacity',0)
 				.on('end',function(){
-					d3.selectAll(cls+'.link').style('display','none');
+					svgElem.selectAll(cls+'.link').style('display','none');
 				});
 	} else {
 		console.log('turning on', cls)
 		if (params.viewType == 'default') {
-			d3.selectAll(cls+'.arrow.toggledOff')
+			svgElem.selectAll(cls+'.arrow.toggledOff')
 				.classed('toggledOn',true)
 				.classed('toggledOff',function(){
 					if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded') return true;
@@ -495,10 +495,10 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration,
 						return params.opArrow;
 					})
 					.on('start',function(){
-						d3.selectAll(cls+'.arrow').style('display','block');
+						svgElem.selectAll(cls+'.arrow').style('display','block');
 					});
 		}
-		d3.selectAll(cls+'.dot.toggledOff')
+		svgElem.selectAll(cls+'.dot.toggledOff')
 			.classed('toggledOn',true)
 			.classed('toggledOff',function(){
 				if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded') return true;
@@ -518,9 +518,9 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration,
 					return 1;
 				})
 				.on('start',function(){
-					d3.selectAll(cls+'.dot').style('display','block');
+					svgElem.selectAll(cls+'.dot').style('display','block');
 				});
-		d3.selectAll(cls+'.text.toggledOff')
+		svgElem.selectAll(cls+'.text.toggledOff')
 			.classed('toggledOn',true)
 			.classed('toggledOff',function(){
 				if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded') return true;
@@ -533,9 +533,9 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration,
 					return 1;
 				})
 				.on('start',function(){
-					d3.selectAll(cls+'.text').style('display','block');
+					svgElem.selectAll(cls+'.text').style('display','block');
 				});
-		d3.selectAll(cls+'.legendText.toggledOff')
+		svgElem.selectAll(cls+'.legendText.toggledOff')
 			.classed('toggledOn',true)
 			.classed('toggledOff',function(){
 				if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded') return true;
@@ -545,45 +545,35 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration,
 			.transition().duration(dur)
 				.style('opacity',1)
 				.on('start',function(){
-					d3.selectAll(cls+'.legendText').style('display','block');
+					svgElem.selectAll(cls+'.legendText').style('display','block');
 				});
 
 		//the links appear to need some extra handling or else they blink at the start
-		d3.selectAll(cls+'.link').filter(function(){
+		svgElem.selectAll(cls+'.link').filter(function(){
 			var show = true;
 			for (var i=0; i<toHide.length;i+=1) if (this.classList.contains(toHide[i])) show = false;
 			return show;
 		}).transition().duration(dur)
 			.style('opacity',function(d){
-				if (d3.select(this).attr('class').includes('extraNode')) return 0.5;
+				if (svgElem.select(this).attr('class').includes('extraNode')) return 0.5;
 				if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded' && params.selectedElement) return 0.2;
 				if (this.classList.contains('tooltipShowing') && cls != '.tooltipShowing' && params.selectedElement) return 1;
 				return 0.75
 			})
 			.on('start',function(){
-				d3.selectAll(cls+'.link').filter(function(){
+				svgElem.selectAll(cls+'.link').filter(function(){
 					var show = true;
 					for (var i=0; i<toHide.length;i+=1) if (this.classList.contains(toHide[i])) show = false;
 					return show;
 				}).style('display','block')
 			})
 	}
+
 }
 
-function togglePlot(event, classes=null){
-	//console.log('toggle check', event, this, this.nodeName, params.hidden);
-	params.plotReady = false;
-	if (this){
-		if (this.nodeName) classes = d3.select(this).attr('class').split(' ');
-	} else {
-		if (event) {
-			var elem = event.target;
-			if (elem.nodeName != 'label') elem = event.target.parentNode; 
-			classes = d3.select(elem).attr('class').split(' ');
-		}
-	}
-
+function applyToggles(classes=null, svgElem=params.SVG, duration=params.fadeTransitionDuration){
 	//get the toggle
+
 	var tog = null;
 	if (classes){
 		var j = classes.indexOf('toggle');
@@ -607,9 +597,9 @@ function togglePlot(event, classes=null){
 		for (var i=0; i<keys.length; i+=1){
 			if (!params.hidden[keys[i]]) {
 				if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM' || keys[i].includes('GWTC') || keys[i].includes('O3')){
-					resetOpacities('.'+keys[i], false, params.fadeTransitionDuration, toHide);
+					resetOpacities('.'+keys[i], false, duration, toHide, svgElem);
 				} else {
-					d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
+					svgElem.selectAll('.'+keys[i]).transition().duration(duration)
 						.style('opacity',1)
 						//.on('start',function(){d3.selectAll('.'+keys[i]).style('display','block')});
 				}
@@ -620,9 +610,9 @@ function togglePlot(event, classes=null){
 		for (var i=0; i<keys.length; i+=1){
 			if (params.hidden[keys[i]]){
 				if (keys[i] == 'BH' || keys[i] == 'NS' || keys[i] == 'GW' || keys[i] == 'EM'|| keys[i].includes('GWTC') || keys[i].includes('O3')){
-					resetOpacities('.'+keys[i], true, params.fadeTransitionDuration);
+					resetOpacities('.'+keys[i], true, duration, [], svgElem);
 				} else {
-					d3.selectAll('.'+keys[i]).transition().duration(params.fadeTransitionDuration)
+					svgElem.selectAll('.'+keys[i]).transition().duration(duration)
 						.style('opacity',0)
 						//.on('end',function(){d3.selectAll('.'+keys[i]).style('display','none')});
 				}
@@ -630,14 +620,35 @@ function togglePlot(event, classes=null){
 		}
 
 		//fix the arrows for combined NS BH
-		if (params.hidden['BH'] && params.hidden['NS']) resetOpacities('.BHNS', true, params.fadeTransitionDuration);
+		if (params.hidden['BH'] && params.hidden['NS']) resetOpacities('.BHNS', true, duration, [], svgElem);
 	}
 
 	//specially handling for new data
 	if (tog == 'newData' || !params.hidden['newData']){
 		console.log('toggling newData')
-		resetOpacities('.newData', params.hidden['newData'], params.fadeTransitionDuration);
+		resetOpacities('.newData', params.hidden['newData'], duration, [], svgElem);
 	}
+
+	console.log('done toggling', tog, toHide)
+}
+
+function togglePlot(){
+	//console.log('toggle check', event, this, this.nodeName, params.hidden);
+	params.plotReady = false;
+
+	var classes = null;
+	if (this){
+		if (this.nodeName) classes = d3.select(this).attr('class').split(' ');
+	} else {
+		if (event) {
+			var elem = event.target;
+			if (elem.nodeName != 'label') elem = event.target.parentNode; 
+			classes = d3.select(elem).attr('class').split(' ');
+		}
+	}
+
+	applyToggles(classes);
+
 }
 
 function changePointSizes(){
@@ -714,6 +725,7 @@ function renderToImage(){
 		var svgNode = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 		document.body.appendChild(svgNode)
 		createPlot(d3.select(svgNode), params.renderX, params.renderY, false, false);
+		applyToggles(null, d3.select(svgNode), 0);
 
 		if (params.whiteRenderBackground){
 			d3.select(svgNode).style('background-color','white');
