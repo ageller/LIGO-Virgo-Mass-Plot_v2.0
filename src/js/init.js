@@ -83,9 +83,10 @@ function compileData(){
 	var events = Object.keys(params.inputGWdata.events)
 	var useEvents = {'name':[],'id':[],'version':[]}
 	//take only those with masses
+	//and only use those with "confident" in the catalog name
 	for (var i =0; i<events.length; i+=1){
 		e = events[i];
-		if (params.inputGWdata.events[e].mass_1_source != null){
+		if (params.inputGWdata.events[e].mass_1_source != null && params.inputGWdata.events[e]['catalog.shortName'].includes('confident')){
 			var id = e;
 			var version = 0;
 			var p = e.indexOf('-v');
@@ -124,19 +125,27 @@ function compileData(){
 		}
 	};
 
+	// console.log('checking', useEvents)
+	// //exclude those from the O3_Discovery_Papers, and GWTC-3-marginal
+	// for (var i=0; i<useEvents.id.length; i+=1){
+	// 	var e = useEvents.name[i];
+	// 	var dat = params.inputGWdata.events[e];
+	// 	if (dat["catalog.shortName"] == "O3_Discovery_Papers" || dat["catalog.shortName"].includes("marginal")) toRemove.push(i);
+	// }
+
 	//now only take those for the final data product
-	GWmasses = [];
-	GWmasses2 = [];
-	GWdates = [];
-	GWdistances = [];
-	GWchirp = [];
-	GWchi = [];
-	GWSNR = [];
+	var GWmasses = [];
+	var GWmasses2 = [];
+	var GWdates = [];
+	var GWdistances = [];
+	var GWchirp = [];
+	var GWchi = [];
+	var GWSNR = [];
 	var num = 0;
 	for (var i=0; i<useEvents.id.length; i+=1){
-		e = useEvents.name[i];
+		var e = useEvents.name[i];
 		if (toRemove.indexOf(i) == -1){
-			var dat = params.inputGWdata.events[e]
+			var dat = params.inputGWdata.events[e];
 			dat.messenger = 'GW';
 			dat.mass = params.inputGWdata.events[e].final_mass_source;
 			dat.GWindex = num;
