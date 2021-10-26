@@ -349,11 +349,31 @@ function plotDefaultData(radiusScale, xAxisScale, yAxisScale){
 			.attr('r', defineRadius(d, radiusScale))
 			.attr('cx', defineXpos(d, d3.select(this).attr('class'), xAxisScale))
 			.attr('cy', defineYpos(d, yAxisScale))
-			.style('fill', defineColor(d,d3.select(this).attr('class')))
+			.style('fill', function(){
+				var color = defineColor(d,d3.select(this).attr('class'));
+				//special handling for GW mass-gap objects
+				if (this.classList.contains('GW') && d.mass > params.massGap[0] && d.mass < params.massGap[1]){
+					color = params.colors['GWBH'];
+				}
+				return color;
+			})
 			.style('fill-opacity',params.opMass)
-			.style('stroke', defineColor(d,d3.select(this).attr('class')))
+			.style('stroke', function(){
+				var color = defineColor(d,d3.select(this).attr('class'));
+				//special handling for GW mass-gap objects
+				if (this.classList.contains('GW') && d.mass > params.massGap[0] && d.mass < params.massGap[1]){
+					color = params.colors['GWNS'];
+				}
+				return color;
+			})
+			.style('stroke-width', function(){
+				var size = 2*params.sizeScaler;
+				if (this.classList.contains('GW') && d.mass > params.massGap[0] && d.mass < params.massGap[1]){
+					size = defineRadius(d, radiusScale)/2.
+				}
+				return size + 'px';
+			})
 			.style('stroke-opacity', 1)
-			.style('stroke-width', 2*params.sizeScaler + 'px')
 			.style('cursor', 'pointer')
 			//.on('mouseover',mouseOver)
 			//.on('mouseout',mouseOut);

@@ -390,9 +390,6 @@ function compileData(){
 		var dat = {};
 		var d = params.data[i];
 		if (d.messenger == 'GW'){
-			//check for necessary question marks for the final masses
-			var qmark = false
-			if (d.final_mass_source != null && d.final_mass_source_upper == null) qmark = true;
 
 			var cat = d['catalog.shortName'].replace('-confident','').replace('.','-');
 
@@ -401,13 +398,16 @@ function compileData(){
 			if (params.newData.includes(d.commonName)) clsAddOn = ' newData ';
 
 			//normal sources
-			if (d.final_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.final_mass_source, 'classString':'name-'+cleanString(d.commonName) + ' ' + getRem(d.final_mass_source) + ' '+ cat +' dot mf GW clickable' + clsAddOn,'qmark':qmark,'parent':true,'commonName':d.commonName,'catalog':cat});
+			if (d.final_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.final_mass_source, 'classString':'name-'+cleanString(d.commonName) + ' ' + getRem(d.final_mass_source) + ' '+ cat +' dot mf GW clickable' + clsAddOn,'qmark':false,'parent':true,'commonName':d.commonName,'catalog':cat});
 			if (d.mass_1_source != null) params.plotData.push({'dataIndex':i, 'mass':d.mass_1_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass_1_source) + ' '+ cat + ' dot m1 GW clickable' + clsAddOn,'qmark':false,'parent':false,'commonName':d.commonName, 'catalog':cat});
 			if (d.mass_2_source != null) params.plotData.push({'dataIndex':i, 'mass':d.mass_2_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass_2_source) + ' '+ cat + ' dot m2 GW clickable' + clsAddOn,'qmark':false,'parent':false,'commonName':d.commonName, 'catalog':cat});
 
 			//add any without final masses
 			//if (d.final_mass_source == null && d.total_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.total_mass_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.total_mass_source) + ' '+ cat + ' dot mf no_final_mass GW clickable' + clsAddOn,'qmark':true,'parent':true,'commonName':d.commonName, 'catalog':cat});
 			if (d.final_mass_source == null && d.total_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.total_mass_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.total_mass_source) + ' '+ cat + ' dot mf no_final_mass GW clickable' + clsAddOn,'qmark':false,'parent':true,'commonName':d.commonName, 'catalog':cat});
+
+			//in the mass gap
+			
 		}
 		if (d.messenger == 'EM' && d.mass != null) params.plotData.push({'dataIndex':i, 'mass':d.mass, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass) + ' dot mf EM clickable', 'qmark':(d.special==2),'parent':true,'commonName':d.commonName, });
 		

@@ -82,7 +82,8 @@ var params = new function() {
 
 	this.hidden = {'BH':false,'NS':false,'GW':false,'EM':false,'plotTitle':false,'massGap':true};
 
-	this.massGap = [2.74, 4.9];
+	//this.massGap = [2.74, 4.9];
+	this.massGap = [2.5, 5.0];
 
 	//for changing the view 
 	this.viewType = 'default';
