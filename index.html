@@ -22,7 +22,7 @@
 			<div class='bar2'></div>
 			<div class='bar3'></div>
 		</div>
-		<div id='controls'>
+		<div id='controls' style="overflow-y:auto">
 
 			<!-- sort options for GW -->
 			<div id='sortGWDropdown'>
@@ -233,6 +233,13 @@
 			</div>
 
 
+			<!-- will contain the search bar -->
+			<div id='searchContainer'>
+				<div id='searchTitle' class="controlsTitle">Search</div>
+				<input id='searchInput'></input>
+				<div id='searchList'></div>
+			</div>
+
 		</div>
 
 
@@ -248,6 +255,7 @@
 		<script src='src/js/tooltip.js'></script>
 		<script src='src/js/plotData.js'></script>
 		<script src='src/js/gui.js'></script>
+		<script src='src/js/search.js'></script>
 		<script src='src/js/init.js'></script>
 
 	</body>

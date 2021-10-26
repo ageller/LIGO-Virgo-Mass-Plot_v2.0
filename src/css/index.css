@@ -64,3 +64,43 @@ html,body {
 	stroke-width: 2px;
 	opacity: 1.0;
 }
+
+.listNames {
+	font: 12px sans-serif;
+	font-family: sans-serif;
+	padding:4px;
+	margin:0;
+	border-bottom: 1px solid black;
+	cursor:pointer;
+}
+
+.listNamesHover:hover {
+	background-color: #d3d3d3;
+	/*color: var(--button-background-color);*/
+}
+
+
+/*for the scrollbar */
+/* width */
+::-webkit-scrollbar {
+	width: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+	background: white;
+	border: 1px solid gray;
+	border-radius: 3px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+	background: gray;
+	border-radius: 3px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+	background: black;
+	cursor:pointer;
+}

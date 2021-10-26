@@ -45,10 +45,11 @@ var params = new function() {
 	this.SVGscale = 1.;
 	this.controlsX = 0.;
 
-	this.colors = {'GWBH':'#00BFFF','GWNS':'#d78122', 'EMBH':'#6b509f', 'EMNS':'#dfc23f' };
+	//this.colors = {'GWBH':'#00BFFF','GWNS':'#d78122', 'EMBH':'#6b509f', 'EMNS':'#dfc23f' };
+	this.colors = {'GWBH':'#00BFFF','GWNS':'#d78122', 'EMBH':'#D81B60', 'EMNS':'#dbed9f' };
 
 	//default opacities for objects
-	this.opMass = 0.5;
+	this.opMass = 0.75;
 	this.opArrow = 0.5;
 
 	this.BHMinMass = 3; //minimum mass for coloring as a black hole in GW sources
@@ -74,8 +75,8 @@ var params = new function() {
 	this.arrowThickBottom = 2;
 	this.arrowCurveTail = 3;
 	this.arrowThickTop = 10;
-	this.arrowHeadStart = 20;
-	this.arrowScale = 1;
+	this.arrowHeadStart = 15;
+	this.arrowScale = 0.6;
 
 	this.dropdownHeights = {};
 
@@ -98,6 +99,12 @@ var params = new function() {
 	this.readyCheck;
 
 	this.whiteRenderBackground = false;
+
+	//to hold a list of particles that need to be swapped
+	this.swapList = [];
+
+	//for searching
+	this.searchTimeout = null;
 };
 
 

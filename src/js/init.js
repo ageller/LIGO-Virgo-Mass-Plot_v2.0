@@ -202,7 +202,7 @@ function compileData(){
 	var GWindices = [];
 	var GWdx = params.data.length/(GWmasses.length + 1); //+1 so that it doesn't reach all the way to the edges
 	var GWusedx = 0;
-	var diamondBottomIndex = 5; //index to start choosing random values for the bottom half of the diamond
+	var diamondBottomIndex = 7; //index to start choosing random values for the bottom half of the diamond
 	//generate random indices for the bottom half of diamond
 	var diamondRandom = [];
 	var ii = 0;
@@ -264,6 +264,7 @@ function compileData(){
 	//quick check
 	var minD = params.data.length;
 	var maxD = 0;
+	params.swapList = [];
 	for (var i =0; i<sortedGWMasses.length; i+=1){
 		var k1 = sortedGWMasses.sortIndices[i];
 		if ('diamondIndex' in params.data[k1]) {
@@ -273,12 +274,54 @@ function compileData(){
 				minD = Math.min(minD, params.data[k1].diamondIndex);
 				maxD = Math.max(maxD, params.data[k1].diamondIndex);
 			}
+
 		} else {
 			console.log('!!!WARNING: GW diamondIndex not set', k1, params.data[k1])
 		}
+		if ('diamondRandIndex' in params.data[k1] && !params.swapList.includes(k1)) {
+			//check to see if any of the circles overlap
+			var iden = checkOverlap(k1, sortedGWMasses, GWdx, 5, params.data.length-5);
+			if (iden) params.swapList.push(iden);
+		}
 	}
 	console.log('min, max GW diamondIndex', minD, maxD);
+	console.log('swapList',params.swapList);
 
+	//swap any that need it 
+	var nIterMax = 10;
+	var nIter = 0;
+	while (nIter < nIterMax && params.swapList.length > 0){
+		var finishedSwap = [];
+		for (var i=0; i< params.swapList.length; i++){
+			k1 = params.swapList[i];
+			//find the data
+			console.log('swapping', k1)
+			var i1 = sortedGWMasses.sortIndices.indexOf(k1);
+			if (i1){
+				var i2 = (i1 - 2*(1 + nIter)) % sortedGWMasses.sortIndices.length;
+
+				var k2 = sortedGWMasses.sortIndices[i2]; //I think this will work, since the masses are sorted and alternatinv(?)
+
+				var p1 = parseFloat(params.data[k1].diamondRandIndex);
+				params.data[k1].diamondRandIndex = params.data[k2].diamondRandIndex;
+				params.data[k2].diamondRandIndex = p1;
+				console.log(k1, k2, params.data[k1].commonName, params.data[k2].commonName, params.data[k1].diamondRandIndex, params.data[k2].diamondRandIndex);
+				//if we resolved the overlap, then remove it from the swapList
+				if (!checkOverlap(k1, sortedGWMasses, GWdx, 5, params.data.length-5)) finishedSwap.push(i); 
+			} else{
+				console.log('!!!Did not find id', k1)
+			}
+		}
+		//sort the finished array in reverse order, and then remove the swapList
+		finishedSwap.sort(function(a,b){ return b - a; });
+		for (var i=0; i< finishedSwap.length; i++){
+			params.swapList.splice(finishedSwap[i], 1);
+		}
+		nIter += 1;
+		console.log('after swapping', params.swapList, finishedSwap)
+	}
+
+	console.log('after swapping', params.swapList)
 	var sortedEMMasses = sortWithIndices(EMmasses);
 	var EMside = 1;
 	var EMindices = [];
@@ -363,7 +406,8 @@ function compileData(){
 			if (d.mass_2_source != null) params.plotData.push({'dataIndex':i, 'mass':d.mass_2_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass_2_source) + ' '+ cat + ' dot m2 GW clickable' + clsAddOn,'qmark':false,'parent':false,'commonName':d.commonName, 'catalog':cat});
 
 			//add any without final masses
-			if (d.final_mass_source == null && d.total_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.total_mass_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.total_mass_source) + ' '+ cat + ' dot mf no_final_mass GW clickable' + clsAddOn,'qmark':true,'parent':true,'commonName':d.commonName, 'catalog':cat});
+			//if (d.final_mass_source == null && d.total_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.total_mass_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.total_mass_source) + ' '+ cat + ' dot mf no_final_mass GW clickable' + clsAddOn,'qmark':true,'parent':true,'commonName':d.commonName, 'catalog':cat});
+			if (d.final_mass_source == null && d.total_mass_source != null) params.plotData.push({'dataIndex':i, 'mass':d.total_mass_source, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.total_mass_source) + ' '+ cat + ' dot mf no_final_mass GW clickable' + clsAddOn,'qmark':false,'parent':true,'commonName':d.commonName, 'catalog':cat});
 		}
 		if (d.messenger == 'EM' && d.mass != null) params.plotData.push({'dataIndex':i, 'mass':d.mass, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass) + ' dot mf EM clickable', 'qmark':(d.special==2),'parent':true,'commonName':d.commonName, });
 		
@@ -401,4 +445,40 @@ function compileData(){
 	//create the plot
 	createPlot(d3.select('#plotSVG')); //this also calls populate plot
 
+}
+
+function checkOverlap(k1, sortMasses, dx, minX=0, maxX=1e10, minY=25, key='diamondRandIndex'){
+	var iden = null
+
+	//if this is off to the side with a low m2, then it might overlap with the EM sources
+	if (params.data[k1].mass_2_source < minY && (params.data[k1][key] < minX || params.data[k1][key] > maxX)) return k1
+
+	//otherwise, check for vertical overlaps with any others in this list
+	for (var j = 0; j<sortMasses.length; j+=1){
+		var k2 = sortMasses.sortIndices[j];
+		if (k2 != k1 && !params.swapList.includes(k2)){
+			if (key in params.data[k2]) {
+				if (Math.abs(params.data[k2][key] - params.data[k1][key]) < dx*0.9){
+					//compare all the masses (this may miss any that have strange values)
+					var m1max = params.data[k1].final_mass_source;
+					var m1min = params.data[k1].mass_2_source;
+					var m2max = params.data[k2].final_mass_source;
+					var m2min = params.data[k2].mass_2_source;
+
+					if ( (m1max > m2max && m2max > m1min) || (m2max > m1max && m1max > m2min) ){
+						console.log('potential overlap', Math.abs(params.data[k2][key] - params.data[k1][key]), params.data[k1].commonName, params.data[k2].commonName);
+						needSwap = true;
+						//swap with a neighbor, and always swap the top one
+						if (m1max > m2max){
+							iden = k1;
+						} else {
+							iden = k2;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iden;
 }

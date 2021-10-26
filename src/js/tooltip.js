@@ -6,96 +6,117 @@ function showTooltip(elem = null){
 			params.selectedElement = elem;
 		}
 	}
-	console.log('showing tooltip',params.selectedElement)
+	if (params.selectedElement){
+		console.log('showing tooltip',params.selectedElement);
 
-	//fade everything
-	params.mainPlot.selectAll('.dot').classed('tooltipFaded', true).classed('toggledOff', true)
-		.transition().duration(params.tooltipTransitionDuration)
-			.style('fill-opacity',0.1)
-			.style('stroke-opacity',0.2);
-		
-	params.mainPlot.selectAll('.arrow').classed('tooltipFaded', true).classed('toggledOff', true)
-	if (params.viewType == 'default') {
-		params.mainPlot.selectAll('.arrow').transition().duration(params.tooltipTransitionDuration).style('opacity',0.1);
+		d3.select('#searchList').style('display','none');
+		d3.select('#searchInput').node().value = d3.select(params.selectedElement).attr('data-name');
+
+		//fade everything
+		params.mainPlot.selectAll('.dot').classed('tooltipFaded', true).classed('toggledOff', true)
+			.transition().duration(params.tooltipTransitionDuration)
+				.style('fill-opacity',0.1)
+				.style('stroke-opacity',0.2);
+			
+		params.mainPlot.selectAll('.arrow').classed('tooltipFaded', true).classed('toggledOff', true)
+		if (params.viewType == 'default') {
+			params.mainPlot.selectAll('.arrow').transition().duration(params.tooltipTransitionDuration).style('opacity',0.1);
+		}
+		params.mainPlot.selectAll('.text').classed('tooltipFaded', true).classed('toggledOff', true)
+			.transition().duration(params.tooltipTransitionDuration)
+				.style('opacity',0.2);
+
+		//console.log('checking link', params.mainPlot.selectAll('.link'))
+		params.mainPlot.selectAll('.link').classed('tooltipFaded', true).classed('toggledOff', true)
+			.transition().duration(params.tooltipTransitionDuration)
+				.style('opacity',0.2);
+			
+		//brighten selected object
+		var cls = d3.select(params.selectedElement).attr('class').split(' ')[0];
+		params.mainPlot.select('.arrow.GW.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
+		if (params.viewType == 'default') {
+			params.mainPlot.select('.arrow.GW.'+cls).transition().duration(params.tooltipTransitionDuration).style('opacity',1);	
+		}
+		params.mainPlot.selectAll('.dot.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
+			.transition().duration(params.tooltipTransitionDuration)
+				.style('fill-opacity',1);
+			
+		params.mainPlot.selectAll('.text.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
+			.transition().duration(params.tooltipTransitionDuration)
+				.style('opacity',1);
+		params.mainPlot.selectAll('.link.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
+			.transition().duration(params.tooltipTransitionDuration)
+				.style('opacity',1);
+
+		d3.selectAll('.'+cls)
+			.classed('inFront',true)
+			.classed('tooltipFaded', false);
+
+
+		//display the tooltip
+		formatTooltip(d3.select(params.selectedElement).attr('data-name'));
+		d3.select('#tooltip').transition().duration(params.tooltipTransitionDuration).style('opacity',1);
+
+		//move the tooltip into position
+		var bbox = d3.select('.dot.mf.'+cls).node().getBoundingClientRect();
+		coord = [bbox.x, bbox.y]
+		var tbbox = d3.select('#tooltip').node().getBoundingClientRect();
+		var targetLeft = coord[0] + 20;
+		if (targetLeft > window.innerWidth/2.) targetLeft = coord[0] - 20 - tbbox.width;
+		var left = Math.min(Math.max(targetLeft , 0), window.innerWidth - tbbox.width);
+		var top = Math.min(Math.max(coord[1] - tbbox.height, 0), window.innerHeight - tbbox.height);
+		d3.select('#tooltip')
+			.style('left',left +'px')
+			.style('top',top + 'px')
 	}
-	params.mainPlot.selectAll('.text').classed('tooltipFaded', true).classed('toggledOff', true)
-		.transition().duration(params.tooltipTransitionDuration)
-			.style('opacity',0.2);
-
-	console.log('checking link', params.mainPlot.selectAll('.link'))
-	params.mainPlot.selectAll('.link').classed('tooltipFaded', true).classed('toggledOff', true)
-		.transition().duration(params.tooltipTransitionDuration)
-			.style('opacity',0.2);
-		
-	//brighten selected object
-	var cls = d3.select(params.selectedElement).attr('class').split(' ')[0];
-	params.mainPlot.select('.arrow.GW.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
-	if (params.viewType == 'default') {
-		params.mainPlot.select('.arrow.GW.'+cls).transition().duration(params.tooltipTransitionDuration).style('opacity',1);	
-	}
-	params.mainPlot.selectAll('.dot.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
-		.transition().duration(params.tooltipTransitionDuration)
-			.style('fill-opacity',1);
-		
-	params.mainPlot.selectAll('.text.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
-		.transition().duration(params.tooltipTransitionDuration)
-			.style('opacity',1);
-	params.mainPlot.selectAll('.link.'+cls).classed('tooltipFaded', false).classed('tooltipShowing',true).classed('toggledOff', true)
-		.transition().duration(params.tooltipTransitionDuration)
-			.style('opacity',1);
-
-	d3.selectAll('.'+cls)
-		.classed('inFront',true)
-		.classed('tooltipFaded', false);
-
-
-	//display the tooltip
-	formatTooltip(d3.select(params.selectedElement).attr('data-name'));
-	d3.select('#tooltip').transition().duration(params.tooltipTransitionDuration).style('opacity',1);
-
-	//move the tooltip into position
-	var bbox = d3.select('.dot.mf.'+cls).node().getBoundingClientRect();
-	coord = [bbox.x, bbox.y]
-	var tbbox = d3.select('#tooltip').node().getBoundingClientRect();
-	var targetLeft = coord[0] + 20;
-	if (targetLeft > window.innerWidth/2.) targetLeft = coord[0] - 20 - tbbox.width;
-	var left = Math.min(Math.max(targetLeft , 0), window.innerWidth - tbbox.width);
-	var top = Math.min(Math.max(coord[1] - tbbox.height, 0), window.innerHeight - tbbox.height);
-	d3.select('#tooltip')
-		.style('left',left +'px')
-		.style('top',top + 'px')
 }
 
 
 function hideTooltip(){
-	var x = event.clientX;
-	var y = event.clientY;
-	var elementMouseIsOver = document.elementFromPoint(x, y);
-	if (elementMouseIsOver){
-		if (!elementMouseIsOver.classList.contains('clickable') && elementMouseIsOver.id != 'tooltip' && elementMouseIsOver.parentNode.id != 'tooltip' && !hasSomeParentWithClass(elementMouseIsOver,'#controls') && !elementMouseIsOver.classList.contains('tooltipShowing') ){
-			console.log('hiding tooltip');
+	var dohide = false;
 
-			//back to normal ordering
-			if (params.selectedElement){
-				var cls = d3.select(params.selectedElement).attr('class').split(' ')[0];
-				d3.selectAll('.'+cls).classed('inFront',false);
+	if (event.clientX) {
+		//mouse click
+		var x = event.clientX;
+		var y = event.clientY;
+		var elementMouseIsOver = document.elementFromPoint(x, y);
+		if (elementMouseIsOver){
+			if (!elementMouseIsOver.classList.contains('clickable') && elementMouseIsOver.id != 'tooltip' && elementMouseIsOver.parentNode.id != 'tooltip' && !hasSomeParentWithClass(elementMouseIsOver,'#controls') && !elementMouseIsOver.classList.contains('tooltipShowing') ){
+				dohide = true;
 			}
-
-			//remove tooltip
-			d3.select('#tooltip').transition().duration(params.tooltipTransitionDuration).style('opacity',0)
-				.on('end', function(){
-					d3.select('#tooltip').style('left','-500px')});
-
-			params.selectedElement = null;
-
-			//reset the opacities
-			resetOpacities('.tooltipFaded');
-			resetOpacities('.tooltipShowing');
-			d3.selectAll('.tooltipFaded').classed('tooltipFaded', false);
-			d3.selectAll('.tooltipShowing').classed('tooltipShowing', false);
-			//in case there is a complicated set of previous clicks, this should reset all the classes and opacities as needed
-			togglePlot();
 		}
+	} else {
+		//keyboard press will come from search bar only (I think)
+		dohide = true;
+	}
+
+	if (dohide){
+		console.log('hiding tooltip');
+
+		//remove text from the search bar
+		d3.select('#searchInput').node().value = '';
+		d3.select('#searchList').style('display','none');
+
+		//back to normal ordering
+		if (params.selectedElement){
+			var cls = d3.select(params.selectedElement).attr('class').split(' ')[0];
+			d3.selectAll('.'+cls).classed('inFront',false);
+		}
+
+		//remove tooltip
+		d3.select('#tooltip').transition().duration(params.tooltipTransitionDuration).style('opacity',0)
+			.on('end', function(){
+				d3.select('#tooltip').style('left','-500px')});
+
+		params.selectedElement = null;
+
+		//reset the opacities
+		resetOpacities('.tooltipFaded');
+		resetOpacities('.tooltipShowing');
+		d3.selectAll('.tooltipFaded').classed('tooltipFaded', false);
+		d3.selectAll('.tooltipShowing').classed('tooltipShowing', false);
+		//in case there is a complicated set of previous clicks, this should reset all the classes and opacities as needed
+		togglePlot();
 	}
 
 }
@@ -150,7 +171,9 @@ function formatTooltip(name){
 	if (d.GPS != null) str += '<b>GPS : </b>' + d.GPS + '<br/>';
 	if (d.network_matched_filter_snr != null) str += '<b>SNR : </b>' + d.network_matched_filter_snr.toFixed(2) + '<br/>';
 	ref = d.reference;
-	if (ref.substring(0,1) == '/') ref = 'https://www.gw-openscience.org'+ref;
+	if (ref){
+		if (ref.substring(0,1) == '/') ref = 'https://www.gw-openscience.org'+ref;
+	}
 	if (d.reference != null) str += '<b>Reference : </b><a target="_blank" href="' + ref + '">' + ref + '</a><br/>';
 
 	d3.select('#tooltip')

@@ -149,7 +149,7 @@ function addPlotAnnotations(svg, SVGwidth, SVGheight, SVGpadding){
 		.attr('dx', SVGpadding.left/2. + 'px')
 		.attr('dy', '-10px')
 		.style('font-size', 0.02*SVGwidth + 'px')
-		.text('LIGO-Virgo | Aaron Geller | Northwestern');
+		.text('LIGO-Virgo-Kagra | Aaron Geller | Northwestern');
 
 	var title = annotations.append('text')
 		.attr('id', 'title')
@@ -173,7 +173,7 @@ function addPlotAnnotations(svg, SVGwidth, SVGheight, SVGpadding){
 		.attr('dy', '0px')
 		.style('fill',params.colors.GWBH)
 		.style('font-size', 0.015*SVGwidth + 'px')
-		.text('LIGO-Virgo Black Holes');
+		.text('LIGO-Virgo-Kagra Black Holes');
 	var offset = (GWBH.node().getBoundingClientRect().width + 0.01*SVGwidth)/params.SVGscale;
 	var GWNS = legend.append('text')
 		.attr('class', 'legendText GW NS toggledOn')
@@ -183,7 +183,7 @@ function addPlotAnnotations(svg, SVGwidth, SVGheight, SVGpadding){
 		.attr('dy', '0px')
 		.style('fill',params.colors.GWNS)
 		.style('font-size', 0.015*SVGwidth + 'px')
-		.text('LIGO-Virgo Neutron Stars');
+		.text('LIGO-Virgo-Kagra Neutron Stars');
 	offset += (GWNS.node().getBoundingClientRect().width + 0.01*SVGwidth)/params.SVGscale;
 	var EMBH = legend.append('text')
 		.attr('class', 'legendText EM BH toggledOn')
@@ -371,8 +371,9 @@ function plotDefaultData(radiusScale, xAxisScale, yAxisScale){
 			.attr('data-name', params.data[d.dataIndex].commonName)
 			.attr('x', defineXpos(d, d3.select(this).attr('class'), xAxisScale))
 			.attr('y', defineYpos(d, yAxisScale) + 0.5*defineRadius(d, radiusScale))
-			.style('fill','white')
+			.style('fill','black')
 			.style('font-family','sans-serif')
+			.style('font-weight','bold')
 			.style('font-size', 1.5*defineRadius(d,  radiusScale)+'px')
 			.style('text-anchor', 'middle')
 			.style('cursor', 'pointer')
@@ -390,55 +391,61 @@ function plotDefaultData(radiusScale, xAxisScale, yAxisScale){
 }
 
 function defineXpos(d, classStr, scale=null, reset=false){
-	if ('dataIndex' in d) dUse = params.data[d.dataIndex];
-	if (reset) return d.x;
+	if (d){
+		if ('dataIndex' in d) dUse = params.data[d.dataIndex];
+		if (reset) return d.x;
 
-	if (!scale) scale = params.xAxisScale;
+		if (!scale) scale = params.xAxisScale;
 
-	var cls = '.'+classStr.replace('clickable','').replaceAll(' ','.');
+		var cls = '.'+classStr.replace('clickable','').replaceAll(' ','.');
 
-	var skey = params.GWsortKey;
-	if (cls.includes('EM')) skey = params.EMsortKey;
-	var x = scale(+(dUse[skey]/params.xNorm*scale.domain()[1]));
+		var skey = params.GWsortKey;
+		if (cls.includes('EM')) skey = params.EMsortKey;
+		var x = scale(+(dUse[skey]/params.xNorm*scale.domain()[1]));
 
-	d.x = x;
-	return x;
+		d.x = x;
+		return x;
+	}
 }
 
 function defineYpos(d, scale=null, reset=false){
-	if (reset) return d.y;
+	if (d){
+		if (reset) return d.y;
 
-	if (!scale) scale = params.yAxisScale;
+		if (!scale) scale = params.yAxisScale;
 
-	var y = scale(+d.mass);
+		var y = scale(+d.mass);
 
-	d.y = y;
-	return y;
-
+		d.y = y;
+		return y;
+	}
 }
 
 function defineRadius(d, scale=null){
+	if (d){
+		if (!scale) scale = params.radiusScale;
 
-	if (!scale) scale = params.radiusScale;
+		var r = scale(+d.mass);
 
-	var r = scale(+d.mass);
-
-	d.r = r;
-	return r;
+		d.r = r;
+		return r;
+	}
 }
 
 function defineColor(d, classStr){
-	var cls = '.'+classStr.replace('clickable','').replaceAll(' ','.');
+	if (d){
+		var cls = '.'+classStr.replace('clickable','').replaceAll(' ','.');
 
-	var tp = 'GW';
-	if (cls.includes('.EM')) tp = 'EM';
+		var tp = 'GW';
+		if (cls.includes('.EM')) tp = 'EM';
 
-	var rem = 'BH'
-	if (d.mass < params.BHMinMass) rem = 'NS';
+		var rem = 'BH'
+		if (d.mass < params.BHMinMass) rem = 'NS';
 
-	var key = tp+rem;
+		var key = tp+rem;
 
-	return params.colors[key];
+		return params.colors[key];
+	}
 
 }
 

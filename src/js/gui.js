@@ -32,30 +32,34 @@ function dropdown(){
 	if (params.viewType != 'default' && this.id.includes('sort')) doDrop = false;
 
 	//expand the dropdown (is there a way to do this purely in css with unknown height?)
-	var dropdown = d3.select('#'+this.id+'Dropdown').select('.dropdown-content')
-	var shown = dropdown.classed('show-dropdown');
+	var dropdown = d3.select('#'+this.id+'Dropdown')
+	if (dropdown.node()){
+		dropdown = dropdown.select('.dropdown-content');
+		if (dropdown.node()){
+			var shown = dropdown.classed('show-dropdown');
 
-	if (doDrop || shown){
-		//rotate the triangle
-		var navi = d3.select(this).select('.navi');
-		navi.classed('rotate180', !navi.classed('rotate180')); 
+			if (doDrop || shown){
+				//rotate the triangle
+				var navi = d3.select(this).select('.navi');
+				navi.classed('rotate180', !navi.classed('rotate180')); 
 
-		if (shown){
-			dropdown
-				.style('visibility','hidden')
-				.style('opacity',0)
-				.style('height',0)
-				.classed('show-dropdown', false)
-		} else {
-			dropdown
-				.style('visibility','visible')
-				.style('opacity',1)
-				.style('height',params.dropdownHeights[this.parentNode.id] + 'px')
-				.classed('show-dropdown', true)
+				if (shown){
+					dropdown
+						.style('visibility','hidden')
+						.style('opacity',0)
+						.style('height',0)
+						.classed('show-dropdown', false)
+				} else {
+					dropdown
+						.style('visibility','visible')
+						.style('opacity',1)
+						.style('height',params.dropdownHeights[this.parentNode.id] + 'px')
+						.classed('show-dropdown', true)
+				}
+			}
+
 		}
 	}
-
-
 
 }
 
@@ -555,7 +559,7 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration,
 			return show;
 		}).transition().duration(dur)
 			.style('opacity',function(d){
-				if (svgElem.select(this).attr('class').includes('extraNode')) return 0.5;
+				if (this.classList.contains('extraNode')) return 0.5;
 				if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded' && params.selectedElement) return 0.2;
 				if (this.classList.contains('tooltipShowing') && cls != '.tooltipShowing' && params.selectedElement) return 1;
 				return 0.75
