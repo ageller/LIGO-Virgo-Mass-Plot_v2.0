@@ -76,21 +76,39 @@ function moveData(messenger,sortKey, reset=false, dur=params.sortTransitionDurat
 	params[messenger+'sortKey'] = sortKey;
 
 	params.mainPlot.selectAll('.dot.'+messenger).transition().ease(ease).duration(dur)
-		.attr('cx', function(d) {return defineXpos(d,d3.select(this).attr('class'),null,reset);})
-		.attr('cy', function(d) {return defineYpos(d,null,reset);})
-		.attr('r', function(d) {return defineRadius(d);})
+		.attr('cx', function(d) {
+			var x = defineXpos(d,d3.select(this).attr('class'),null,reset);
+			if (x) return x;
+		})
+		.attr('cy', function(d) {
+			var y = defineYpos(d,null,reset);
+			if (y) return y;
+		})
+		.attr('r', function(d) {
+			var r = defineRadius(d)
+			if (r) return r;
+		})
 
 	params.mainPlot.selectAll('.text.qmark.'+messenger).transition().ease(ease).duration(dur)
-		.attr('x', function(d) {return defineXpos(d,d3.select(this).attr('class'),null,reset);})
-		.attr('y', function(d) {return defineYpos(d,null,reset) + 0.5*defineRadius(d);})
-		.style('font-size',function(d) {return 1.5*defineRadius(d)+'px';})
+		.attr('x', function(d) {
+			var x = defineXpos(d,d3.select(this).attr('class'),null,reset);
+			if (x) return x;
+		})
+		.attr('y', function(d) {
+			var y = defineYpos(d,null,reset) + 0.5*defineRadius(d);
+			if (y) return y; 
+		})
+		.style('font-size',function(d) {
+			var s = defineRadius(d);
+			if (s) return 1.5*s+'px';
+		})
 
 	if (messenger == 'GW' && params.viewType == 'default'){
 		params.mainPlot.selectAll('.arrow.GW').transition().ease(ease).duration(dur)
 			.attr('transform',function(d){
 				var x = params.xAxisScale(d[sortKey]/params.xNorm*params.xAxisScale.domain()[1]);
 				var y = 0;
-				return 'translate(' + x +',' + y + ')';
+				if (x) return 'translate(' + x +',' + y + ')';
 			})
 	}
 }
@@ -731,12 +749,7 @@ function renderToImage(){
 		createPlot(d3.select(svgNode), params.renderX, params.renderY, false, false);
 		applyToggles(null, d3.select(svgNode), 0);
 
-		if (params.whiteRenderBackground){
-			d3.select(svgNode).style('background-color','white');
-			d3.select(svgNode).select('#title').style('fill','black');
-			d3.select(svgNode).selectAll('.arrow').attr('fill','#36454F');
-			d3.select(svgNode).selectAll('.qmark').style('fill','black').style('font-weight','bold');
-		}
+
 		//wait until drawing in is complete
 		clearInterval(params.readyCheck);
 		params.readyCheck = setInterval(function(){ 
@@ -745,6 +758,17 @@ function renderToImage(){
 				clearInterval(params.readyCheck);
 				setTimeout(function(){
 					console.log(params.renderX, params.renderY)
+
+					if (params.whiteRenderBackground){
+						d3.select(svgNode).style('background-color','white');
+						d3.select(svgNode).select('#title').style('fill','black');
+						d3.select(svgNode).selectAll('.arrow').attr('fill','#36454F');
+						d3.select(svgNode).selectAll('.EM.NS').style('fill','#dfc23f')
+						d3.select(svgNode).selectAll('.EM.NS.dot').style('stroke','#dfc23f');
+						d3.select(svgNode).selectAll('.EM.NS.link').style('stroke','#dfc23f');
+						d3.select(svgNode).selectAll('.qmark').style('fill','black').style('font-weight','bold');
+					}
+
 					saveSvgAsPng(svgNode, params.filename, {'width':params.renderX, 'height':params.renderY, 'transform':'none'});
 
 					params.SVGscale = saveSVGscale;
