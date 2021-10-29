@@ -62,7 +62,7 @@ var params = new function() {
 	this.renderAspect = this.renderY/this.renderX; // default to keep the screen size
 	this.fixedAspect = false;
 	
-	this.filename = 'Masses_of_Dead_Stars_LIGO_Virgo.png';
+	this.filename = 'Masses_of_Dead_Stars_LIGO_Virgo_KAGRA.png';
 
 	this.tooltipTransitionDuration = 200;
 	this.sortTransitionDuration = 400;

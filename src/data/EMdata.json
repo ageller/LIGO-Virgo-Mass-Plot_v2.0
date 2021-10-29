@@ -17,9 +17,9 @@
 		"raw_name": "J1913+1102A",
 		"type": "NS",
 		"messenger": "EM",
-		"special": 2,
-		"error_low": 1.65,
-		"error_high": 1.59,
+		"special": 0,
+		"error_low": 1.59,
+		"error_high": 1.65,
 		"commonName": "J1913+1102A",
 		"reference": "https://arxiv.org/abs/2007.04175"
 	},

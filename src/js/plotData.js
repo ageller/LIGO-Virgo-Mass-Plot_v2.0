@@ -22,6 +22,19 @@ function createPlot(svg, width=null, height=null, resizing=false, saveSizes=true
 
 	var annotations = addPlotAnnotations(svg, SVGwidth, SVGheight, SVGpadding);
 
+	//add a linear gradient for the mass-gap objects
+	var gradient = svg.append('linearGradient')
+		.attr('id','BHNSgrad')
+		.attr('x1','0')
+		.attr('x2','0')
+		.attr('y1','0')
+		.attr('y2','100%');
+	gradient.append('stop')
+		.attr('offset','50%')
+		.attr('stop-color',params.colors.GWBH)
+	gradient.append('stop')
+		.attr('offset','50%')
+		.attr('stop-color',params.colors.GWNS)
 
 	var top = annotations.title.node().getBoundingClientRect().height + annotations.legend.node().getBoundingClientRect().height + SVGpadding.top;
 
@@ -149,7 +162,7 @@ function addPlotAnnotations(svg, SVGwidth, SVGheight, SVGpadding){
 		.attr('dx', SVGpadding.left/2. + 'px')
 		.attr('dy', '-10px')
 		.style('font-size', 0.02*SVGwidth + 'px')
-		.text('LIGO-Virgo-Kagra | Aaron Geller | Northwestern');
+		.text('LIGO-Virgo-KAGRA | Aaron Geller | Northwestern');
 
 	var title = annotations.append('text')
 		.attr('id', 'title')
@@ -173,7 +186,7 @@ function addPlotAnnotations(svg, SVGwidth, SVGheight, SVGpadding){
 		.attr('dy', '0px')
 		.style('fill',params.colors.GWBH)
 		.style('font-size', 0.015*SVGwidth + 'px')
-		.text('LIGO-Virgo-Kagra Black Holes');
+		.text('LIGO-Virgo-KAGRA Black Holes');
 	var offset = (GWBH.node().getBoundingClientRect().width + 0.01*SVGwidth)/params.SVGscale;
 	var GWNS = legend.append('text')
 		.attr('class', 'legendText GW NS toggledOn')
@@ -183,7 +196,7 @@ function addPlotAnnotations(svg, SVGwidth, SVGheight, SVGpadding){
 		.attr('dy', '0px')
 		.style('fill',params.colors.GWNS)
 		.style('font-size', 0.015*SVGwidth + 'px')
-		.text('LIGO-Virgo-Kagra Neutron Stars');
+		.text('LIGO-Virgo-KAGRA Neutron Stars');
 	offset += (GWNS.node().getBoundingClientRect().width + 0.01*SVGwidth)/params.SVGscale;
 	var EMBH = legend.append('text')
 		.attr('class', 'legendText EM BH toggledOn')
@@ -353,7 +366,7 @@ function plotDefaultData(radiusScale, xAxisScale, yAxisScale){
 				var color = defineColor(d,d3.select(this).attr('class'));
 				//special handling for GW mass-gap objects
 				if (this.classList.contains('GW') && d.mass > params.massGap[0] && d.mass < params.massGap[1]){
-					color = params.colors['GWBH'];
+					color = "url(#BHNSgrad)";
 				}
 				return color;
 			})
@@ -362,15 +375,15 @@ function plotDefaultData(radiusScale, xAxisScale, yAxisScale){
 				var color = defineColor(d,d3.select(this).attr('class'));
 				//special handling for GW mass-gap objects
 				if (this.classList.contains('GW') && d.mass > params.massGap[0] && d.mass < params.massGap[1]){
-					color = params.colors['GWNS'];
+					color = "url(#BHNSgrad)";
 				}
 				return color;
 			})
 			.style('stroke-width', function(){
 				var size = 2*params.sizeScaler;
-				if (this.classList.contains('GW') && d.mass > params.massGap[0] && d.mass < params.massGap[1]){
-					size = defineRadius(d, radiusScale)/2.
-				}
+				// if (this.classList.contains('GW') && d.mass > params.massGap[0] && d.mass < params.massGap[1]){
+				// 	size = defineRadius(d, radiusScale)/2.
+				// }
 				return size + 'px';
 			})
 			.style('stroke-opacity', 1)
