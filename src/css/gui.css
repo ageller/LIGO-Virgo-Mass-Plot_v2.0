@@ -2,7 +2,7 @@
 #hamburger{
 	position:absolute;
 	top:10px;
-	left:97vw;
+	right:20px;
 	padding:10px;
 	z-index:20;
 	cursor:pointer;
