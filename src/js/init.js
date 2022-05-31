@@ -158,7 +158,10 @@ function compileData(){
 			GWmasses.push(dat.mass);
 			GWmasses2.push(dat.mass_2_source);
 			GWdates.push(dat.GPS);
-			GWdistances.push(dat.luminosity_distance);
+			// check the unit on the distance
+			var ld = dat.luminosity_distance;
+			if (dat.luminosity_distance_unit == 'Gpc') ld *= 1000. //default unit is MPC
+			GWdistances.push(ld);
 			GWchirp.push(dat.chirp_mass_source);
 			GWchi.push(dat.chi_eff);
 			GWSNR.push(dat.network_matched_filter_snr);
