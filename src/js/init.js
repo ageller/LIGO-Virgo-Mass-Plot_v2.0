@@ -160,7 +160,7 @@ function compileData(){
 			GWdates.push(dat.GPS);
 			// check the unit on the distance
 			var ld = dat.luminosity_distance;
-			if (dat.luminosity_distance_unit == 'Gpc') ld *= 1000. //default unit is MPC
+			if (dat.luminosity_distance_unit == 'Mpc') ld /= 1000. //default unit is GPC
 			GWdistances.push(ld);
 			GWchirp.push(dat.chirp_mass_source);
 			GWchi.push(dat.chi_eff);
