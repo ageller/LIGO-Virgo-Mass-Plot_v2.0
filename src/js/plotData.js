@@ -48,7 +48,7 @@ function createPlot(svg, width=null, height=null, resizing=false, saveSizes=true
 
 	params.mainPlot.append('g').attr('class','links toggledOn'); //will hold the links for the circle packing
 
-	if (params.newData.length > 0) {
+	if (params.newData.length > 0 || params.transparentBackground == true) {
 		console.log('have newData')
 		d3.select('body').style('background-color','rgba(0,0,0,0)')
 		svg.style('background-color','rgba(0,0,0,0)')
