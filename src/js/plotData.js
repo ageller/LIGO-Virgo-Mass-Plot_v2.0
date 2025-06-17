@@ -72,7 +72,7 @@ function createPlot(svg, width=null, height=null, resizing=false, saveSizes=true
 
 		xAxisScale.domain([0, SVGwidth - SVGpadding.left - SVGpadding.right]); //pixels on screen
 		//params.yAxisScale.domain(d3.extent(params.data, function(d){if (d.final_mass_source != null) return +d.final_mass_source; })); //masses
-		yAxisScale.domain(d3.extent([1, 200])); //masses
+		yAxisScale.domain(d3.extent([1, 300])); //masses
 
 		var yAxis = d3.axisLeft(yAxisScale)
 			.scale(yAxisScale)
