@@ -83,10 +83,12 @@ function compileData(){
 	var events = Object.keys(params.inputGWdata.events)
 	var useEvents = {'name':[],'id':[],'version':[]}
 	//take only those with masses
-	//and only use those with "confident" in the catalog name
+	//prior to the O4 data release, we only used those with "confident" in the catalog name
+    //for O4 onwards, the "-confident" suffix is deprecated.  So instead we will exclude any with "-auxiliary" or "-marginal"
 	for (var i =0; i<events.length; i+=1){
 		e = events[i];
-		if (params.inputGWdata.events[e].mass_1_source != null && params.inputGWdata.events[e]['catalog.shortName'].includes('confident')){
+		// if (params.inputGWdata.events[e].mass_1_source != null && params.inputGWdata.events[e]['catalog.shortName'].includes('confident')){
+		if (params.inputGWdata.events[e].mass_1_source != null && !params.inputGWdata.events[e]['catalog.shortName'].includes('-auxiliary') && !params.inputGWdata.events[e]['catalog.shortName'].includes('-marginal')){
 			var id = e;
 			var version = 0;
 			var p = e.indexOf('-v');
