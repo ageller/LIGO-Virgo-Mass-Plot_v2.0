@@ -63,7 +63,8 @@ Promise.all([
 })
 
 
-function getRem(mass){
+function getRem(mass, tp=null){
+    if (tp != null) return tp
 	if (mass < params.BHMinMass) return 'NS';
 	return 'BH';
 }
@@ -414,7 +415,7 @@ function compileData(){
 			//in the mass gap
 			
 		}
-		if (d.messenger == 'EM' && d.mass != null) params.plotData.push({'dataIndex':i, 'mass':d.mass, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass) + ' dot mf EM clickable', 'qmark':(d.special==2),'parent':true,'commonName':d.commonName, });
+		if (d.messenger == 'EM' && d.mass != null) params.plotData.push({'dataIndex':i, 'mass':d.mass, 'classString':'name-'+cleanString(d.commonName)+ ' ' + getRem(d.mass, d.type) + ' dot mf EM clickable', 'qmark':(d.special==2),'parent':true,'commonName':d.commonName, });
 		
 
 	}

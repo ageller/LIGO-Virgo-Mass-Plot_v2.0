@@ -475,6 +475,14 @@ function defineColor(d, classStr){
 		var rem = 'BH'
 		if (d.mass < params.BHMinMass) rem = 'NS';
 
+        // if there is a type in EM data, use that
+        if (tp == 'EM'){
+            if ('type' in params.data[d.dataIndex]){
+                let check = params.data[d.dataIndex].type;
+                if (check == 'EM' | check == 'BH') rem = check;
+            }
+        }
+
 		var key = tp+rem;
 
 		return params.colors[key];
