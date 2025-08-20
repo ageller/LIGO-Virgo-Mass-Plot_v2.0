@@ -208,7 +208,7 @@ function compileData(){
 	var GWindices = [];
 	var GWdx = params.data.length/(GWmasses.length + 1); //+1 so that it doesn't reach all the way to the edges
 	var GWusedx = 0;
-	var diamondBottomIndex = 7; //index to start choosing random values for the bottom half of the diamond
+	var diamondBottomIndex = 10; //index to start choosing random values for the bottom half of the diamond
 	//generate random indices for the bottom half of diamond
 	var diamondRandom = [];
 	var ii = 0;
