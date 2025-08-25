@@ -51,14 +51,25 @@ function sortWithIndices(toSort) {
 	return toSort;
 }
 
-function shuffle(array) {
+// Simple PRNG (mulberry32) from ChatGPT
+function mulberry32(seed) {
+    return function() {
+        let t = seed += 0x6D2B79F5;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+}
+
+function shuffle(array, seed=1112) {
+    var random = mulberry32(seed);
 	var currentIndex = array.length, temporaryValue, randomIndex;
 
 	// While there remain elems to shuffle...
 	while (0 !== currentIndex) {
 
 		// Pick a remaining elem...
-		randomIndex = Math.floor(Math.random() * currentIndex);
+		randomIndex = Math.floor(random() * currentIndex);
 		currentIndex -= 1;
 
 		// And swap it with the current elem.
