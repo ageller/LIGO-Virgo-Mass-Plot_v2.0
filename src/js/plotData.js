@@ -308,19 +308,19 @@ function plotDefaultData(radiusScale, xAxisScale, yAxisScale){
 			.attr('class',function(d){
 				var rem = [];
 				if (d.final_mass_source != null){
-					rem.push(getRem(d.final_mass_source));
+					rem.push(getRem(d.final_mass_source, d.messenger));
 				} else {
-					rem.push(getRem(d.total_mass_source));
+					rem.push(getRem(d.total_mass_source, d.messenger));
 				}
 				if (d.mass_1_source != null){
-					rem.push(getRem(d.mass_1_source));
+					rem.push(getRem(d.mass_1_source, d.messenger));
 				}
 				if (d.mass_2_source != null){
-					rem.push(getRem(d.mass_2_source));
+					rem.push(getRem(d.mass_2_source, d.messenger));
 				}
 				var urem = rem.filter(onlyUnique);
 				var crem = '';
-				for (var i=0; i<urem.length; i+=1) crem += urem[i];
+				for (var i=0; i<urem.length; i+=1) crem += urem[i] + ' ';
 
 				//check if this is a new source
 				var clsAddOn = '';
