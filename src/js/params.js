@@ -19,8 +19,8 @@ var params = new function() {
 
 	//radius scaling
 	this.radiusScale;
-	this.maxRadius = 20;
-	this.minRadius = 5;
+	this.maxRadius = 16;
+	this.minRadius = 3;
 
 	this.targetWidth = 1920;//pixels for a target window width to scale point sizes
 	this.sizeScaler = 1;
@@ -76,7 +76,7 @@ var params = new function() {
 	this.arrowCurveTail = 3;
 	this.arrowThickTop = 10;
 	this.arrowHeadStart = 15;
-	this.arrowScale = 0.6;
+	this.arrowScale = 0.5;
 
 	this.dropdownHeights = {};
 
