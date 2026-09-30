@@ -444,10 +444,10 @@ function compileData(){
 	//add the counts to the static toggles
 	var nGW = params.data.filter(function(d){return d.messenger == 'GW';}).length;
 	var nEM = params.data.filter(function(d){return d.messenger == 'EM' && d.mass != null;}).length;
-	d3.select('.BHtoggle .toggleCount').text('(' + remCounts.BH + ')');
-	d3.select('.NStoggle .toggleCount').text('(' + remCounts.NS + ')');
-	d3.select('.GWtoggle .toggleCount').text('(' + nGW + ')');
-	d3.select('.EMtoggle .toggleCount').text('(' + nEM + ')');
+	d3.select('.BHtoggle .toggleCount').text(remCounts.BH);
+	d3.select('.NStoggle .toggleCount').text(remCounts.NS);
+	d3.select('.GWtoggle .toggleCount').text(nGW);
+	d3.select('.EMtoggle .toggleCount').text(nEM);
 
 
 	//Add toggle buttons for the different catalogs
@@ -458,12 +458,11 @@ function compileData(){
 	var tog = d3.select('#toggleDropdown').select('.checkboxButtons.dropdown-content');
 
 	ucat.forEach(function(c){
-		var label = c.replace('2-1','2.1').replaceAll('_',' ');
-		if (c in catCounts) label += ' (' + catCounts[c].size + ')';
 		//insert before the Title toggle so that the display toggles stay at the end
 		var lab = tog.insert('label', '.plotTitletoggle')
 			.attr('class','checkboxLabel toggle '+c+'toggle')
-			.text(label)
+			.text(c.replace('2-1','2.1').replaceAll('_',' '))
+		if (c in catCounts) lab.append('span').attr('class','toggleCount').text(catCounts[c].size);
 		lab.append('input')
 			.attr('type','checkbox')
 			.attr('checked',true)
