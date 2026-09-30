@@ -15,3 +15,4 @@ A live version is available [here](https://ageller.github.io/LIGO-Virgo-Mass-Plo
 - Eve Chase
 - Darsh Bellie
 
+Some code updates beginning in September 2026 were completed in collaboration with Claude (Anthropic).
