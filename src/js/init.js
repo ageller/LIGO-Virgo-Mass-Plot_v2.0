@@ -427,10 +427,27 @@ function compileData(){
 	}
 	//give everything a key for the index for easy searching later
 	var cats = [];
+	var catCounts = {}; //catalog -> Set of dataIndex (i.e., unique events)
+	var remCounts = {'BH':0, 'NS':0}; //number of objects (points) of each type
 	params.plotData.forEach(function(d,i){
 		d.idx = i;
-		if ('catalog' in d) cats.push(d.catalog)
+		if ('catalog' in d) {
+			cats.push(d.catalog);
+			if (!(d.catalog in catCounts)) catCounts[d.catalog] = new Set();
+			catCounts[d.catalog].add(d.dataIndex);
+		}
+		var cls = d.classString.split(' ');
+		if (cls.includes('BH')) remCounts.BH += 1;
+		if (cls.includes('NS')) remCounts.NS += 1; //mass gap objects count as both BH and NS
 	});
+
+	//add the counts to the static toggles
+	var nGW = params.data.filter(function(d){return d.messenger == 'GW';}).length;
+	var nEM = params.data.filter(function(d){return d.messenger == 'EM' && d.mass != null;}).length;
+	d3.select('.BHtoggle .toggleCount').text('(' + remCounts.BH + ')');
+	d3.select('.NStoggle .toggleCount').text('(' + remCounts.NS + ')');
+	d3.select('.GWtoggle .toggleCount').text('(' + nGW + ')');
+	d3.select('.EMtoggle .toggleCount').text('(' + nEM + ')');
 
 
 	//Add toggle buttons for the different catalogs
@@ -441,9 +458,12 @@ function compileData(){
 	var tog = d3.select('#toggleDropdown').select('.checkboxButtons.dropdown-content');
 
 	ucat.forEach(function(c){
-		var lab = tog.append('label')
+		var label = c.replace('2-1','2.1').replaceAll('_',' ');
+		if (c in catCounts) label += ' (' + catCounts[c].size + ')';
+		//insert before the Title toggle so that the display toggles stay at the end
+		var lab = tog.insert('label', '.plotTitletoggle')
 			.attr('class','checkboxLabel toggle '+c+'toggle')
-			.text(c.replace('2-1','2.1').replaceAll('_',' '))
+			.text(label)
 		lab.append('input')
 			.attr('type','checkbox')
 			.attr('checked',true)
