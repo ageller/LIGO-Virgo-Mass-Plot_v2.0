@@ -16,6 +16,9 @@
 
 		<div id="tooltip"></div>
 
+		<!-- info box for the counts in the toggles table (outside of #controls so that it is not clipped) -->
+		<div id="countInfo" class="infoTooltip">BH and NS numbers count each remnant individually, with overlap when the remnant type is unknown.  The other numbers count events; for the GW detections and data releases, each event includes multiple remnants.<br><br><span id="countInfoData"></span></div>
+
 		<!-- control panel -->
 		<div id='hamburger'>
 			<div class='bar1'></div>
@@ -114,7 +117,7 @@
 			<div id='toggleDropdown'>
 				<div id='toggle' class="controlsTitle"><div class='navi'></div>Toggles</div>
 				<div class="checkboxButtons dropdown-content">
-					<div class="toggleHeader"><span>Name</span><span>N</span></div>
+					<div class="toggleHeader"><span>Name</span><span id="countInfoTarget" class="infoTarget"><svg class="infoIcon" viewBox="0 0 16 16" aria-label="info"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="4.0" r="1.2" fill="currentColor"/><rect x="7.1" y="6.8" width="1.8" height="6.4" fill="currentColor"/></svg>N</span></div>
 					<label class="checkboxLabel toggle BHtoggle">Black Holes <span class="toggleCount"></span>
 						<input type="checkbox" checked="checked">
 						<span class="checkboxCheckmark"></span>

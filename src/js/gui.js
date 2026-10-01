@@ -654,6 +654,27 @@ function applyToggles(classes=null, svgElem=params.SVG, duration=params.fadeTran
 	console.log('done toggling', tog, toHide)
 }
 
+//info box for the counts in the toggles table
+function showCountInfo(){
+	var info = d3.select('#countInfo').style('display','block');
+
+	//place it to the left of the (i) N group (the controls are on the right side of the screen), within the window
+	var ibbox = d3.select('#countInfoTarget').node().getBoundingClientRect();
+	var tbbox = info.node().getBoundingClientRect();
+	var left = Math.max(ibbox.left - tbbox.width - 8, 0);
+	var top = Math.min(Math.max(ibbox.top, 0), window.innerHeight - tbbox.height);
+	info.style('left', left + 'px').style('top', top + 'px');
+}
+
+function hideCountInfo(){
+	d3.select('#countInfo').style('display','none');
+}
+
+function hideCountInfoOutside(event){
+	//hide on a click/touch anywhere other than the (i) N group
+	if (!d3.select('#countInfoTarget').node().contains(event.target)) hideCountInfo();
+}
+
 function togglePlot(){
 	//console.log('toggle check', event, this, this.nodeName, params.hidden);
 	params.plotReady = false;

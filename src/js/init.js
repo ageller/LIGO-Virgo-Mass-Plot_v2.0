@@ -18,6 +18,15 @@ function attachControls(){
 
 	d3.selectAll('.radioLabel.sort').on('mousedown', sortPlot);
 	d3.selectAll('.checkboxLabel.toggle').on('mousedown', togglePlot);
+
+	d3.select('#countInfoTarget')
+		.on('mouseenter', showCountInfo)
+		.on('mouseleave', hideCountInfo)
+		.on('click', showCountInfo)
+		.on('touchstart', showCountInfo, {passive: true});
+	window.addEventListener('click', hideCountInfoOutside);
+	window.addEventListener('touchstart', hideCountInfoOutside, {passive: true});
+
 	d3.selectAll('.radioLabel.view').on('mousedown', changeView);
 
 	d3.select('#maxPointSize').on('input',changePointSizes);
@@ -448,6 +457,16 @@ function compileData(){
 	d3.select('.NStoggle .toggleCount').text(remCounts.NS);
 	d3.select('.GWtoggle .toggleCount').text(nGW);
 	d3.select('.EMtoggle .toggleCount').text(nEM);
+
+	//describe the GWOSC dataset in the counts info box (the json file has no date/version stamp, so derive it from the data)
+	var GPSrange = d3.extent(params.data, function(d){if (d.messenger == 'GW') return d.GPS;});
+	//GPS time starts at 1980-01-06 00:00:00 UTC and does not include leap seconds (18 as of 2017)
+	var GPSdates = GPSrange.map(function(gps){return new Date(Date.UTC(1980,0,6) + (gps - 18)*1000).toISOString().slice(0,10);});
+	//keep each date on one line
+	var info = d3.select('#countInfoData').text('GWOSC data includes events from ');
+	info.append('span').style('white-space','nowrap').text(GPSdates[0]);
+	info.append('span').text(' to ');
+	info.append('span').style('white-space','nowrap').text(GPSdates[1] + '.');
 
 
 	//Add toggle buttons for the different catalogs

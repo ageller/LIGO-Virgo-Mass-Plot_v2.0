@@ -321,6 +321,7 @@ input[type=submit]:hover {
 .toggleHeader {
 	display: flex;
 	justify-content: space-between;
+	align-items: baseline; /* keep Name level with N, regardless of the (i) icon height */
 	padding-left: 22px;
 	margin-bottom: 6px;
 	font-size: 16px;
@@ -334,6 +335,38 @@ input[type=submit]:hover {
 }
 .checkboxLabel.toggle.plotTitletoggle .checkboxCheckmark {
 	top: 6px; /* keep the checkbox aligned with the text below the line */
+}
+
+/* (i) icon and info box for the toggles table */
+/* the whole (i) N group is the hover/click/touch target; the padding enlarges it without moving the N */
+.infoTarget {
+	padding: 4px 0 4px 6px;
+	cursor: pointer;
+}
+/* raised (i) svg icon to the left of the N, so that the N stays aligned with the numbers below
+   (raised with a relative offset rather than vertical-align, so that the header line height is unchanged) */
+.infoIcon {
+	width: 16px;
+	height: 16px;
+	margin-right: 3px;
+	vertical-align: baseline;
+	position: relative;
+	top: -5px;
+	color: #000;
+}
+.infoTooltip {
+	display: none;
+	position: fixed;
+	max-width: 240px;
+	padding: 6px 8px;
+	border-radius: 5px;
+	background-color: #eeeeee;
+	color: #000000;
+	font-size: 12px;
+	font-weight: normal;
+	line-height: 1.4;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+	z-index: 30;
 }
 
 .disabled{
