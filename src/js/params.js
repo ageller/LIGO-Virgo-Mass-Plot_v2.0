@@ -52,6 +52,10 @@ var params = new function() {
 	this.opMass = 0.75;
 	this.opArrow = 0.5;
 
+	//opacity scaling for GW sources ('solid' or one of the rank index keys, e.g., 'dateIndex')
+	this.GWopacityKey = 'solid';
+	this.opMinFrac = 0.1; //the lowest-ranked object gets this fraction of the default opacity
+
 	this.BHMinMass = 3; //minimum mass for coloring as a black hole in GW sources
 
 	//for rendering

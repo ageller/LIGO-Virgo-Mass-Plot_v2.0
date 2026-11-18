@@ -133,6 +133,24 @@ function sortPlot(){
 	}
 }
 
+function changeOpacity(){
+	//set the opacity of the GW sources based on the rank of the chosen property
+	var classes = d3.select(this).attr('class').split(' ');
+	var key = classes[classes.length-1];
+	params.GWopacityKey = (key == 'solid') ? 'solid' : key+'Index';
+	console.log('changing opacity', params.GWopacityKey);
+
+	//only update the visible objects (those faded by the tooltip or toggled off will be reset later with resetOpacities)
+	params.mainPlot.selectAll('.dot.GW.toggledOn').transition().duration(params.fadeTransitionDuration)
+		.style('fill-opacity', function(d){return defineOpacity(d, params.opMass);})
+		.style('stroke-opacity', function(d){return defineOpacity(d, 1);});
+
+	if (params.viewType == 'default'){
+		params.mainPlot.selectAll('.arrow.GW.toggledOn').transition().duration(params.fadeTransitionDuration)
+			.style('opacity', function(d){return defineOpacity(d, params.opArrow);});
+	}
+}
+
 function changeView(event, classes=null){
 	params.plotReady = false;
 	if (event) classes = d3.select(event.target).attr('class');
@@ -511,10 +529,10 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration,
 					return false;
 				})
 				.transition().duration(dur)
-					.style('opacity',function(){
+					.style('opacity',function(d){
 						if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded'  && params.selectedElement) return 0.2;
 						if (this.classList.contains('tooltipShowing') && cls != '.tooltipShowing' && params.selectedElement) return 1;
-						return params.opArrow;
+						return defineOpacity(d, params.opArrow);
 					})
 					.on('start',function(){
 						svgElem.selectAll(cls+'.arrow').style('display','block');
@@ -529,15 +547,15 @@ function resetOpacities(cls='', off=false, dur=params.tooltipTransitionDuration,
 			})
 			.transition().duration(dur)
 				.style('opacity',1)
-				.style('fill-opacity',function(){
+				.style('fill-opacity',function(d){
 					if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded' && params.selectedElement) return 0.1;
 					if (this.classList.contains('tooltipShowing') && cls != '.tooltipShowing' && params.selectedElement) return 1;
-					return params.opMass;
+					return defineOpacity(d, params.opMass);
 				})
-				.style('stroke-opacity',function(){
+				.style('stroke-opacity',function(d){
 					if (this.classList.contains('tooltipFaded') && cls != '.tooltipFaded' && params.selectedElement) return 0.2;
 					if (this.classList.contains('tooltipShowing') && cls != '.tooltipShowing' && params.selectedElement) return 1;
-					return 1;
+					return defineOpacity(d, 1);
 				})
 				.on('start',function(){
 					svgElem.selectAll(cls+'.dot').style('display','block');

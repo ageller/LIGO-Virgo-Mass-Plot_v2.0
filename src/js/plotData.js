@@ -330,7 +330,7 @@ function plotDefaultData(radiusScale, xAxisScale, yAxisScale){
 			.attr('data-name', function(d){return d.commonName})
 			.attr('stroke', 'none')
 			.attr('fill', 'white')	
-			.style('opacity',0.5)
+			.style('opacity',function(d){return defineOpacity(d, params.opArrow);})
 			.style('cursor', 'pointer')
 			.attr('transform',function(d){
 				var x = xAxisScale(d[params.GWsortKey]/params.xNorm*xAxisScale.domain()[1]);
@@ -370,7 +370,7 @@ function plotDefaultData(radiusScale, xAxisScale, yAxisScale){
 				}
 				return color;
 			})
-			.style('fill-opacity',params.opMass)
+			.style('fill-opacity',defineOpacity(d, params.opMass))
 			.style('stroke', function(){
 				var color = defineColor(d,d3.select(this).attr('class'));
 				//special handling for GW mass-gap objects
@@ -386,7 +386,7 @@ function plotDefaultData(radiusScale, xAxisScale, yAxisScale){
 				// }
 				return size + 'px';
 			})
-			.style('stroke-opacity', 1)
+			.style('stroke-opacity', defineOpacity(d, 1))
 			.style('cursor', 'pointer')
 			//.on('mouseover',mouseOver)
 			//.on('mouseout',mouseOut);
@@ -463,6 +463,18 @@ function defineRadius(d, scale=null){
 		d.r = r;
 		return r;
 	}
+}
+
+function defineOpacity(d, base=params.opMass){
+	//scale the opacity of GW sources by their rank in the chosen property (params.GWopacityKey)
+	//d can either be an entry in params.plotData (dots) or params.data (arrows)
+	if (params.GWopacityKey == 'solid' || !d) return base;
+	var dd = ('dataIndex' in d) ? params.data[d.dataIndex] : d;
+	if (!dd || dd.messenger != 'GW' || !(params.GWopacityKey in dd)) return base;
+
+	//the rank indices run from data.length/N to data.length
+	var frac = clamp(dd[params.GWopacityKey]/params.data.length, 0, 1);
+	return base*(params.opMinFrac + (1. - params.opMinFrac)*frac);
 }
 
 function defineColor(d, classStr){
