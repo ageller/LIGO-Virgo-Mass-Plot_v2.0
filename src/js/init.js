@@ -28,6 +28,7 @@ function attachControls(){
 	window.addEventListener('touchstart', hideCountInfoOutside, {passive: true});
 
 	d3.selectAll('.radioLabel.view').on('mousedown', changeView);
+	d3.selectAll('.radioLabel.opacity').on('mousedown', changeOpacity);
 
 	d3.select('#maxPointSize').on('input',changePointSizes);
 	d3.select('#minPointSize').on('input',changePointSizes);
